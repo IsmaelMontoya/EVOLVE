@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clase 2: Medidas de Tendencia Central y Dispersión</title>
+
+    <!-- Highlight.js for code syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            /* Black & White Theme Variables */
+            --bg-body: #ffffff;
+            --bg-slide: #ffffff;
+            --text-main: #111111;
+            --text-secondary: #555555;
+            --border-color: #e0e0e0;
+            --accent-black: #000000;
+            --accent-gray: #f4f4f4;
+
+            /* Color Accents (Only for highlights) */
+            --highlight-yellow-bg: #fffde7;
+            --highlight-yellow-border: #fbc02d;
+            --highlight-blue-bg: #e3f2fd;
+            --highlight-blue-border: #2196f3;
+            --highlight-red: #d32f2f;
+            --highlight-green: #2e7d32;
+
+            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: #f0f0f0;
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Nav Bar */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo svg {
+            height: 32px;
+            width: auto;
+        }
+
+        .nav-logo svg path {
+            fill: #000000 !important;
+        }
+
+        .nav-info {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .presentation-container {
+            max-width: 1200px;
+            margin: 80px auto 40px;
+            background: var(--bg-slide);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            min-height: calc(100vh - 120px);
+            position: relative;
+        }
+
+        /* Slide Styles */
+        .slide {
+            display: none;
+            padding: 4rem 5rem;
+            height: 100%;
+            animation: fadeIn 0.4s ease-in-out;
+            position: relative;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        .slide-number {
+            position: absolute;
+            bottom: 2rem;
+            right: 2rem;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: #999;
+            background: #f4f4f4;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 600;
+            letter-spacing: -0.05em;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            color: var(--accent-black);
+        }
+
+        h2 {
+            font-size: 2.25rem;
+            font-weight: 600;
+            letter-spacing: -0.03em;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--accent-black);
+            padding-bottom: 1rem;
+            display: inline-block;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        h4 {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            font-size: 1.125rem;
+            margin-bottom: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 80ch;
+        }
+
+        strong {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        /* Layout Grids */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .card {
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            border-radius: 4px;
+            background: #fafafa;
+        }
+
+        .card h4 {
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+            color: var(--accent-black);
+        }
+
+        .card p {
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
+
+        /* Callouts / Notes with Color */
+        .note {
+            padding: 1rem 1.5rem;
+            border-radius: 0 4px 4px 0;
+            margin: 1.5rem 0;
+            font-size: 1rem;
+        }
+
+        .note-yellow {
+            background-color: var(--highlight-yellow-bg);
+            border-left: 4px solid var(--highlight-yellow-border);
+            color: #5d4037;
+        }
+
+        .note-blue {
+            background-color: var(--highlight-blue-bg);
+            border-left: 4px solid var(--highlight-blue-border);
+            color: #0d47a1;
+        }
+
+        .note strong {
+            color: inherit;
+        }
+
+        /* Formula Display */
+        .formula {
+            background: #f9f9f9;
+            border: 2px solid #333;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 1.3rem;
+            margin: 1.5rem 0;
+            font-weight: 500;
+        }
+
+        .formula-small {
+            font-size: 1rem;
+            padding: 0.75rem;
+        }
+
+        /* Visual Comparison */
+        .comparison-bars {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 200px;
+            border-bottom: 2px solid #333;
+            padding: 1rem;
+            background: white;
+            margin: 2rem 0;
+        }
+
+        .comparison-bar {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .bar {
+            width: 60px;
+            background: #333;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .bar-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        /* Tables & Lists */
+        ul {
+            list-style-type: none;
+        }
+
+        ul li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        ul li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--accent-black);
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 1rem;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            font-weight: 600;
+            background-color: var(--accent-gray);
+            color: var(--accent-black);
+        }
+
+        /* Code Blocks */
+        pre {
+            background: #1e1e1e;
+            padding: 1.5rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+
+        code {
+            font-family: var(--font-mono);
+            font-size: 0.9em;
+        }
+
+        p code {
+            background: var(--accent-gray);
+            color: var(--accent-black);
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        /* Controllers */
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 2000;
+        }
+
+        .btn {
+            background: black;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-family: var(--font-main);
+            font-weight: 500;
+            border-radius: 4px;
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover {
+            opacity: 0.8;
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Specific Slide Styling */
+        .slide-title-page {
+            display: flex !important;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .slide-title-page .subtitle {
+            font-size: 1.5rem;
+            font-weight: 300;
+            color: var(--text-secondary);
+            border-left: 4px solid black;
+            padding-left: 1.5rem;
+        }
+
+        .meta-info {
+            margin-top: 3rem;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        /* Icon indicators */
+        .pro-con {
+            display: flex;
+            gap: 0.5rem;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+        }
+
+        .icon {
+            font-size: 1.2rem;
+            margin-top: 0.2rem;
+        }
+
+        /* Stats display */
+        .stats-display {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 1.5rem;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            margin: 1rem 0;
+        }
+
+        .stat-line {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .stat-line:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            font-weight: 600;
+        }
+
+        .stat-value {
+            color: var(--highlight-blue-border);
+            font-weight: 500;
+        }
+
+        /* Diagram container */
+        .diagram-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 2rem 0;
+            padding: 2rem;
+            background: var(--accent-gray);
+            border-radius: 8px;
+        }
+
+        /* Normal distribution visualization */
+        .bell-curve {
+            width: 100%;
+            max-width: 500px;
+            margin: 2rem auto;
+        }
+
+        .bell-curve img {
+            width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="nav">
+        <div class="nav-logo">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 111 39">
+                <path
+                    d="M110.949 22.0598C110.949 18.124 108.692 15.8178 104.961 15.8178C101.231 15.8178 99.0003 18.3173 99.0003 22.2255C99.0003 26.1336 101.933 28.716 105.231 28.716C108.529 28.716 110.165 26.9484 110.733 24.8493L107.678 23.9655C107.313 24.9184 106.624 25.5536 105.272 25.5536C103.92 25.5536 102.623 24.5731 102.555 23.206H110.868C110.922 22.8193 110.949 22.4464 110.935 22.0598H110.949ZM102.636 20.8169C102.704 19.9054 103.474 18.7592 105.015 18.7592C106.556 18.7592 107.353 19.9054 107.421 20.8169H102.636ZM79.726 10.6392H83.3754V28.357H79.726V10.6392ZM49.5845 28.357H38.7714V11.012H49.571V14.6578H42.5695V17.9583H48.9222V21.3555H42.5695V24.6836H49.5845V28.357ZM71.0215 28.716C74.5763 28.716 77.3742 26.0507 77.3742 22.2531C77.3742 18.4554 74.5898 15.8178 71.035 15.8178C67.4802 15.8178 64.6823 18.4969 64.6823 22.2531C64.6823 26.0093 67.4667 28.716 71.035 28.716H71.0215ZM71.0215 19.2426C72.4137 19.2426 73.7112 20.1954 73.7112 22.2531C73.7112 24.3107 72.4137 25.2912 71.0215 25.2912C69.6563 25.2912 68.3317 24.3245 68.3317 22.2669C68.3317 20.2093 69.6563 19.2426 71.0215 19.2426ZM60.1813 16.1906H64.0335L59.492 28.357H55.8156L50.9091 16.1906H54.8694L57.6403 23.7583L60.1813 16.1906ZM94.5129 16.1906H98.3651L93.8236 28.357H90.1471L85.2407 16.1906H89.201L91.9718 23.7583L94.5129 16.1906ZM21.7814 15.4725C26.5256 21.9217 27.7015 25.7746 27.2825 28.8679C26.8635 31.9613 24.4711 35.2342 21.7814 37.5128L14.5096 28.5503C12.5632 25.7607 6.71063 18.925 6.79173 15.4725C6.18349 11.4263 10.6033 5.68148 12.5767 2.7124L21.7814 15.4725ZM7.38645 26.0646C8.04875 27.045 8.40017 28.2051 8.42721 29.3927C8.45424 30.5803 8.12985 31.7541 7.50809 32.7622L4.5345 37.5266L1.08782 32.5689C0.425523 31.616 0.0605812 30.4975 0.0065158 29.3236C-0.0475496 28.1636 0.236294 27.0036 0.803981 25.9955L3.81813 20.6788L7.41348 26.0646H7.38645Z"
+                    fill="#000000" />
+            </svg>
+        </div>
+        <div class="nav-info">
+            Estadística para Data Science &mdash; Clase 2
+        </div>
+    </nav>
+
+    <div class="presentation-container">
+
+        <!-- SLIDE 1: Title -->
+        <section class="slide slide-title-page active">
+            <h1>Medidas de Tendencia Central<br>y Dispersión</h1>
+            <p class="subtitle">Cuantificando el centro y la variabilidad de los datos para tomar decisiones basadas en evidencia estadística.</p>
+
+            <div class="meta-info">
+                CLASE 2 DE 8 &bull; MÓDULO DE ESTADÍSTICA
+            </div>
+            <div class="slide-number">1</div>
+        </section>
+
+        <!-- SLIDE 2: Objectives -->
+        <section class="slide">
+            <h2>Objetivos de la Sesión</h2>
+            <p>Al finalizar esta clase, dominaremos:</p>
+
+            <ul>
+                <li><strong>Medidas de centro:</strong> Calcular e interpretar media, mediana, moda y percentiles correctamente.</li>
+                <li><strong>Criterios de selección:</strong> Elegir la medida de tendencia central adecuada según el tipo de distribución.</li>
+                <li><strong>Medidas de dispersión:</strong> Utilizar rango, IQR, varianza, desviación estándar y coeficiente de variación.</li>
+                <li><strong>Implementación con Pandas:</strong> Dominar los métodos esenciales para calcular estas estadísticas.</li>
+                <li><strong>Análisis crítico:</strong> Identificar cuándo cada medida es apropiada y cuándo puede ser engañosa.</li>
+            </ul>
+            <div class="slide-number">2</div>
+        </section>
+
+        <!-- SLIDE 3: Media -->
+        <section class="slide">
+            <h2>Media Aritmética</h2>
+            <p>La media es el <strong>promedio</strong> de todos los valores. Suma todos los datos y divide por la cantidad.</p>
+
+            <div class="formula">
+                x̄ = (Σ xᵢ) / n = (x₁ + x₂ + ... + xₙ) / n
+            </div>
+
+            <div class="grid-2">
+                <div>
+                    <pre><code class="language-python">salarios = [28, 32, 35, 30, 31, 
+            29, 150, 33, 27, 34]
+
+# Con numpy
+media = np.mean(salarios)
+print(f"Media: {media:.2f}k€")
+
+# Con pandas
+df['salario'].mean()</code></pre>
+                    <div class="stats-display">
+                        <div class="stat-line">
+                            <span class="stat-label">Resultado:</span>
+                            <span class="stat-value">42.90 k€</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h4>Características:</h4>
+                    <div class="pro-con">
+                        <span class="icon">✅</span>
+                        <span>Usa <strong>toda la información</strong> disponible</span>
+                    </div>
+                    <div class="pro-con">
+                        <span class="icon">✅</span>
+                        <span>La más conocida y utilizada</span>
+                    </div>
+                    <div class="pro-con">
+                        <span class="icon">❌</span>
+                        <span>Muy <strong>sensible a outliers</strong></span>
+                    </div>
+                    <div class="pro-con">
+                        <span class="icon">❌</span>
+                        <span>Puede no representar bien datos asimétricos</span>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-number">3</div>
+        </section>
+
+        <!-- SLIDE 4: Mediana -->
+        <section class="slide">
+            <h2>Mediana</h2>
+            <p>La mediana es el <strong>valor central</strong> cuando los datos están ordenados. Divide la distribución en dos mitades iguales.</p>
+
+            <div class="grid-2">
+                <div>
+                    <pre><code class="language-python">salarios = [28, 32, 35, 30, 31, 
+            29, 150, 33, 27, 34]
+
+# Ordenar primero
+salarios_ord = sorted(salarios)
+# [27,28,29,30,31,32,33,34,35,150]
+
+# Con numpy/pandas
+mediana = np.median(salarios)
+print(f"Mediana: {mediana:.2f}k€")</code></pre>
+                    <div class="stats-display">
+                        <div class="stat-line">
+                            <span class="stat-label">Resultado:</span>
+                            <span class="stat-value">31.50 k€</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h4>Características:</h4>
+                    <div class="pro-con">
+                        <span class="icon">✅</span>
+                        <span><strong>Robusta ante outliers</strong> (no se ve afectada)</span>
+                    </div>
+                    <div class="pro-con">
+                        <span class="icon">✅</span>
+                        <span>Mejor representación en <strong>distribuciones asimétricas</strong></span>
+                    </div>
+                    <div class="pro-con">
+                        <span class="icon">❌</span>
+                        <span>No usa toda la información (solo posiciones)</span>
+                    </div>
+                    <div class="pro-con">
+                        <span class="icon">❌</span>
+                        <span>Menos eficiente en distribuciones normales</span>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-number">4</div>
+        </section>
+
+        <!-- SLIDE 5: Media vs Mediana -->
+        <section class="slide">
+            <h2>Media vs Mediana: El Impacto de los Outliers</h2>
+            
+            <div class="comparison-bars">
+                <div class="comparison-bar">
+                    <div class="bar" style="height: 140px; background: #d32f2f;">42.9</div>
+                    <div class="bar-label">Media<br>Con Outlier</div>
+                </div>
+                <div class="comparison-bar">
+                    <div class="bar" style="height: 105px; background: #2e7d32;">31.5</div>
+                    <div class="bar-label">Mediana<br>Con Outlier</div>
+                </div>
+                <div class="comparison-bar">
+                    <div class="bar" style="height: 105px; background: #d32f2f;">31.5</div>
+                    <div class="bar-label">Media<br>Sin Outlier</div>
+                </div>
+                <div class="comparison-bar">
+                    <div class="bar" style="height: 105px; background: #2e7d32;">31.5</div>
+                    <div class="bar-label">Mediana<br>Sin Outlier</div>
+                </div>
+            </div>
+
+            <div class="note note-yellow">
+                <strong>💡 Regla práctica:</strong> Si la media y la mediana son muy diferentes, probablemente hay outliers o asimetría en los datos. En estos casos, la <strong>mediana suele ser más representativa</strong> del valor típico.
+            </div>
+
+            <p><strong>Ejemplo:</strong> Con outlier (150k€): Media = 42.9k€, Mediana = 31.5k€ → Diferencia del 36%</p>
+            <div class="slide-number">5</div>
+        </section>
+
+        <!-- SLIDE 6: Moda -->
+        <section class="slide">
+            <h2>Moda</h2>
+            <p>La moda es el <strong>valor que más se repite</strong> en el conjunto de datos.</p>
+
+            <div class="grid-2">
+                <div>
+                    <pre><code class="language-python">tallas = ['M', 'L', 'M', 'S', 'M', 
+          'L', 'XL', 'M', 'S', 'M']
+
+# Con pandas
+moda = df['talla'].mode()[0]
+print(f"Moda: {moda}")
+
+# Frecuencias
+df['talla'].value_counts()</code></pre>
+                    <div class="stats-display">
+                        <div class="stat-line">
+                            <span class="stat-label">M:</span>
+                            <span class="stat-value">5 veces</span>
+                        </div>
+                        <div class="stat-line">
+                            <span class="stat-label">L:</span>
+                            <span class="stat-value">3 veces</span>
+                        </div>
+                        <div class="stat-line">
+                            <span class="stat-label">S:</span>
+                            <span class="stat-value">2 veces</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h4>Tipos de distribuciones:</h4>
+                    <ul>
+                        <li><strong>Unimodal:</strong> Un solo pico (una moda)</li>
+                        <li><strong>Bimodal:</strong> Dos picos (dos modas)</li>
+                        <li><strong>Multimodal:</strong> Varios picos</li>
+                    </ul>
+
+                    <h4 style="margin-top: 1.5rem;">Uso de la moda:</h4>
+                    <div class="pro-con">
+                        <span class="icon">✅</span>
+                        <span>Única medida para <strong>variables categóricas</strong></span>
+                    </div>
+                    <div class="pro-con">
+                        <span class="icon">✅</span>
+                        <span>Útil para identificar el valor más frecuente</span>
+                    </div>
+                    <div class="pro-con">
+                        <span class="icon">❌</span>
+                        <span>Puede no existir (valores únicos)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-number">6</div>
+        </section>
+
+        <!-- SLIDE 7: Percentiles -->
+        <section class="slide">
+            <h2>Percentiles y Cuartiles</h2>
+            <p>Los percentiles dividen los datos ordenados en 100 partes iguales. Los cuartiles son casos especiales.</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Cuartil</th>
+                        <th>Percentil</th>
+                        <th>Significado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Q1</strong></td>
+                        <td>P25</td>
+                        <td>25% de los datos están por debajo</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Q2</strong></td>
+                        <td>P50</td>
+                        <td>50% de los datos (= Mediana)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Q3</strong></td>
+                        <td>P75</td>
+                        <td>75% de los datos están por debajo</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <pre><code class="language-python"># Tiempos de respuesta de servidor (ms)
+tiempos = [45, 52, 48, 67, 51, 120, 49, ...]
+
+p25 = np.percentile(tiempos, 25)  # Q1
+p50 = np.percentile(tiempos, 50)  # Mediana
+p75 = np.percentile(tiempos, 75)  # Q3
+p95 = np.percentile(tiempos, 95)  # P95 (SLA común)</code></pre>
+
+            <div class="note note-blue">
+                <strong>Uso práctico en SLAs:</strong> P50 representa el caso típico, mientras que P90, P95 y P99 muestran el rendimiento en los peores casos.
+            </div>
+            <div class="slide-number">7</div>
+        </section>
+
+        <!-- SLIDE 8: Dispersión - Intro -->
+        <section class="slide">
+            <h2>Medidas de Dispersión</h2>
+            <p>Las medidas de dispersión indican <strong>cuánto varían</strong> los datos respecto al centro.</p>
+
+            <div class="card" style="text-align: center; padding: 2rem; margin: 2rem 0;">
+                <h3 style="margin: 0;">¿Por qué son importantes?</h3>
+                <p style="font-size: 1.1rem; margin-top: 1rem;">Dos conjuntos de datos pueden tener la misma media, pero diferir enormemente en su variabilidad.</p>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h4>Empresa A: Salarios muy homogéneos</h4>
+                    <p>Todos ganan entre 28k€ y 35k€</p>
+                    <div class="stats-display">
+                        <div class="stat-line">
+                            <span class="stat-label">Media:</span>
+                            <span class="stat-value">31.4k€</span>
+                        </div>
+                        <div class="stat-line">
+                            <span class="stat-label">Dispersión:</span>
+                            <span class="stat-value">Baja</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h4>Empresa B: Gran desigualdad</h4>
+                    <p>Salarios desde 35k€ hasta 150k€</p>
+                    <div class="stats-display">
+                        <div class="stat-line">
+                            <span class="stat-label">Media:</span>
+                            <span class="stat-value">75.0k€</span>
+                        </div>
+                        <div class="stat-line">
+                            <span class="stat-label">Dispersión:</span>
+                            <span class="stat-value">Alta</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-number">8</div>
+        </section>
+
+        <!-- SLIDE 9: Rango e IQR -->
+        <section class="slide">
+            <h2>Rango e IQR</h2>
+
+            <div class="grid-2">
+                <div>
+                    <h3>Rango</h3>
+                    <p>Diferencia entre el máximo y el mínimo.</p>
+                    <div class="formula formula-small">
+                        Rango = x_máx - x_mín
+                    </div>
+                    <pre><code class="language-python">datos = [15, 18, 22, 25, 28, 100]
+rango = max(datos) - min(datos)
+# Rango = 85</code></pre>
+                    <div class="pro-con">
+                        <span class="icon">✅</span>
+                        <span>Muy fácil de calcular</span>
+                    </div>
+                    <div class="pro-con">
+                        <span class="icon">❌</span>
+                        <span>Extremadamente sensible a outliers</span>
+                    </div>
+                </div>
+
+                <div>
+                    <h3>Rango Intercuartílico (IQR)</h3>
+                    <p>Rango del 50% central de los datos.</p>
+                    <div class="formula formula-small">
+                        IQR = Q3 - Q1
+                    </div>
+                    <pre><code class="language-python">Q1 = np.percentile(datos, 25)
+Q3 = np.percentile(datos, 75)
+IQR = Q3 - Q1
+
+# Detectar outliers
+lim_inf = Q1 - 1.5 * IQR
+lim_sup = Q3 + 1.5 * IQR</code></pre>
+                    <div class="pro-con">
+                        <span class="icon">✅</span>
+                        <span>Robusto ante outliers</span>
+                    </div>
+                    <div class="pro-con">
+                        <span class="icon">✅</span>
+                        <span>Usado para detectar anomalías</span>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-number">9</div>
+        </section>
+
+        <!-- SLIDE 10: Varianza -->
+        <section class="slide">
+            <h2>Varianza</h2>
+            <p>La varianza mide la <strong>dispersión promedio al cuadrado</strong> respecto a la media.</p>
+
+            <div class="formula">
+                s² = Σ(xᵢ - x̄)² / (n-1)
+            </div>
+
+            <div class="note note-yellow">
+                <strong>¿Por qué n-1?</strong> Se llama corrección de Bessel. Al estimar la varianza poblacional desde una muestra, dividir por n subestima el valor real. Dividir por n-1 corrige este sesgo.
+            </div>
+
+            <pre><code class="language-python">datos = [28, 32, 35, 30, 31, 29, 33, 34, 27, 31]
+
+# Varianza muestral (n-1)
+varianza = np.var(datos, ddof=1)  # ddof=1 para muestral
+print(f"Varianza: {varianza:.2f}")
+
+# Pandas usa ddof=1 por defecto
+df['salario'].var()</code></pre>
+
+            <p><strong>Nota sobre ddof (delta degrees of freedom):</strong></p>
+            <ul>
+                <li><code>ddof=0</code>: Varianza poblacional (divide por N)</li>
+                <li><code>ddof=1</code>: Varianza muestral (divide por N-1) - <strong>Pandas por defecto</strong></li>
+            </ul>
+            <div class="slide-number">10</div>
+        </section>
+
+        <!-- SLIDE 11: Desviación Estándar -->
+        <section class="slide">
+            <h2>Desviación Estándar</h2>
+            <p>La desviación estándar es la <strong>raíz cuadrada de la varianza</strong>. Ventaja: está en las <strong>mismas unidades</strong> que los datos originales.</p>
+
+            <div class="formula">
+                σ = √(σ²)
+            </div>
+
+            <pre><code class="language-python">datos = [28, 32, 35, 30, 31, 29, 33, 34, 27, 31]
+
+media = np.mean(datos)  # 31.0 k€
+std = np.std(datos, ddof=1)  # 2.45 k€
+
+print(f"La mayoría de salarios están entre {media-std:.1f} y {media+std:.1f} k€")</code></pre>
+
+            <div class="card" style="margin-top: 2rem;">
+                <h4>Regla Empírica (68-95-99.7) para distribuciones normales:</h4>
+                <ul style="margin-top: 1rem;">
+                    <li>68% de los datos están entre μ - 1σ y μ + 1σ</li>
+                    <li>95% de los datos están entre μ - 2σ y μ + 2σ</li>
+                    <li>99.7% de los datos están entre μ - 3σ y μ + 3σ</li>
+                </ul>
+            </div>
+
+            <div class="slide-number">11</div>
+        </section>
+
+        <!-- SLIDE 12: Coeficiente de Variación -->
+        <section class="slide">
+            <h2>Coeficiente de Variación (CV)</h2>
+            <p>El CV expresa la desviación estándar como <strong>porcentaje de la media</strong>. Permite comparar variabilidad de datasets con diferentes escalas.</p>
+
+            <div class="formula">
+                CV = (s / x̄) × 100%
+            </div>
+
+            <pre><code class="language-python">empresa_A = [30, 32, 28, 35, 31, 33, 29, 34, 30, 32]
+empresa_B = [45, 80, 35, 120, 55, 90, 40, 150, 60, 75]
+
+for nombre, datos in [("A", empresa_A), ("B", empresa_B)]:
+    media = np.mean(datos)
+    std = np.std(datos, ddof=1)
+    cv = (std / media) * 100
+    print(f"{nombre}: Media={media:.1f}k€, CV={cv:.1f}%")</code></pre>
+
+            <div class="grid-2" style="margin-top: 2rem;">
+                <div class="card">
+                    <h4>Empresa A</h4>
+                    <div class="stats-display">
+                        <div class="stat-line"><span class="stat-label">Media:</span> <span class="stat-value">31.4 k€</span></div>
+                        <div class="stat-line"><span class="stat-label">CV:</span> <span class="stat-value">7.0%</span></div>
+                    </div>
+                    <p style="margin-top: 1rem;">Baja variabilidad - salarios homogéneos</p>
+                </div>
+                <div class="card">
+                    <h4>Empresa B</h4>
+                    <div class="stats-display">
+                        <div class="stat-line"><span class="stat-label">Media:</span> <span class="stat-value">75.0 k€</span></div>
+                        <div class="stat-line"><span class="stat-label">CV:</span> <span class="stat-value">47.7%</span></div>
+                    </div>
+                    <p style="margin-top: 1rem;">Alta variabilidad - gran desigualdad</p>
+                </div>
+            </div>
+            <div class="slide-number">12</div>
+        </section>
+
+        <!-- SLIDE 13: Pandas .describe() -->
+        <section class="slide">
+            <h2>Pandas: El Método .describe()</h2>
+            <p>El método <code>.describe()</code> calcula todas las estadísticas descriptivas de una vez.</p>
+
+            <pre><code class="language-python">import pandas as pd
+import numpy as np
+
+# Crear dataset de ejemplo
+np.random.seed(42)
+df = pd.DataFrame({
+    'edad': np.random.randint(20, 60, 100),
+    'salario': np.random.normal(45000, 15000, 100),
+    'experiencia': np.random.randint(0, 30, 100)
+})
+
+# Resumen estadístico completo
+df.describe()</code></pre>
+
+            <div class="stats-display" style="font-size: 0.85rem;">
+                <div class="stat-line"><span class="stat-label">count</span> <span class="stat-value">100.00</span></div>
+                <div class="stat-line"><span class="stat-label">mean</span> <span class="stat-value">44,612.49€</span></div>
+                <div class="stat-line"><span class="stat-label">std</span> <span class="stat-value">14,921.85€</span></div>
+                <div class="stat-line"><span class="stat-label">min</span> <span class="stat-value">12,456.00€</span></div>
+                <div class="stat-line"><span class="stat-label">25%</span> <span class="stat-value">34,551.25€</span></div>
+                <div class="stat-line"><span class="stat-label">50%</span> <span class="stat-value">44,230.00€</span></div>
+                <div class="stat-line"><span class="stat-label">75%</span> <span class="stat-value">54,816.00€</span></div>
+                <div class="stat-line"><span class="stat-label">max</span> <span class="stat-value">82,352.00€</span></div>
+            </div>
+            <div class="slide-number">13</div>
+        </section>
+
+        <!-- SLIDE 14: Pandas - Métodos Individuales -->
+        <section class="slide">
+            <h2>Métodos Pandas - Referencia Rápida</h2>
+
+            <div class="grid-2">
+                <div>
+                    <h3>Tendencia Central</h3>
+                    <pre><code class="language-python">df['col'].mean()    # Media
+df['col'].median()  # Mediana
+df['col'].mode()    # Moda</code></pre>
+
+                    <h3 style="margin-top: 1.5rem;">Dispersión</h3>
+                    <pre><code class="language-python">df['col'].std()     # Desv. Estándar
+df['col'].var()     # Varianza
+df['col'].min()     # Mínimo
+df['col'].max()     # Máximo</code></pre>
+                </div>
+
+                <div>
+                    <h3>Percentiles</h3>
+                    <pre><code class="language-python">df['col'].quantile(0.25)  # Q1
+df['col'].quantile(0.50)  # Mediana
+df['col'].quantile(0.75)  # Q3
+df['col'].quantile(0.95)  # P95</code></pre>
+
+                    <h3 style="margin-top: 1.5rem;">Análisis por Grupos</h3>
+                    <pre><code class="language-python">df.groupby('categoria')['valor'].agg([
+    'count', 'mean', 'median', 'std'
+])</code></pre>
+                </div>
+            </div>
+
+            <div class="note note-blue" style="margin-top: 2rem;">
+                <strong>Tip:</strong> Pandas usa <code>ddof=1</code> por defecto para <code>.std()</code> y <code>.var()</code> (varianza muestral).
+            </div>
+            <div class="slide-number">14</div>
+        </section>
+
+        <!-- SLIDE 15: Guía de Selección -->
+        <section class="slide">
+            <h2>Guía de Selección de Medidas</h2>
+            <p>¿Cuándo usar cada medida de tendencia central?</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Situación</th>
+                        <th>Usar</th>
+                        <th>Razón</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Datos simétricos sin outliers</td>
+                        <td><strong>Media</strong></td>
+                        <td>Usa toda la información</td>
+                    </tr>
+                    <tr>
+                        <td>Datos con outliers</td>
+                        <td><strong>Mediana</strong></td>
+                        <td>Robusta a extremos</td>
+                    </tr>
+                    <tr>
+                        <td>Distribución sesgada</td>
+                        <td><strong>Mediana</strong></td>
+                        <td>Representa mejor el "típico"</td>
+                    </tr>
+                    <tr>
+                        <td>Variables categóricas</td>
+                        <td><strong>Moda</strong></td>
+                        <td>Única opción</td>
+                    </tr>
+                    <tr>
+                        <td>Tiempos de respuesta</td>
+                        <td><strong>Mediana + P95/P99</strong></td>
+                        <td>Típico + peor caso</td>
+                    </tr>
+                    <tr>
+                        <td>Precios de viviendas</td>
+                        <td><strong>Mediana</strong></td>
+                        <td>Siempre hay outliers de lujo</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="slide-number">15</div>
+        </section>
+
+        <!-- SLIDE 16: Resumen Tabla -->
+        <section class="slide">
+            <h2>Resumen de Medidas</h2>
+
+            <h3>Medidas de Tendencia Central</h3>
+            <table style="font-size: 0.9rem;">
+                <thead>
+                    <tr>
+                        <th>Medida</th>
+                        <th>Sensible a Outliers</th>
+                        <th>Uso Principal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Media</strong></td>
+                        <td>Sí ❌</td>
+                        <td>Datos simétricos</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Mediana</strong></td>
+                        <td>No ✅</td>
+                        <td>Datos asimétricos, outliers</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Moda</strong></td>
+                        <td>No ✅</td>
+                        <td>Variables categóricas</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 style="margin-top: 2rem;">Medidas de Dispersión</h3>
+            <table style="font-size: 0.9rem;">
+                <thead>
+                    <tr>
+                        <th>Medida</th>
+                        <th>Sensible a Outliers</th>
+                        <th>Características</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Rango</strong></td>
+                        <td>Muy sensible ❌</td>
+                        <td>Simple pero poco robusto</td>
+                    </tr>
+                    <tr>
+                        <td><strong>IQR</strong></td>
+                        <td>No ✅</td>
+                        <td>Robusto, 50% central</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Desv. Estándar</strong></td>
+                        <td>Sí ❌</td>
+                        <td>Mismas unidades que datos</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CV</strong></td>
+                        <td>Sí ❌</td>
+                        <td>Comparar variabilidad</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="slide-number">16</div>
+        </section>
+
+        <!-- SLIDE 17: Ejercicio -->
+        <section class="slide">
+            <h2>Ejercicio Práctico</h2>
+            <p>Reflexiona sobre los siguientes escenarios y elige las medidas apropiadas:</p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h4>Caso A: E-commerce</h4>
+                    <p>Tienes datos de tiempos de carga de página (en segundos). El 90% carga en menos de 3 segundos, pero hay páginas que tardan hasta 30 segundos.</p>
+                    <p style="margin-top:1rem; font-style:italic; font-size: 0.95rem;">
+                        ¿Qué medida de tendencia central usarías para reportar el rendimiento típico?<br>
+                        ¿Y para un SLA?
+                    </p>
+                </div>
+                <div class="card">
+                    <h4>Caso B: Control de Calidad</h4>
+                    <p>Dos máquinas producen piezas de 100mm. Máquina A: muy consistente. Máquina B: variable pero con la misma media.</p>
+                    <p style="margin-top:1rem; font-style:italic; font-size: 0.95rem;">
+                        ¿Qué medida de dispersión usarías para comparar la calidad?<br>
+                        ¿Cuál máquina elegirías?
+                    </p>
+                </div>
+            </div>
+
+            <div class="note note-yellow" style="margin-top: 2rem;">
+                <strong>Pista:</strong> Para el Caso A, considera mediana + P95. Para el Caso B, piensa en desviación estándar o CV.
+            </div>
+            <div class="slide-number">17</div>
+        </section>
+
+        <!-- SLIDE 18: Final -->
+        <section class="slide">
+            <h2>Conclusiones Clave</h2>
+
+            <div class="card" style="padding: 2rem; margin: 2rem 0;">
+                <h3 style="margin-bottom: 1.5rem;">Lo esencial de esta clase:</h3>
+                <ul style="font-size: 1.1rem;">
+                    <li><strong>No existe una medida perfecta.</strong> La elección depende del contexto y tipo de datos.</li>
+                    <li><strong>Media y mediana diferentes = alerta.</strong> Indica outliers o asimetría.</li>
+                    <li><strong>La dispersión es tan importante como el centro.</strong> Dos datasets con la misma media pueden ser muy diferentes.</li>
+                    <li><strong>CV permite comparar variabilidad</strong> entre datasets con diferentes escalas.</li>
+                    <li><strong>Pandas hace todo fácil:</strong> <code>.describe()</code>, <code>.mean()</code>, <code>.median()</code>, <code>.std()</code></li>
+                </ul>
+            </div>
+
+            <div class="note note-blue">
+                <strong>Próxima clase:</strong> Profundizaremos en distribuciones de probabilidad y la distribución normal.
+            </div>
+
+            <div class="meta-info" style="margin-top: 3rem;">
+                FIN DE LA CLASE 2 &bull; GRACIAS
+            </div>
+            <div class="slide-number">18</div>
+        </section>
+
+    </div>
+
+    <div class="controls">
+        <button class="btn" id="prevBtn" onclick="plusSlides(-1)" disabled>Anterior</button>
+        <button class="btn" id="nextBtn" onclick="plusSlides(1)">Siguiente</button>
+    </div>
+
+    <script>
+        let slideIndex = 1;
+        showSlides(slideIndex);
+
+        // Highlight code blocks
+        hljs.highlightAll();
+
+        function plusSlides(n) {
+            showSlides(slideIndex += n);
+        }
+
+        function currentSlide(n) {
+            showSlides(slideIndex = n);
+        }
+
+        function showSlides(n) {
+            let i;
+            let slides = document.getElementsByClassName("slide");
+            let prevBtn = document.getElementById("prevBtn");
+            let nextBtn = document.getElementById("nextBtn");
+
+            if (n > slides.length) { slideIndex = 1 }
+            if (n < 1) { slideIndex = slides.length }
+
+            for (i = 0; i < slides.length; i++) {
+                slides[i].style.display = "none";
+                slides[i].classList.remove("active");
+            }
+
+            slides[slideIndex - 1].style.display = "block";
+            slides[slideIndex - 1].classList.add("active");
+
+            // Update button states
+            prevBtn.disabled = (slideIndex === 1);
+            nextBtn.innerHTML = (slideIndex === slides.length) ? "Finalizar" : "Siguiente";
+        }
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === "ArrowRight") {
+                plusSlides(1);
+            } else if (event.key === "ArrowLeft") {
+                if (slideIndex > 1) {
+                    plusSlides(-1);
+                }
+            }
+        });
+    </script>
+
+</body>
+
+</html>

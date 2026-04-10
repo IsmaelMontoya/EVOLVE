@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clase 5: Correlación y Relación entre Variables</title>
+
+    <!-- MathJax v3 for LaTeX rendering -->
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$']] },
+            options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre'] }
+        };
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.min.js"></script>
+
+    <!-- Highlight.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-body: #f0f0f0;
+            --bg-slide: #ffffff;
+            --text-main: #111111;
+            --text-secondary: #555555;
+            --border-color: #e0e0e0;
+            --accent-black: #000000;
+            --accent-gray: #f4f4f4;
+            --accent-blue: #1a56db;
+            --accent-blue-light: #e8f0fe;
+            --accent-yellow: #f59e0b;
+            --accent-yellow-light: #fffbeb;
+            --accent-red: #dc2626;
+            --accent-red-light: #fef2f2;
+            --accent-green: #16a34a;
+            --accent-green-light: #f0fdf4;
+            --font-main: 'Inter', -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --slide-h: calc(100vh - 56px);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow: hidden;
+        }
+
+        /* ── NAV ── */
+        .nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            height: 56px;
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo svg { height: 28px; width: auto; }
+
+        .nav-center {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-main);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .nav-counter {
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            background: var(--accent-gray);
+            padding: 0.2rem 0.7rem;
+            border-radius: 20px;
+        }
+
+        /* ── PROGRESS BAR ── */
+        .progress-bar-container {
+            position: fixed;
+            top: 56px; left: 0; right: 0;
+            height: 3px;
+            background: #e0e0e0;
+            z-index: 999;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--accent-black);
+            transition: width 0.4s ease;
+        }
+
+        /* ── PRESENTATION ── */
+        .presentation-container {
+            position: fixed;
+            top: 59px; left: 0; right: 0; bottom: 0;
+            background: var(--bg-slide);
+            overflow: hidden;
+        }
+
+        /* ── SLIDES ── */
+        .slide {
+            display: none;
+            padding: 3.5rem 5rem;
+            height: 100%;
+            overflow-y: auto;
+            animation: fadeIn 0.3s ease;
+            position: relative;
+        }
+
+        .slide.active { display: flex; flex-direction: column; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── TYPOGRAPHY ── */
+        h1 {
+            font-size: clamp(2.2rem, 4vw, 3.8rem);
+            font-weight: 700;
+            letter-spacing: -0.04em;
+            line-height: 1.05;
+            margin-bottom: 1.5rem;
+        }
+
+        h2 {
+            font-size: clamp(1.5rem, 2.5vw, 2.2rem);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            margin-bottom: 1.8rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 3px solid var(--accent-black);
+            display: inline-block;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            margin-top: 1.25rem;
+            color: var(--text-main);
+        }
+
+        p {
+            font-size: 1.05rem;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        strong { color: var(--text-main); font-weight: 600; }
+
+        /* ── GRIDS ── */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; margin-top: 0.5rem; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.75rem; margin-top: 0.5rem; }
+        .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 1.5rem; margin-top: 0.5rem; }
+
+        /* ── CARDS ── */
+        .card {
+            border: 1px solid var(--border-color);
+            padding: 1.4rem 1.5rem;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+        .card h4 { font-size: 1rem; font-weight: 600; margin-bottom: 0.6rem; }
+        .card p { font-size: 0.95rem; margin-bottom: 0; }
+
+        .card-accent {
+            border: 2px solid var(--accent-black);
+            padding: 1.4rem 1.5rem;
+            border-radius: 8px;
+            background: var(--accent-black);
+            color: white;
+        }
+        .card-accent h4 { color: white; }
+        .card-accent p  { color: #ccc; }
+
+        /* ── NOTES ── */
+        .note {
+            padding: 0.9rem 1.25rem;
+            border-radius: 0 6px 6px 0;
+            margin: 1.2rem 0;
+            font-size: 0.95rem;
+            line-height: 1.55;
+        }
+        .note-yellow { background: var(--accent-yellow-light); border-left: 4px solid var(--accent-yellow); color: #78350f; }
+        .note-blue   { background: var(--accent-blue-light);   border-left: 4px solid var(--accent-blue);   color: #1e3a8a; }
+        .note-red    { background: var(--accent-red-light);    border-left: 4px solid var(--accent-red);    color: #7f1d1d; }
+        .note-green  { background: var(--accent-green-light);  border-left: 4px solid var(--accent-green);  color: #14532d; }
+
+        /* ── TABLES ── */
+        table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.95rem; }
+        th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); }
+        th { font-weight: 600; background: var(--accent-gray); color: var(--text-main); font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.04em; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #f9f9f9; }
+
+        /* ── CODE ── */
+        pre { background: #1a1a2e; padding: 1.25rem; border-radius: 8px; overflow-x: auto; margin: 1rem 0; }
+        code { font-family: var(--font-mono); font-size: 0.85em; }
+
+        /* ── LISTS ── */
+        ul { list-style: none; margin: 0.5rem 0; }
+        ul li {
+            position: relative;
+            padding-left: 1.4rem;
+            margin-bottom: 0.6rem;
+            font-size: 1rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        ul li::before { content: "—"; position: absolute; left: 0; color: var(--accent-black); font-weight: 700; }
+
+        /* ── FORMULA BOX ── */
+        .formula-box {
+            background: var(--accent-gray);
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1.2rem 1.5rem;
+            text-align: center;
+            margin: 1rem 0;
+            font-size: 1.05rem;
+        }
+
+        .formula-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #999;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        /* ── BADGE ── */
+        .badge {
+            display: inline-block;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.15rem 0.55rem;
+            border-radius: 4px;
+            margin-right: 0.3rem;
+        }
+        .badge-black { background: #000; color: #fff; }
+        .badge-blue  { background: var(--accent-blue); color: #fff; }
+        .badge-green { background: var(--accent-green); color: #fff; }
+        .badge-red   { background: var(--accent-red); color: #fff; }
+
+        /* ── SCATTER SVG VISUALS ── */
+        .scatter-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .scatter-item {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.75rem;
+            background: #fafafa;
+            text-align: center;
+        }
+
+        .scatter-item p {
+            font-size: 0.82rem;
+            margin: 0.4rem 0 0;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .scatter-item .r-val {
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        /* ── CONTROLS ── */
+        .controls {
+            position: fixed;
+            bottom: 1.25rem;
+            right: 1.5rem;
+            display: flex;
+            gap: 0.5rem;
+            z-index: 2000;
+        }
+
+        .btn {
+            background: #000;
+            color: #fff;
+            border: none;
+            padding: 0.45rem 1.1rem;
+            cursor: pointer;
+            font-family: var(--font-main);
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: 6px;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+        .btn:hover   { opacity: 0.8; }
+        .btn:active  { transform: scale(0.97); }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
+
+        .key-hint {
+            position: fixed;
+            bottom: 1.25rem;
+            left: 1.5rem;
+            font-size: 0.75rem;
+            color: #aaa;
+            font-family: var(--font-mono);
+            z-index: 2000;
+        }
+        .key-hint kbd {
+            background: #eee;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            padding: 0.1rem 0.35rem;
+            font-size: 0.72rem;
+            color: #555;
+        }
+
+        /* ── TITLE PAGE ── */
+        .slide-title {
+            justify-content: center;
+            background: linear-gradient(135deg, #ffffff 0%, #f7f7f7 100%);
+        }
+        .slide-title h1 { max-width: 85%; }
+        .slide-title .subtitle {
+            font-size: 1.25rem;
+            font-weight: 300;
+            color: var(--text-secondary);
+            border-left: 4px solid black;
+            padding-left: 1.25rem;
+            margin-bottom: 2.5rem;
+            max-width: 70ch;
+        }
+        .meta-info {
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+            color: #aaa;
+            letter-spacing: 0.06em;
+        }
+
+        /* ── ANSCOMBE GRID ── */
+        .anscombe-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 1rem;
+        }
+
+        /* ── CONFOUNDING DIAGRAM ── */
+        .conf-diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.5rem;
+            background: var(--accent-gray);
+            border-radius: 10px;
+            gap: 0.5rem;
+        }
+        .conf-node {
+            background: white;
+            border: 2px solid var(--accent-black);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+        .conf-arrow { font-size: 1.2rem; color: #666; }
+        .conf-row { display: flex; gap: 2.5rem; }
+
+        /* ── COLOR BARS FOR CORRELATION STRENGTH ── */
+        .corr-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 0.45rem;
+        }
+        .corr-bar-fill {
+            height: 8px;
+            border-radius: 4px;
+            background: var(--accent-black);
+            transition: width 0.5s;
+        }
+        .corr-bar-label {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            min-width: 90px;
+        }
+        .corr-bar-val {
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+
+        /* Utility */
+        .mt-0 { margin-top: 0; }
+        .mt-1 { margin-top: 0.5rem; }
+        .mt-2 { margin-top: 1rem; }
+        .text-mono { font-family: var(--font-mono); }
+        .text-sm { font-size: 0.88rem; }
+        .text-center { text-align: center; }
+        .flex-col { display: flex; flex-direction: column; }
+        .flex-center { display: flex; align-items: center; justify-content: center; }
+        .gap-1 { gap: 0.5rem; }
+        .w-full { width: 100%; }
+        .bold { font-weight: 700; }
+
+        /* scrollbar clean */
+        .slide::-webkit-scrollbar { width: 4px; }
+        .slide::-webkit-scrollbar-thumb { background: #ddd; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+    <div class="nav-logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 111 39">
+            <path d="M110.949 22.0598C110.949 18.124 108.692 15.8178 104.961 15.8178C101.231 15.8178 99.0003 18.3173 99.0003 22.2255C99.0003 26.1336 101.933 28.716 105.231 28.716C108.529 28.716 110.165 26.9484 110.733 24.8493L107.678 23.9655C107.313 24.9184 106.624 25.5536 105.272 25.5536C103.92 25.5536 102.623 24.5731 102.555 23.206H110.868C110.922 22.8193 110.949 22.4464 110.935 22.0598H110.949ZM102.636 20.8169C102.704 19.9054 103.474 18.7592 105.015 18.7592C106.556 18.7592 107.353 19.9054 107.421 20.8169H102.636ZM79.726 10.6392H83.3754V28.357H79.726V10.6392ZM49.5845 28.357H38.7714V11.012H49.571V14.6578H42.5695V17.9583H48.9222V21.3555H42.5695V24.6836H49.5845V28.357ZM71.0215 28.716C74.5763 28.716 77.3742 26.0507 77.3742 22.2531C77.3742 18.4554 74.5898 15.8178 71.035 15.8178C67.4802 15.8178 64.6823 18.4969 64.6823 22.2531C64.6823 26.0093 67.4667 28.716 71.035 28.716H71.0215ZM71.0215 19.2426C72.4137 19.2426 73.7112 20.1954 73.7112 22.2531C73.7112 24.3107 72.4137 25.2912 71.0215 25.2912C69.6563 25.2912 68.3317 24.3245 68.3317 22.2669C68.3317 20.2093 69.6563 19.2426 71.0215 19.2426ZM60.1813 16.1906H64.0335L59.492 28.357H55.8156L50.9091 16.1906H54.8694L57.6403 23.7583L60.1813 16.1906ZM94.5129 16.1906H98.3651L93.8236 28.357H90.1471L85.2407 16.1906H89.201L91.9718 23.7583L94.5129 16.1906ZM21.7814 15.4725C26.5256 21.9217 27.7015 25.7746 27.2825 28.8679C26.8635 31.9613 24.4711 35.2342 21.7814 37.5128L14.5096 28.5503C12.5632 25.7607 6.71063 18.925 6.79173 15.4725C6.18349 11.4263 10.6033 5.68148 12.5767 2.7124L21.7814 15.4725ZM7.38645 26.0646C8.04875 27.045 8.40017 28.2051 8.42721 29.3927C8.45424 30.5803 8.12985 31.7541 7.50809 32.7622L4.5345 37.5266L1.08782 32.5689C0.425523 31.616 0.0605812 30.4975 0.0065158 29.3236C-0.0475496 28.1636 0.236294 27.0036 0.803981 25.9955L3.81813 20.6788L7.41348 26.0646H7.38645Z" fill="#000000"/>
+        </svg>
+    </div>
+    <div class="nav-center">Estadística para Data Science &mdash; Clase 5</div>
+    <div class="nav-counter" id="navCounter">1 / 14</div>
+</nav>
+
+<!-- PROGRESS BAR -->
+<div class="progress-bar-container">
+    <div class="progress-bar" id="progressBar" style="width: 7.14%"></div>
+</div>
+
+<div class="presentation-container">
+
+    <!-- ════════════════════════════════════
+         SLIDE 1: Título
+    ════════════════════════════════════ -->
+    <section class="slide slide-title active">
+        <h1>Correlación y Relación<br>entre Variables</h1>
+        <p class="subtitle">Cuantificando la fuerza y dirección de las relaciones estadísticas: de Pearson y Spearman a la causalidad, el Cuarteto de Anscombe y las correlaciones espurias.</p>
+        <div class="meta-info">CLASE 5 DE 8 &bull; MÓDULO DE ESTADÍSTICA &bull; NIVEL AVANZADO</div>
+    </section>
+
+    <!-- ════════════════════════════════════
+         SLIDE 2: Objetivos
+    ════════════════════════════════════ -->
+    <section class="slide">
+        <h2>Objetivos de la Sesión</h2>
+        <div class="grid-2">
+            <div>
+                <ul>
+                    <li><strong>Covarianza y correlación:</strong> Entender el vínculo formal entre ambas medidas y su interpretación geométrica.</li>
+                    <li><strong>Pearson ($r$):</strong> Calcular, interpretar y evaluar la significación estadística del coeficiente.</li>
+                    <li><strong>Spearman ($\rho$) y Kendall ($\tau$):</strong> Saber cuándo las correlaciones de rango superan a Pearson.</li>
+                    <li><strong>Cuarteto de Anscombe:</strong> Comprender por qué $r$ nunca debe usarse sin visualización.</li>
+                </ul>
+            </div>
+            <div>
+                <ul>
+                    <li><strong>Significación estadística:</strong> Test $t$ sobre $r$ y el rol del tamaño muestral.</li>
+                    <li><strong>Matrices y heatmaps:</strong> Exploración multivariada con Seaborn y pandas.</li>
+                    <li><strong>Correlación espuria y confusión:</strong> Identificar y controlar variables confusoras.</li>
+                    <li><strong>Correlación parcial:</strong> Aislar la relación entre dos variables controlando una tercera.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="note note-blue" style="margin-top: auto;">
+            <strong>Pre-requisitos:</strong> Varianza, desviación estándar, distribución $t$ de Student, conceptos de $p$-valor y prueba de hipótesis.
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════
+         SLIDE 3: Covarianza → Correlación
+    ════════════════════════════════════ -->
+    <section class="slide">
+        <h2>De la Covarianza a la Correlación</h2>
+        <p>La correlación es la <strong>covarianza estandarizada</strong>. Primero, la covarianza:</p>
+
+        <div class="formula-box">
+            <span class="formula-label">Covarianza muestral</span>
+            $$\text{Cov}(X,Y) = s_{XY} = \frac{1}{n-1}\sum_{i=1}^{n}(x_i - \bar{x})(y_i - \bar{y})$$
+        </div>
+
+        <div class="grid-2">
+            <div>
+                <p>La covarianza tiene el problema de que su <strong>magnitud depende de las unidades</strong> de medición. Si $X$ es en kg y $Y$ en cm, la covarianza estará en kg·cm.</p>
+                <p>La solución es dividir entre el producto de las desviaciones estándar, obteniendo un valor <strong>adimensional</strong> en $[-1, +1]$:</p>
+                <div class="formula-box mt-1">
+                    <span class="formula-label">Coeficiente de Pearson</span>
+                    $$r = \frac{s_{XY}}{s_X \cdot s_Y} = \frac{\sum(x_i-\bar{x})(y_i-\bar{y})}{\sqrt{\sum(x_i-\bar{x})^2 \cdot \sum(y_i-\bar{y})^2}}$$
+                </div>
+            </div>
+            <div class="card" style="background: #f8f8f8;">
+                <h4>Interpretación geométrica</h4>
+                <p style="font-size:0.93rem;">$r$ es el <strong>coseno del ángulo</strong> entre los vectores centrados de $X$ e $Y$ en $\mathbb{R}^n$.</p>
+                <ul style="margin-top:0.75rem; font-size:0.92rem;">
+                    <li>$r = +1$: vectores paralelos, relación perfecta positiva.</li>
+                    <li>$r = 0$: vectores ortogonales, sin relación lineal.</li>
+                    <li>$r = -1$: vectores antiparalelos, relación perfecta negativa.</li>
+                </ul>
+                <div class="note note-yellow" style="margin-top:1rem; font-size:0.88rem;">
+                    Esto también explica por qué $r$ es invariante a transformaciones lineales de $X$ o $Y$.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════
+         SLIDE 4: Pearson — Propiedades
+    ════════════════════════════════════ -->
+    <section class="slide">
+        <h2>Coeficiente de Pearson: Propiedades</h2>
+
+        <div class="grid-2">
+            <div>
+                <h3>Tabla de interpretación</h3>
+                <table>
+                    <thead><tr><th>$|r|$</th><th>Fuerza</th><th>Ejemplo práctico</th></tr></thead>
+                    <tbody>
+                        <tr><td>0.00 – 0.19</td><td>Muy débil</td><td>Número de zapatos vs. CI</td></tr>
+                        <tr><td>0.20 – 0.39</td><td>Débil</td><td>Altura y notas escolares</td></tr>
+                        <tr><td>0.40 – 0.59</td><td>Moderada</td><td>Ejercicio y salud percibida</td></tr>
+                        <tr><td>0.60 – 0.79</td><td>Fuerte</td><td>Horas de estudio y calificación</td></tr>
+                        <tr><td>0.80 – 1.00</td><td><strong>Muy fuerte</strong></td><td>Peso y consumo de combustible</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>Supuestos para que Pearson sea válido</h3>
+                <ul style="font-size:0.93rem;">
+                    <li><strong>Linealidad:</strong> la relación entre $X$ e $Y$ debe ser aproximadamente lineal.</li>
+                    <li><strong>Normalidad bivariada:</strong> ideal, aunque con $n \geq 30$ el teorema central del límite ayuda.</li>
+                    <li><strong>Homocedasticidad:</strong> la varianza de $Y$ no debe cambiar a lo largo de $X$.</li>
+                    <li><strong>Sensibilidad a outliers:</strong> un solo punto extremo puede alterar $r$ drásticamente.</li>
+                </ul>
+            </div>
+
+            <div>
+                <h3>Visualización de valores de $r$</h3>
+                <div class="scatter-grid">
+                    <!-- r = +0.95 -->
+                    <div class="scatter-item">
+                        <svg width="90" height="80" viewBox="0 0 90 80">
+                            <line x1="5" y1="75" x2="85" y2="75" stroke="#ccc" stroke-width="1"/>
+                            <line x1="5" y1="5"  x2="5"  y2="75" stroke="#ccc" stroke-width="1"/>
+                            <circle cx="10" cy="70" r="3" fill="#1a56db" opacity="0.8"/>
+                            <circle cx="18" cy="63" r="3" fill="#1a56db" opacity="0.8"/>
+                            <circle cx="26" cy="55" r="3" fill="#1a56db" opacity="0.8"/>
+                            <circle cx="33" cy="46" r="3" fill="#1a56db" opacity="0.8"/>
+                            <circle cx="42" cy="38" r="3" fill="#1a56db" opacity="0.8"/>
+                            <circle cx="50" cy="30" r="3" fill="#1a56db" opacity="0.8"/>
+                            <circle cx="59" cy="22" r="3" fill="#1a56db" opacity="0.8"/>
+                            <circle cx="67" cy="15" r="3" fill="#1a56db" opacity="0.8"/>
+                            <circle cx="75" cy="8"  r="3" fill="#1a56db" opacity="0.8"/>
+                        </svg>
+                        <p class="r-val">$r \approx +0.95$</p>
+                        <p>Positiva fuerte</p>
+                    </div>
+                    <!-- r = +0.50 -->
+                    <div class="scatter-item">
+                        <svg width="90" height="80" viewBox="0 0 90 80">
+                            <line x1="5" y1="75" x2="85" y2="75" stroke="#ccc" stroke-width="1"/>
+                            <line x1="5" y1="5"  x2="5"  y2="75" stroke="#ccc" stroke-width="1"/>
+                            <circle cx="10" cy="65" r="3" fill="#1a56db" opacity="0.8"/>
+                            <circle cx="20" cy="50" r="3" fill="#1a56db" opacity="0.8"/>
+                            <circle cx="28" cy="60" r="3" fill="#1a56db" opacity="0.8"/>
+                            <circle cx="36" cy="40" r="3" fill="#1a56db" opacity="0.8"/>
+                            <circle cx="44" cy="30" r="3" fill="#1a56db" opacity="0.8"/>
+                            <circle cx="52" cy="45" r="3" fill="#1a56db" opacity="0.8"/>
+                            <circle cx="60" cy="20" r="3" fill="#1a56db" opacity="0.8"/>
+                            <circle cx="68" cy="35" r="3" fill="#1a56db" opacity="0.8"/>
+                            <circle cx="78" cy="15" r="3" fill="#1a56db" opacity="0.8"/>
+                        </svg>
+                        <p class="r-val">$r \approx +0.50$</p>
+                        <p>Positiva moderada</p>
+                    </div>
+                    <!-- r ≈ 0 -->
+                    <div class="scatter-item">
+                        <svg width="90" height="80" viewBox="0 0 90 80">
+                            <line x1="5" y1="75" x2="85" y2="75" stroke="#ccc" stroke-width="1"/>
+                            <line x1="5" y1="5"  x2="5"  y2="75" stroke="#ccc" stroke-width="1"/>
+                            <circle cx="12" cy="30" r="3" fill="#6b7280" opacity="0.8"/>
+                            <circle cx="22" cy="60" r="3" fill="#6b7280" opacity="0.8"/>
+                            <circle cx="30" cy="20" r="3" fill="#6b7280" opacity="0.8"/>
+                            <circle cx="40" cy="50" r="3" fill="#6b7280" opacity="0.8"/>
+                            <circle cx="48" cy="38" r="3" fill="#6b7280" opacity="0.8"/>
+                            <circle cx="55" cy="65" r="3" fill="#6b7280" opacity="0.8"/>
+                            <circle cx="63" cy="25" r="3" fill="#6b7280" opacity="0.8"/>
+                            <circle cx="72" cy="55" r="3" fill="#6b7280" opacity="0.8"/>
+                            <circle cx="80" cy="40" r="3" fill="#6b7280" opacity="0.8"/>
+                        </svg>
+                        <p class="r-val">$r \approx 0$</p>
+                        <p>Sin relación lineal</p>
+                    </div>
+                    <!-- r = -0.90 -->
+                    <div class="scatter-item">
+                        <svg width="90" height="80" viewBox="0 0 90 80">
+                            <line x1="5" y1="75" x2="85" y2="75" stroke="#ccc" stroke-width="1"/>
+                            <line x1="5" y1="5"  x2="5"  y2="75" stroke="#ccc" stroke-width="1"/>
+                            <circle cx="10" cy="10" r="3" fill="#dc2626" opacity="0.8"/>
+                            <circle cx="18" cy="17" r="3" fill="#dc2626" opacity="0.8"/>
+                            <circle cx="27" cy="25" r="3" fill="#dc2626" opacity="0.8"/>
+                            <circle cx="36" cy="35" r="3" fill="#dc2626" opacity="0.8"/>
+                            <circle cx="44" cy="42" r="3" fill="#dc2626" opacity="0.8"/>
+                            <circle cx="52" cy="50" r="3" fill="#dc2626" opacity="0.8"/>
+                            <circle cx="60" cy="58" r="3" fill="#dc2626" opacity="0.8"/>
+                            <circle cx="69" cy="64" r="3" fill="#dc2626" opacity="0.8"/>
+                            <circle cx="78" cy="70" r="3" fill="#dc2626" opacity="0.8"/>
+                        </svg>
+                        <p class="r-val">$r \approx -0.90$</p>
+                        <p>Negativa fuerte</p>
+                    </div>
+                </div>
+                <div class="note note-red" style="margin-top: 1.25rem; font-size:0.88rem;">
+                    <strong>Advertencia:</strong> $r \approx 0$ solo significa ausencia de relación <em>lineal</em>. Puede existir una relación no lineal perfecta con $r = 0$.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════
+         SLIDE 5: Significación estadística
+    ════════════════════════════════════ -->
+    <section class="slide">
+        <h2>Significación Estadística de $r$</h2>
+        <p>Un $r$ calculado sobre una muestra puede ser distinto de cero por puro azar. Necesitamos contrastar:</p>
+
+        <div class="grid-2">
+            <div>
+                <div class="formula-box">
+                    <span class="formula-label">Hipótesis</span>
+                    $$H_0: \rho = 0 \qquad H_1: \rho \neq 0$$
+                </div>
+                <div class="formula-box mt-1">
+                    <span class="formula-label">Estadístico $t$ (bajo $H_0$)</span>
+                    $$t = \frac{r\sqrt{n-2}}{\sqrt{1-r^2}} \sim t_{n-2}$$
+                </div>
+                <p style="font-size:0.93rem;">Rechazamos $H_0$ si $|t| > t_{\alpha/2,\, n-2}$. Equivalentemente, si el $p$-valor es menor que $\alpha$ (típicamente 0.05).</p>
+                <pre><code class="language-python">from scipy import stats
+
+r, p_value = stats.pearsonr(x, y)
+print(f"r = {r:.3f},  p = {p_value:.4f}")
+
+# También manual:
+import numpy as np
+n = len(x)
+t_stat = r * np.sqrt(n-2) / np.sqrt(1 - r**2)
+p_manual = 2 * stats.t.sf(abs(t_stat), df=n-2)
+</code></pre>
+            </div>
+
+            <div>
+                <h3>El peligro del tamaño muestral</h3>
+                <p style="font-size:0.93rem;">Un $r$ muy pequeño puede ser estadísticamente significativo con muestras grandes:</p>
+                <table>
+                    <thead><tr><th>$n$</th><th>$r$ mínimo significativo ($\alpha=0.05$)</th></tr></thead>
+                    <tbody>
+                        <tr><td>10</td><td>0.632</td></tr>
+                        <tr><td>30</td><td>0.361</td></tr>
+                        <tr><td>100</td><td>0.197</td></tr>
+                        <tr><td>1 000</td><td>0.062</td></tr>
+                        <tr><td>10 000</td><td>0.020</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="note note-yellow" style="margin-top:0.75rem; font-size:0.88rem;">
+                    <strong>Significación ≠ Relevancia práctica.</strong> Con $n = 10000$, un $r = 0.02$ es significativo ($p < 0.05$) pero explica apenas el <strong>0.04%</strong> de la varianza ($r^2$). Reportar siempre el tamaño del efecto.
+                </div>
+                <div class="note note-blue" style="font-size:0.88rem;">
+                    <strong>Coeficiente de determinación:</strong> $r^2$ indica la proporción de varianza de $Y$ explicada por $X$. Si $r = 0.70$, entonces $r^2 = 0.49$ → el 49% de la varianza está "explicada".
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════
+         SLIDE 6: Cuarteto de Anscombe
+    ════════════════════════════════════ -->
+    <section class="slide">
+        <h2>El Cuarteto de Anscombe (1973)</h2>
+        <p>Cuatro datasets <strong>estadísticamente casi idénticos</strong> pero visualmente completamente distintos. La lección más importante de la estadística descriptiva.</p>
+
+        <div class="anscombe-grid">
+            <div class="scatter-item" style="padding: 1rem;">
+                <svg width="130" height="110" viewBox="0 0 130 110">
+                    <line x1="10" y1="100" x2="120" y2="100" stroke="#ddd" stroke-width="1"/>
+                    <line x1="10" y1="5"   x2="10"  y2="100" stroke="#ddd" stroke-width="1"/>
+                    <!-- Dataset I: linear with scatter -->
+                    <circle cx="25" cy="80" r="3.5" fill="#1a56db" opacity="0.85"/>
+                    <circle cx="32" cy="70" r="3.5" fill="#1a56db" opacity="0.85"/>
+                    <circle cx="40" cy="63" r="3.5" fill="#1a56db" opacity="0.85"/>
+                    <circle cx="48" cy="55" r="3.5" fill="#1a56db" opacity="0.85"/>
+                    <circle cx="56" cy="47" r="3.5" fill="#1a56db" opacity="0.85"/>
+                    <circle cx="64" cy="40" r="3.5" fill="#1a56db" opacity="0.85"/>
+                    <circle cx="72" cy="32" r="3.5" fill="#1a56db" opacity="0.85"/>
+                    <circle cx="80" cy="25" r="3.5" fill="#1a56db" opacity="0.85"/>
+                    <circle cx="88" cy="18" r="3.5" fill="#1a56db" opacity="0.85"/>
+                    <circle cx="100" cy="58" r="3.5" fill="#1a56db" opacity="0.85"/>
+                    <circle cx="110" cy="10" r="3.5" fill="#1a56db" opacity="0.85"/>
+                    <line x1="20" y1="85" x2="115" y2="8" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4,3"/>
+                </svg>
+                <p class="r-val" style="font-size:0.88rem;">$r = 0.816$, $\bar{x}=9$, $\bar{y}=7.5$</p>
+                <p style="font-size:0.78rem; font-weight:600;">I. Relación lineal</p>
+            </div>
+
+            <div class="scatter-item" style="padding: 1rem;">
+                <svg width="130" height="110" viewBox="0 0 130 110">
+                    <line x1="10" y1="100" x2="120" y2="100" stroke="#ddd" stroke-width="1"/>
+                    <line x1="10" y1="5"   x2="10"  y2="100" stroke="#ddd" stroke-width="1"/>
+                    <!-- Dataset II: curved -->
+                    <circle cx="20"  cy="78" r="3.5" fill="#16a34a" opacity="0.85"/>
+                    <circle cx="30"  cy="50" r="3.5" fill="#16a34a" opacity="0.85"/>
+                    <circle cx="42"  cy="28" r="3.5" fill="#16a34a" opacity="0.85"/>
+                    <circle cx="56"  cy="15" r="3.5" fill="#16a34a" opacity="0.85"/>
+                    <circle cx="68"  cy="12" r="3.5" fill="#16a34a" opacity="0.85"/>
+                    <circle cx="80"  cy="18" r="3.5" fill="#16a34a" opacity="0.85"/>
+                    <circle cx="90"  cy="30" r="3.5" fill="#16a34a" opacity="0.85"/>
+                    <circle cx="100" cy="50" r="3.5" fill="#16a34a" opacity="0.85"/>
+                    <circle cx="108" cy="72" r="3.5" fill="#16a34a" opacity="0.85"/>
+                    <line x1="18" y1="85" x2="112" y2="12" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4,3"/>
+                </svg>
+                <p class="r-val" style="font-size:0.88rem;">$r = 0.816$, $\bar{x}=9$, $\bar{y}=7.5$</p>
+                <p style="font-size:0.78rem; font-weight:600;">II. Relación cuadrática</p>
+            </div>
+
+            <div class="scatter-item" style="padding: 1rem;">
+                <svg width="130" height="110" viewBox="0 0 130 110">
+                    <line x1="10" y1="100" x2="120" y2="100" stroke="#ddd" stroke-width="1"/>
+                    <line x1="10" y1="5"   x2="10"  y2="100" stroke="#ddd" stroke-width="1"/>
+                    <!-- Dataset III: outlier distorts -->
+                    <circle cx="20" cy="92" r="3.5" fill="#f59e0b" opacity="0.85"/>
+                    <circle cx="30" cy="87" r="3.5" fill="#f59e0b" opacity="0.85"/>
+                    <circle cx="40" cy="82" r="3.5" fill="#f59e0b" opacity="0.85"/>
+                    <circle cx="50" cy="77" r="3.5" fill="#f59e0b" opacity="0.85"/>
+                    <circle cx="60" cy="72" r="3.5" fill="#f59e0b" opacity="0.85"/>
+                    <circle cx="70" cy="67" r="3.5" fill="#f59e0b" opacity="0.85"/>
+                    <circle cx="80" cy="62" r="3.5" fill="#f59e0b" opacity="0.85"/>
+                    <circle cx="90" cy="57" r="3.5" fill="#f59e0b" opacity="0.85"/>
+                    <circle cx="115" cy="10" r="4.5" fill="#dc2626" opacity="1"/>
+                    <line x1="18" y1="95" x2="118" y2="8" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4,3"/>
+                </svg>
+                <p class="r-val" style="font-size:0.88rem;">$r = 0.816$, $\bar{x}=9$, $\bar{y}=7.5$</p>
+                <p style="font-size:0.78rem; font-weight:600;">III. Un outlier severo</p>
+            </div>
+
+            <div class="scatter-item" style="padding: 1rem;">
+                <svg width="130" height="110" viewBox="0 0 130 110">
+                    <line x1="10" y1="100" x2="120" y2="100" stroke="#ddd" stroke-width="1"/>
+                    <line x1="10" y1="5"   x2="10"  y2="100" stroke="#ddd" stroke-width="1"/>
+                    <!-- Dataset IV: leverage point -->
+                    <circle cx="28" cy="65" r="3.5" fill="#7c3aed" opacity="0.85"/>
+                    <circle cx="28" cy="40" r="3.5" fill="#7c3aed" opacity="0.85"/>
+                    <circle cx="28" cy="70" r="3.5" fill="#7c3aed" opacity="0.85"/>
+                    <circle cx="28" cy="55" r="3.5" fill="#7c3aed" opacity="0.85"/>
+                    <circle cx="28" cy="80" r="3.5" fill="#7c3aed" opacity="0.85"/>
+                    <circle cx="28" cy="45" r="3.5" fill="#7c3aed" opacity="0.85"/>
+                    <circle cx="28" cy="92" r="3.5" fill="#7c3aed" opacity="0.85"/>
+                    <circle cx="28" cy="30" r="3.5" fill="#7c3aed" opacity="0.85"/>
+                    <circle cx="105" cy="8"  r="4.5" fill="#dc2626" opacity="1"/>
+                    <line x1="22" y1="77" x2="112" y2="10" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4,3"/>
+                </svg>
+                <p class="r-val" style="font-size:0.88rem;">$r = 0.817$, $\bar{x}=9$, $\bar{y}=7.5$</p>
+                <p style="font-size:0.78rem; font-weight:600;">IV. Punto de palanca</p>
+            </div>
+        </div>
+
+        <div class="note note-red" style="margin-top:1rem;">
+            <strong>Conclusión de Anscombe:</strong> Los cuatro datasets tienen $\bar{x}$, $\bar{y}$, $s_x^2$, $s_y^2$, $r$ y la ecuación de regresión prácticamente <em>idénticos</em>, pero sus distribuciones son radicalmente distintas. <strong>Siempre visualizar antes de reportar $r$.</strong>
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════
+         SLIDE 7: Spearman
+    ════════════════════════════════════ -->
+    <section class="slide">
+        <h2>Coeficiente de Spearman ($\rho$)</h2>
+        <p>Correlación de Pearson aplicada a los <strong>rangos</strong> de los datos en lugar de sus valores originales.</p>
+
+        <div class="grid-2">
+            <div>
+                <div class="formula-box">
+                    <span class="formula-label">Fórmula exacta (vía rangos)</span>
+                    $$\rho = \frac{\text{Cov}(R_X, R_Y)}{s_{R_X} \cdot s_{R_Y}}$$
+                </div>
+                <div class="formula-box mt-1">
+                    <span class="formula-label">Fórmula aproximada (sin empates)</span>
+                    $$\rho = 1 - \frac{6 \sum d_i^2}{n(n^2 - 1)}$$
+                </div>
+                <p style="font-size:0.9rem;">donde $d_i = R(x_i) - R(y_i)$ es la diferencia de rangos de cada par.</p>
+
+                <h3>¿Cuándo usar Spearman?</h3>
+                <ul style="font-size:0.93rem;">
+                    <li><strong>Datos ordinales:</strong> encuestas Likert, clasificaciones, scores cualitativos.</li>
+                    <li><strong>Outliers presentes:</strong> el ranking "aplana" los extremos.</li>
+                    <li><strong>Relación monótona no lineal:</strong> si $Y$ crece siempre que $X$ crece, aunque no linealmente.</li>
+                    <li><strong>Distribución no normal:</strong> cuando no se cumplen los supuestos de Pearson.</li>
+                </ul>
+            </div>
+
+            <div>
+                <h3>Ejemplo numérico</h3>
+                <table>
+                    <thead>
+                        <tr><th>$x$</th><th>$y$</th><th>$R(x)$</th><th>$R(y)$</th><th>$d$</th><th>$d^2$</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>2</td><td>4</td><td>1</td><td>1</td><td>0</td><td>0</td></tr>
+                        <tr><td>5</td><td>9</td><td>2</td><td>2</td><td>0</td><td>0</td></tr>
+                        <tr><td>8</td><td>16</td><td>3</td><td>3</td><td>0</td><td>0</td></tr>
+                        <tr><td>11</td><td>25</td><td>4</td><td>4</td><td>0</td><td>0</td></tr>
+                        <tr><td>15</td><td>36</td><td>5</td><td>5</td><td>0</td><td>0</td></tr>
+                    </tbody>
+                </table>
+                <p style="font-size:0.9rem; margin-top:0.5rem;">Relación $y = x^2$: $r_{Pearson} \approx 0.97$, $\rho_{Spearman} = 1.00$ (monótona perfecta).</p>
+
+                <div class="note note-green" style="font-size:0.88rem;">
+                    <strong>Kendall ($\tau$):</strong> Alternativa aún más robusta. Cuenta pares concordantes vs. discordantes. Preferido cuando hay muchos empates o la muestra es muy pequeña ($n < 20$).
+                    $$\tau = \frac{C - D}{\binom{n}{2}}$$
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════
+         SLIDE 8: Pearson vs Spearman
+    ════════════════════════════════════ -->
+    <section class="slide">
+        <h2>Pearson vs. Spearman: Cuadro Comparativo</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Criterio</th>
+                    <th>Pearson ($r$)</th>
+                    <th>Spearman ($\rho$)</th>
+                    <th>Kendall ($\tau$)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Tipo de relación</strong></td>
+                    <td>Solo lineal</td>
+                    <td>Monótona (cualquiera)</td>
+                    <td>Monótona (cualquiera)</td>
+                </tr>
+                <tr>
+                    <td><strong>Escala</strong></td>
+                    <td>Continua / intervalar</td>
+                    <td>Ordinal o continua</td>
+                    <td>Ordinal o continua</td>
+                </tr>
+                <tr>
+                    <td><strong>Sensibilidad a outliers</strong></td>
+                    <td>Alta</td>
+                    <td>Baja</td>
+                    <td>Muy baja</td>
+                </tr>
+                <tr>
+                    <td><strong>Distribución asumida</strong></td>
+                    <td>Normal bivariada (ideal)</td>
+                    <td>No paramétrico</td>
+                    <td>No paramétrico</td>
+                </tr>
+                <tr>
+                    <td><strong>Test de significación</strong></td>
+                    <td>$t_{n-2}$</td>
+                    <td>$t_{n-2}$ (aprox.)</td>
+                    <td>Normal (aprox.)</td>
+                </tr>
+                <tr>
+                    <td><strong>Uso típico</strong></td>
+                    <td>Variables físicas/financieras</td>
+                    <td>Encuestas, rankings, datos con outliers</td>
+                    <td>Muestras pequeñas, muchos empates</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="grid-2" style="margin-top: 1.5rem;">
+            <pre><code class="language-python">from scipy import stats
+
+# Pearson
+r_p, p_p = stats.pearsonr(x, y)
+
+# Spearman
+r_s, p_s = stats.spearmanr(x, y)
+
+# Kendall
+r_k, p_k = stats.kendalltau(x, y)
+
+print(f"Pearson:  r={r_p:.3f}, p={p_p:.4f}")
+print(f"Spearman: ρ={r_s:.3f}, p={p_s:.4f}")
+print(f"Kendall:  τ={r_k:.3f}, p={p_k:.4f}")
+</code></pre>
+            <div class="note note-yellow" style="margin: 0; align-self: center;">
+                <strong>Regla práctica:</strong><br>
+                Si Pearson y Spearman dan resultados muy similares → la relación es lineal y no hay outliers problemáticos.<br><br>
+                Si difieren notablemente → grafica el scatter plot e investiga outliers o no-linealidad.
+            </div>
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════
+         SLIDE 9: Correlación espuria
+    ════════════════════════════════════ -->
+    <section class="slide">
+        <h2>Correlaciones Espurias y Causalidad</h2>
+        <p>Una correlación es <strong>espuria</strong> cuando es estadísticamente real pero no refleja ninguna relación causal ni lógica.</p>
+
+        <div class="grid-2">
+            <div>
+                <h3>Mecanismos que generan correlación falsa</h3>
+                <div class="conf-diagram" style="margin-bottom:1rem;">
+                    <div class="conf-node" style="background:#e8f0fe;">Variable confusora $Z$<br><small style="font-weight:400;">(ej. "Temperatura en verano")</small></div>
+                    <div class="conf-arrow">↙ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ↘</div>
+                    <div class="conf-row">
+                        <div class="conf-node">$X$: Ventas<br>de helados</div>
+                        <div class="conf-node">$Y$: Ataques<br>de tiburón</div>
+                    </div>
+                    <p style="font-size:0.82rem; color:#888; margin-top:0.4rem; text-align:center;">$X$ e $Y$ están correlacionadas ($r \approx 0.80$), pero $Z$ causa ambas.</p>
+                </div>
+
+                <ul style="font-size:0.93rem;">
+                    <li><strong>Variable confusora:</strong> $Z$ provoca tanto $X$ como $Y$.</li>
+                    <li><strong>Causalidad inversa:</strong> en realidad $Y \to X$, no $X \to Y$.</li>
+                    <li><strong>Coincidencia pura:</strong> correlaciones por azar en datos pequeños o con cherry-picking.</li>
+                    <li><strong>Tendencia temporal compartida:</strong> dos series que crecen en el tiempo parecen correlacionadas aunque no lo estén.</li>
+                </ul>
+            </div>
+
+            <div>
+                <h3>¿Cómo probar causalidad?</h3>
+                <div class="grid-2" style="gap: 1rem; margin-top:0;">
+                    <div class="card">
+                        <h4>🧪 A/B Testing</h4>
+                        <p style="font-size:0.88rem;">Intervención aleatoria controlada. El "gold standard". Si manipular $X$ cambia $Y$ en promedio → hay causalidad.</p>
+                    </div>
+                    <div class="card">
+                        <h4>📈 Series Temporales</h4>
+                        <p style="font-size:0.88rem;"><strong>Test de Granger:</strong> ¿Los valores pasados de $X$ predicen $Y$ mejor que solo sus propios pasados?</p>
+                    </div>
+                    <div class="card">
+                        <h4>🔀 Variables Inst.</h4>
+                        <p style="font-size:0.88rem;">Buscar una variable $Z$ que afecte $X$ pero no $Y$ directamente (instrumento).</p>
+                    </div>
+                    <div class="card">
+                        <h4>📊 DAGs Causales</h4>
+                        <p style="font-size:0.88rem;"><strong>Pearl (2009):</strong> Directed Acyclic Graphs. Modelar la estructura causal explícitamente.</p>
+                    </div>
+                </div>
+                <div class="note note-red" style="font-size:0.88rem; margin-top:0.75rem;">
+                    En ciencia de datos: "Correlación no implica causalidad" — pero la correlación es necesaria (aunque no suficiente) para la causalidad.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════
+         SLIDE 10: Heatmap
+    ════════════════════════════════════ -->
+    <section class="slide">
+        <h2>Visualización: Matriz de Correlación y Heatmap</h2>
+        <p>Con $p$ variables existen $\binom{p}{2} = \frac{p(p-1)}{2}$ pares posibles. La matriz de correlación lo visualiza todo a la vez.</p>
+
+        <div class="grid-2">
+            <div>
+                <pre><code class="language-python">import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
+
+# ── 1. Calcular matriz ──────────────────
+corr = df.corr(method='pearson')  # 'spearman', 'kendall'
+
+# ── 2. Heatmap con máscara triangular ──
+mask = np.triu(np.ones_like(corr, dtype=bool))
+
+fig, ax = plt.subplots(figsize=(9, 7))
+sns.heatmap(
+    corr,
+    mask=mask,          # Solo triángulo inferior
+    annot=True,         # Muestra los valores
+    fmt=".2f",
+    cmap='RdBu_r',      # Rojo (+) / Blanco (0) / Azul (-)
+    vmin=-1, vmax=1,
+    center=0,
+    linewidths=0.5,
+    ax=ax
+)
+ax.set_title('Matriz de Correlación', fontsize=14)
+plt.tight_layout()
+plt.show()</code></pre>
+            </div>
+
+            <div>
+                <h3>Pairplot: aún mejor para EDA</h3>
+                <pre><code class="language-python"># Scatter + histograma para cada par
+sns.pairplot(
+    df,
+    vars=['peso', 'altura', 'edad', 'ingresos'],
+    diag_kind='kde',   # KDE en diagonal
+    plot_kws={'alpha': 0.4, 's': 20},
+    corner=True        # Solo triángulo inferior
+)
+plt.show()</code></pre>
+
+                <div class="note note-blue" style="font-size:0.88rem; margin-top:0.75rem;">
+                    <strong>Consejo:</strong> Antes de hacer el heatmap, usa <code>df.corr().unstack().sort_values(ascending=False)</code> para listar los pares más correlacionados directamente.
+                </div>
+                <div class="note note-yellow" style="font-size:0.88rem;">
+                    <strong>Limitación:</strong> La matriz de correlación solo captura relaciones <em>lineales</em> por default. Para detectar relaciones no lineales considera la <strong>Correlación de Información Mutua (MIC)</strong> o <strong>Distance Correlation</strong>.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════
+         SLIDE 11: Correlación Parcial
+    ════════════════════════════════════ -->
+    <section class="slide">
+        <h2>Correlación Parcial</h2>
+        <p>¿Cuánto se correlacionan $X$ e $Y$ <strong>eliminando el efecto de una tercera variable $Z$</strong>?</p>
+
+        <div class="grid-2">
+            <div>
+                <div class="formula-box">
+                    <span class="formula-label">Correlación parcial de $X$ e $Y$ controlando $Z$</span>
+                    $$r_{XY \cdot Z} = \frac{r_{XY} - r_{XZ} \cdot r_{YZ}}{\sqrt{(1 - r_{XZ}^2)(1 - r_{YZ}^2)}}$$
+                </div>
+
+                <p style="font-size:0.92rem; margin-top:0.75rem;">En esencia: primero regresamos $X$ sobre $Z$ y $Y$ sobre $Z$, obtenemos los residuos, y luego correlacionamos <em>los residuos</em>. Esto "remueve" linealmente el efecto de $Z$.</p>
+
+                <pre><code class="language-python">import pingouin as pg
+
+# Correlación parcial con pingouin
+result = pg.partial_corr(
+    data=df,
+    x='ejercicio',
+    y='salud',
+    covar='edad'     # Control: eliminar efecto de edad
+)
+print(result)
+
+# Output: r, CI95%, p-value, BF10 (Bayes)
+</code></pre>
+            </div>
+
+            <div>
+                <h3>Ejemplo: Educación, Ingresos y Experiencia</h3>
+                <div class="card" style="margin-bottom:1rem;">
+                    <h4>Correlaciones brutas</h4>
+                    <ul style="font-size:0.9rem; margin-top:0.5rem;">
+                        <li>$r(\text{educación, ingresos}) = 0.65$</li>
+                        <li>$r(\text{experiencia, ingresos}) = 0.70$</li>
+                        <li>$r(\text{educación, experiencia}) = -0.45$ ← ¡negativa!</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>Correlaciones parciales</h4>
+                    <ul style="font-size:0.9rem; margin-top:0.5rem;">
+                        <li>$r(\text{educ., ingr.} \mid \text{exp.}) = 0.48$ ← se reduce</li>
+                        <li>$r(\text{exp., ingr.} \mid \text{educ.}) = 0.55$ ← también baja</li>
+                    </ul>
+                </div>
+                <div class="note note-green" style="font-size:0.87rem; margin-top:0.75rem;">
+                    La correlación parcial revela que parte de la relación entre educación e ingresos <em>era</em> realmente efecto de la experiencia, y viceversa. Esencial en análisis multivariado.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════
+         SLIDE 12: Ejercicio Práctico
+    ════════════════════════════════════ -->
+    <section class="slide">
+        <h2>Ejercicio Práctico: Dataset MPG</h2>
+        <p>Analizamos el dataset clásico de eficiencia de combustible de automóviles.</p>
+
+        <div class="grid-2">
+            <pre><code class="language-python">import seaborn as sns
+import pandas as pd
+from scipy import stats
+import matplotlib.pyplot as plt
+
+df = sns.load_dataset('mpg').dropna()
+
+# ── Análisis completo ──────────────────
+vars_num = ['mpg','cylinders','displacement',
+            'horsepower','weight','acceleration']
+
+# 1. Matriz de correlación
+corr = df[vars_num].corr()
+
+# 2. Correlación peso vs eficiencia
+r, p = stats.pearsonr(df['weight'], df['mpg'])
+n = len(df)
+r2 = r**2
+t_stat = r * (n-2)**0.5 / (1 - r**2)**0.5
+print(f"r = {r:.3f}")
+print(f"r² = {r2:.3f}  → {r2*100:.1f}% de varianza")
+print(f"t({n-2}) = {t_stat:.2f},  p = {p:.2e}")
+
+# 3. Comparar Pearson vs Spearman
+r_s, p_s = stats.spearmanr(df['weight'], df['mpg'])
+print(f"\nSpearman ρ = {r_s:.3f},  p = {p_s:.2e}")
+</code></pre>
+
+            <div class="flex-col gap-1">
+                <div class="card-accent">
+                    <h4>Resultados: Peso vs. Eficiencia</h4>
+                    <table style="color: #ccc; margin-top: 0.75rem; font-size:0.88rem;">
+                        <tr><td style="border-color:#444; padding: 0.5rem 0.75rem;"><strong style="color:white;">Pearson $r$</strong></td><td style="border-color:#444;">−0.832</td></tr>
+                        <tr><td style="border-color:#444; padding: 0.5rem 0.75rem;"><strong style="color:white;">$r^2$</strong></td><td style="border-color:#444;">0.692 → el 69.2% de la varianza de mpg</td></tr>
+                        <tr><td style="border-color:#444; padding: 0.5rem 0.75rem;"><strong style="color:white;">$t_{390}$</strong></td><td style="border-color:#444;">−29.4,  $p < 10^{-90}$</td></tr>
+                        <tr><td style="border-color:#444; padding: 0.5rem 0.75rem;"><strong style="color:white;">Spearman $\rho$</strong></td><td style="border-color:#444;">−0.863 (más fuerte → leve no-linealidad)</td></tr>
+                    </table>
+                </div>
+                <div class="note note-blue" style="font-size:0.88rem; margin:0;">
+                    <strong>Interpretación:</strong> La diferencia entre Pearson y Spearman sugiere que la relación es monótonamente decreciente pero con cierta curvatura. Valdría la pena transformar con $\log(\text{weight})$ antes de usar regresión lineal.
+                </div>
+                <div class="note note-yellow" style="font-size:0.88rem; margin:0;">
+                    <strong>¿Causalidad?</strong> El peso causa mayor consumo por física (inercia, fricción), no solo correlación espuria. Aun así, existe una variable confusora relevante: el <em>tipo de motor</em> (cilindros).
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════
+         SLIDE 13: Resumen
+    ════════════════════════════════════ -->
+    <section class="slide">
+        <h2>Resumen: Lo Esencial</h2>
+
+        <div class="grid-3">
+            <div class="card">
+                <h4><span class="badge badge-black">1</span> Fórmula y propiedades</h4>
+                <p style="font-size:0.9rem;">$r = \text{Cov}(X,Y) / (s_X s_Y)$. Rango $[-1,+1]$. Invariante a transformaciones lineales. Sensible a outliers y solo mide linealidad.</p>
+            </div>
+            <div class="card">
+                <h4><span class="badge badge-black">2</span> Significación estadística</h4>
+                <p style="font-size:0.9rem;">$t = r\sqrt{n-2}/\sqrt{1-r^2} \sim t_{n-2}$. Con $n$ grande, hasta un $r$ pequeño puede ser significativo. Reportar siempre $r^2$.</p>
+            </div>
+            <div class="card">
+                <h4><span class="badge badge-black">3</span> Cuarteto de Anscombe</h4>
+                <p style="font-size:0.9rem;">Nunca reportar $r$ sin visualizar el scatter plot. El mismo $r$ puede corresponder a patrones radicalmente distintos.</p>
+            </div>
+            <div class="card">
+                <h4><span class="badge badge-black">4</span> Spearman y Kendall</h4>
+                <p style="font-size:0.9rem;">Usar cuando haya outliers, datos ordinales o relaciones monótonas no lineales. Preferir Kendall con muestras pequeñas ($n < 20$).</p>
+            </div>
+            <div class="card">
+                <h4><span class="badge badge-black">5</span> Correlación espuria</h4>
+                <p style="font-size:0.9rem;">Variable confusora, causalidad inversa o tendencia temporal compartida pueden generar $r$ alto. Causalidad requiere diseño experimental.</p>
+            </div>
+            <div class="card">
+                <h4><span class="badge badge-black">6</span> Correlación parcial</h4>
+                <p style="font-size:0.9rem;">$r_{XY \cdot Z}$ elimina el efecto lineal de $Z$. Imprescindible en análisis multivariado para no confundir relaciones directas e indirectas.</p>
+            </div>
+        </div>
+
+        <div class="grid-2" style="margin-top: 1.5rem;">
+            <div class="note note-green" style="margin:0;">
+                <strong>🎯 Próxima Clase:</strong> Regresión Lineal Simple y Múltiple. Pasamos de <em>cuantificar</em> la relación ($r$) a <em>modelarla</em> y <em>predecir</em> ($\hat{y} = \beta_0 + \beta_1 x$). Revisaremos los coeficientes de regresión, $R^2$, y los supuestos de los residuos.
+            </div>
+            <div class="note note-yellow" style="margin:0;">
+                <strong>📚 Para casa:</strong> Carguen el dataset <code>titanic</code> o <code>diamonds</code> de seaborn y: (1) generen la matriz de correlación, (2) identifiquen el par más correlacionado, (3) verifiquen si hay diferencias significativas entre Pearson y Spearman, (4) grafiquen el scatter plot del par principal.
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<!-- CONTROLS -->
+<div class="controls">
+    <button class="btn" id="prevBtn" onclick="plusSlides(-1)" disabled>← Anterior</button>
+    <button class="btn" id="nextBtn" onclick="plusSlides(1)">Siguiente →</button>
+</div>
+<div class="key-hint">
+    <kbd>←</kbd> <kbd>→</kbd> para navegar &nbsp;|&nbsp; <kbd>Space</kbd> para avanzar
+</div>
+
+<script>
+    const TOTAL = 13;
+    let slideIndex = 1;
+
+    // Init
+    hljs.highlightAll();
+    showSlides(1);
+
+    function plusSlides(n) { showSlides(slideIndex + n); }
+
+    function showSlides(n) {
+        const slides  = document.getElementsByClassName("slide");
+        const prevBtn = document.getElementById("prevBtn");
+        const nextBtn = document.getElementById("nextBtn");
+        const counter = document.getElementById("navCounter");
+        const bar     = document.getElementById("progressBar");
+
+        if (n > TOTAL) n = 1;
+        if (n < 1)     n = TOTAL;
+        slideIndex = n;
+
+        for (let i = 0; i < slides.length; i++) {
+            slides[i].style.display = "none";
+            slides[i].classList.remove("active");
+        }
+        slides[slideIndex - 1].style.display = "flex";
+        slides[slideIndex - 1].classList.add("active");
+
+        // Scroll to top on slide change
+        slides[slideIndex - 1].scrollTop = 0;
+
+        prevBtn.disabled = (slideIndex === 1);
+        nextBtn.innerHTML = (slideIndex === TOTAL) ? "↺ Reiniciar" : "Siguiente →";
+        counter.textContent = `${slideIndex} / ${TOTAL}`;
+        bar.style.width = `${(slideIndex / TOTAL) * 100}%`;
+
+        // Re-run MathJax on current slide
+        if (window.MathJax) {
+            MathJax.typesetPromise([slides[slideIndex - 1]]).catch(console.error);
+        }
+    }
+
+    document.addEventListener('keydown', e => {
+        if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); plusSlides(1); }
+        if (e.key === "ArrowLeft")                   { e.preventDefault(); plusSlides(-1); }
+    });
+</script>
+</body>
+</html>

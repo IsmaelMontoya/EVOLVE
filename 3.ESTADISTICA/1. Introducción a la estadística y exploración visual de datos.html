@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clase 1: Exploración Visual de Datos</title>
+
+    <!-- Highlight.js for code syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            /* Black & White Theme Variables */
+            --bg-body: #ffffff;
+            --bg-slide: #ffffff;
+            --text-main: #111111;
+            --text-secondary: #555555;
+            --border-color: #e0e0e0;
+            --accent-black: #000000;
+            --accent-gray: #f4f4f4;
+
+            /* Color Accents (Only for highlights) */
+            --highlight-yellow-bg: #fffde7;
+            --highlight-yellow-border: #fbc02d;
+            --highlight-blue-bg: #e3f2fd;
+            --highlight-blue-border: #2196f3;
+            --highlight-red: #d32f2f;
+
+            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: #f0f0f0;
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Nav Bar */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo svg {
+            height: 32px;
+            width: auto;
+        }
+
+        .nav-logo svg path {
+            fill: #000000 !important;
+        }
+
+        .nav-info {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .presentation-container {
+            max-width: 1200px;
+            margin: 80px auto 40px;
+            background: var(--bg-slide);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            min-height: calc(100vh - 120px);
+            position: relative;
+        }
+
+        /* Slide Styles */
+        .slide {
+            display: none;
+            padding: 4rem 5rem;
+            height: 100%;
+            animation: fadeIn 0.4s ease-in-out;
+            position: relative;
+            /* For slide number positioning */
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        .slide-number {
+            position: absolute;
+            bottom: 2rem;
+            right: 2rem;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: #999;
+            background: #f4f4f4;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 600;
+            letter-spacing: -0.05em;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            color: var(--accent-black);
+        }
+
+        h2 {
+            font-size: 2.25rem;
+            font-weight: 600;
+            letter-spacing: -0.03em;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--accent-black);
+            padding-bottom: 1rem;
+            display: inline-block;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        p {
+            font-size: 1.125rem;
+            margin-bottom: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 80ch;
+        }
+
+        strong {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        /* Layout Grids */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+
+        .card {
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            border-radius: 4px;
+            background: #fafafa;
+        }
+
+        .card h4 {
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+            color: var(--accent-black);
+        }
+
+        .card p {
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
+
+        /* Callouts / Notes with Color */
+        .note {
+            padding: 1rem 1.5rem;
+            border-radius: 0 4px 4px 0;
+            margin: 1.5rem 0;
+            font-size: 1rem;
+        }
+
+        .note-yellow {
+            background-color: var(--highlight-yellow-bg);
+            border-left: 4px solid var(--highlight-yellow-border);
+            color: #5d4037;
+        }
+
+        .note-blue {
+            background-color: var(--highlight-blue-bg);
+            border-left: 4px solid var(--highlight-blue-border);
+            color: #0d47a1;
+        }
+
+        .note strong {
+            color: inherit;
+        }
+
+        /* CSS Diagrams */
+        .diagram-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 2rem 0;
+            padding: 2rem;
+            background: var(--accent-gray);
+            border-radius: 8px;
+        }
+
+        .flow-diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .flow-box {
+            border: 2px solid black;
+            padding: 1rem 2rem;
+            background: white;
+            font-weight: 600;
+            min-width: 200px;
+            text-align: center;
+            box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
+        }
+
+        .arrow-down {
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 15px solid black;
+        }
+
+        .arrow-text {
+            font-size: 0.9rem;
+            color: #666;
+            margin: 0.5rem 0;
+            font-style: italic;
+        }
+
+        /* CSS Bar Chart */
+        .css-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            height: 200px;
+            border-bottom: 2px solid #333;
+            border-left: 2px solid #333;
+            padding: 10px;
+            background: white;
+        }
+
+        .css-bar {
+            width: 40px;
+            background: #333;
+            transition: height 0.3s;
+            position: relative;
+        }
+
+        .css-bar:hover {
+            background: var(--highlight-blue-border);
+        }
+
+        .css-bar span {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            font-family: var(--font-mono);
+        }
+
+        /* CSS Boxplot */
+        .css-boxplot-container {
+            position: relative;
+            height: 200px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: white;
+            border: 1px solid #eee;
+        }
+
+        .css-boxplot {
+            position: relative;
+            width: 100px;
+            height: 140px;
+            border: 2px solid black;
+            /* Box: Q1 to Q3 */
+            background: #f0f0f0;
+        }
+
+        .css-median {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: red;
+            /* Color to stand out */
+            z-index: 10;
+        }
+
+        .css-whisker-top {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            width: 2px;
+            height: 30px;
+            background: black;
+        }
+
+        .css-whisker-cap-top {
+            position: absolute;
+            top: -30px;
+            left: 25px;
+            width: 50px;
+            height: 2px;
+            background: black;
+        }
+
+        .css-whisker-bottom {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            width: 2px;
+            height: 30px;
+            background: black;
+        }
+
+        .css-whisker-cap-bottom {
+            position: absolute;
+            bottom: -30px;
+            left: 25px;
+            width: 50px;
+            height: 2px;
+            background: black;
+        }
+
+        .css-outlier {
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            width: 8px;
+            height: 8px;
+            background: transparent;
+            border: 2px solid var(--highlight-red);
+            border-radius: 50%;
+            transform: translateX(-50%);
+        }
+
+        .css-label {
+            position: absolute;
+            font-size: 0.8rem;
+            color: #666;
+            font-family: var(--font-mono);
+        }
+
+        /* Tables & Lists */
+        ul {
+            list-style-type: none;
+        }
+
+        ul li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        ul li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--accent-black);
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 1rem;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            font-weight: 600;
+            background-color: var(--accent-gray);
+            color: var(--accent-black);
+        }
+
+        /* Code Blocks */
+        pre {
+            background: #1e1e1e;
+            padding: 1.5rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+
+        code {
+            font-family: var(--font-mono);
+            font-size: 0.9em;
+        }
+
+        p code {
+            background: var(--accent-gray);
+            color: var(--accent-black);
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        /* Controllers */
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 2000;
+        }
+
+        .btn {
+            background: black;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-family: var(--font-main);
+            font-weight: 500;
+            border-radius: 4px;
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover {
+            opacity: 0.8;
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Specific Slide Styling */
+        .slide-title-page {
+            display: flex !important;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .slide-title-page .subtitle {
+            font-size: 1.5rem;
+            font-weight: 300;
+            color: var(--text-secondary);
+            border-left: 4px solid black;
+            padding-left: 1.5rem;
+        }
+
+        .meta-info {
+            margin-top: 3rem;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: #888;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="nav">
+        <div class="nav-logo">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 111 39">
+                <path
+                    d="M110.949 22.0598C110.949 18.124 108.692 15.8178 104.961 15.8178C101.231 15.8178 99.0003 18.3173 99.0003 22.2255C99.0003 26.1336 101.933 28.716 105.231 28.716C108.529 28.716 110.165 26.9484 110.733 24.8493L107.678 23.9655C107.313 24.9184 106.624 25.5536 105.272 25.5536C103.92 25.5536 102.623 24.5731 102.555 23.206H110.868C110.922 22.8193 110.949 22.4464 110.935 22.0598H110.949ZM102.636 20.8169C102.704 19.9054 103.474 18.7592 105.015 18.7592C106.556 18.7592 107.353 19.9054 107.421 20.8169H102.636ZM79.726 10.6392H83.3754V28.357H79.726V10.6392ZM49.5845 28.357H38.7714V11.012H49.571V14.6578H42.5695V17.9583H48.9222V21.3555H42.5695V24.6836H49.5845V28.357ZM71.0215 28.716C74.5763 28.716 77.3742 26.0507 77.3742 22.2531C77.3742 18.4554 74.5898 15.8178 71.035 15.8178C67.4802 15.8178 64.6823 18.4969 64.6823 22.2531C64.6823 26.0093 67.4667 28.716 71.035 28.716H71.0215ZM71.0215 19.2426C72.4137 19.2426 73.7112 20.1954 73.7112 22.2531C73.7112 24.3107 72.4137 25.2912 71.0215 25.2912C69.6563 25.2912 68.3317 24.3245 68.3317 22.2669C68.3317 20.2093 69.6563 19.2426 71.0215 19.2426ZM60.1813 16.1906H64.0335L59.492 28.357H55.8156L50.9091 16.1906H54.8694L57.6403 23.7583L60.1813 16.1906ZM94.5129 16.1906H98.3651L93.8236 28.357H90.1471L85.2407 16.1906H89.201L91.9718 23.7583L94.5129 16.1906ZM21.7814 15.4725C26.5256 21.9217 27.7015 25.7746 27.2825 28.8679C26.8635 31.9613 24.4711 35.2342 21.7814 37.5128L14.5096 28.5503C12.5632 25.7607 6.71063 18.925 6.79173 15.4725C6.18349 11.4263 10.6033 5.68148 12.5767 2.7124L21.7814 15.4725ZM7.38645 26.0646C8.04875 27.045 8.40017 28.2051 8.42721 29.3927C8.45424 30.5803 8.12985 31.7541 7.50809 32.7622L4.5345 37.5266L1.08782 32.5689C0.425523 31.616 0.0605812 30.4975 0.0065158 29.3236C-0.0475496 28.1636 0.236294 27.0036 0.803981 25.9955L3.81813 20.6788L7.41348 26.0646H7.38645Z"
+                    fill="#000000" />
+            </svg>
+        </div>
+        <div class="nav-info">
+            Estadística para Data Science &mdash; Clase 1
+        </div>
+    </nav>
+
+    <div class="presentation-container">
+
+        <!-- SLIDE 1: Title -->
+        <section class="slide slide-title-page active">
+            <h1>Exploración Visual de Datos</h1>
+            <p class="subtitle">Entendiendo la naturaleza de la información a través de la estadística descriptiva y la
+                visualización técnica.</p>
+
+            <div class="meta-info">
+                CLASE 1 DE 8 &bull; MÓDULO DE ESTADÍSTICA
+            </div>
+            <div class="slide-number">1</div>
+        </section>
+
+        <!-- SLIDE 2: Objectives -->
+        <section class="slide">
+            <h2>Objetivos de la Sesión</h2>
+            <p>Al finalizar esta clase, dominaremos los siguientes fundamentos esenciales:</p>
+
+            <ul>
+                <li><strong>Distinción conceptual:</strong> Entender la diferencia crítica entre estadística descriptiva
+                    (lo que vemos) e inferencial (lo que concluimos).</li>
+                <li><strong>Taxonomía de datos:</strong> Clasificar correctamente cualquier variable en su categoría
+                    teórica (cualitativa vs. cuantitativa).</li>
+                <li><strong>Estrategia visual:</strong> Seleccionar el gráfico matemáticamente correcto para cada tipo
+                    de dato.</li>
+                <li><strong>Causalidad vs Correlación:</strong> Aprender a diferenciar relación de origen.</li>
+                <li><strong>Implementación técnica:</strong> Generar visualizaciones profesionales usando el ecosistema
+                    de Python (Matplotlib y Seaborn).</li>
+            </ul>
+            <div class="slide-number">2</div>
+        </section>
+
+        <!-- SLIDE 3: Statistics Concept -->
+        <section class="slide">
+            <h2>El Ciclo del Dato</h2>
+
+            <div class="diagram-container">
+                <div class="flow-diagram">
+                    <div class="flow-box">POBLACIÓN</div>
+                    <div class="arrow-text">Universo total de datos posibles</div>
+                    <div class="arrow-down"></div>
+                    <div class="arrow-text">Muestreo</div>
+                    <div class="flow-box" style="border-style: dashed;">MUESTRA</div>
+                    <div class="arrow-down"></div>
+                    <div class="arrow-text">Análisis</div>
+                    <div class="flow-box" style="background: black; color: white;">ESTADÍSTICA DESCRIPTIVA</div>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h4>Estadística Descriptiva</h4>
+                    <p>Se limita a describir el conjunto de datos observado. Calcula métricas exactas (media, varianza)
+                        sobre la muestra. No asume nada sobre lo que no ve.</p>
+                </div>
+                <div class="card">
+                    <h4>Estadística Inferencial</h4>
+                    <p>Utiliza la muestra para estimar propiedades de la población completa. Introduce el concepto de
+                        probabilidad y margen de error.</p>
+                </div>
+            </div>
+            <div class="slide-number">3</div>
+        </section>
+
+        <!-- SLIDE 4: Variable Types -->
+        <section class="slide">
+            <h2>Clasificación de Variables</h2>
+            <p>El primer paso de cualquier análisis es entender la naturaleza de los atributos.</p>
+
+            <div class="grid-2">
+                <div>
+                    <h3>Variables Cualitativas</h3>
+                    <p>Describen cualidades o categorías. No son intrínsecamente numéricas.</p>
+
+                    <ul style="margin-top: 1rem;">
+                        <li><strong>Nominales:</strong> Sin orden implícito.<br>
+                            <span style="font-size:0.9em; opacity:0.8;">Ej: País (España, Francia), Color (Rojo,
+                                Azul).</span>
+                        </li>
+                        <li><strong>Ordinales:</strong> Existe una jerarquía clara.<br>
+                            <span style="font-size:0.9em; opacity:0.8;">Ej: Nivel educativo, Escala de satisfacción
+                                (Bajo, Medio, Alto).</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3>Variables Cuantitativas</h3>
+                    <p>Representan magnitudes numéricas donde las operaciones matemáticas son válidas.</p>
+
+                    <ul style="margin-top: 1rem;">
+                        <li><strong>Discretas:</strong> Valores contables y finitos (saltos).<br>
+                            <span style="font-size:0.9em; opacity:0.8;">Ej: Número de hijos, Cantidad de
+                                productos.</span>
+                        </li>
+                        <li><strong>Continuas:</strong> Valores infinitos dentro de un rango.<br>
+                            <span style="font-size:0.9em; opacity:0.8;">Ej: Altura (1.75m), Salario, Tiempo.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="slide-number">4</div>
+        </section>
+
+        <!-- SLIDE 5: Scales -->
+        <section class="slide">
+            <h2>Escalas de Medición</h2>
+            <p>La escala dicta qué operaciones estadísticas están permitidas.</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Escala</th>
+                        <th>Operaciones Válidas</th>
+                        <th>Test de "Doble"</th>
+                        <th>Ejemplo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Nominal</strong></td>
+                        <td>Igualdad (=, ≠)</td>
+                        <td>No aplica</td>
+                        <td>Código Postal</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Ordinal</strong></td>
+                        <td>Orden (<,>)</td>
+                        <td>No aplica</td>
+                        <td>Ranking militar</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Intervalo</strong></td>
+                        <td>Diferencia (+, -)</td>
+                        <td>Falso</td>
+                        <td>Temperatura (ºC)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Razón</strong></td>
+                        <td>Proporción (×, ÷)</td>
+                        <td>Verdadero</td>
+                        <td>Dinero, Distancia</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="note note-yellow">
+                <strong>💡 Nota Conceptual:</strong> En la escala de intervalo (como °C), el cero es arbitrario. 20°C
+                no es "el doble de calor" que 10°C. En la escala de razón (como el dinero), el cero es absoluto
+                (ausencia de valor), por lo que 20€ sí es el doble que 10€.
+            </div>
+            <div class="slide-number">5</div>
+        </section>
+
+        <!-- SLIDE 6: Python Setup -->
+        <section class="slide">
+            <h2>Entorno de Trabajo</h2>
+            <p>Configuración estándar para análisis de datos en Python.</p>
+
+            <pre><code class="language-python">import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Configuración visual para mantener consistencia
+plt.style.use('seaborn-v0_8-whitegrid')
+plt.rcParams['figure.figsize'] = [10, 6]
+plt.rcParams['font.size'] = 12
+
+# Carga de datos de ejemplo (Seaborn Tips)
+tips = sns.load_dataset('tips')</code></pre>
+
+            <div class="note note-blue">
+                Este código prepara el lienzo y carga un dataset clásico que contiene tanto variables numéricas (cuenta,
+                propina) como categóricas (día, género).
+            </div>
+            <div class="slide-number">6</div>
+        </section>
+
+        <!-- SLIDE 7: Histograms -->
+        <section class="slide">
+            <h2>El Histograma</h2>
+            <p>La herramienta fundamental para entender la distribución de una variable numérica continua.</p>
+
+            <div class="grid-2">
+                <div>
+                    <pre><code class="language-python">plt.hist(tips['total_bill'], bins=20, 
+         color='#333333', edgecolor='white')
+plt.title('Distribución de Facturación')
+plt.show()</code></pre>
+                    <p><strong>Observaciones clave:</strong></p>
+                    <ul>
+                        <li>Permite ver la forma (simetría).</li>
+                        <li>Identifica el centro visual de los datos.</li>
+                        <li>Muestra la dispersión (qué tan anchos son los datos).</li>
+                    </ul>
+                </div>
+                <div>
+                    <!-- Replaced placeholder with CSS Chart -->
+                    <div
+                        style="background: #fafafa; padding: 2rem; border: 1px solid #ddd; border-radius: 8px; display: flex; justify-content: center;">
+                        <div class="css-chart">
+                            <div class="css-bar" style="height: 30%;"><span>10</span></div>
+                            <div class="css-bar" style="height: 60%;"><span>20</span></div>
+                            <div class="css-bar" style="height: 90%;"><span>30</span></div>
+                            <div class="css-bar" style="height: 45%;"><span>40</span></div>
+                            <div class="css-bar" style="height: 20%;"><span>50</span></div>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.9rem; text-align: center; margin-top: 1rem;">El histograma agrupa datos
+                        continuos en "bins" o cubos (ej. 10-20, 20-30).</p>
+                </div>
+            </div>
+            <div class="slide-number">7</div>
+        </section>
+
+        <!-- SLIDE 8: Boxplots -->
+        <section class="slide">
+            <h2>Diagrama de Caja (Boxplot)</h2>
+            <p>El estándar industrial para detectar outliers y comparar dispersión entre grupos.</p>
+
+            <div class="grid-2">
+                <div class="diagram-container" style="padding: 1rem; background: transparent;">
+                    <!-- Replaced ASCII with CSS Boxplot -->
+                    <div class="css-boxplot-container">
+                        <div class="css-outlier"><span class="css-label" style="top: -20px; left: 20px;">Outlier</span>
+                        </div>
+                        <div class="css-whisker-cap-top"><span class="css-label" style="left: 60px;">Máx (Q3 + 1.5
+                                IQR)</span></div>
+                        <div class="css-whisker-top"></div>
+
+                        <div class="css-boxplot">
+                            <div class="css-median"></div>
+                            <span class="css-label" style="top: -20px; right: -40px;">Q3 (75%)</span>
+                            <span class="css-label" style="top: 45%; right: -60px; color: red;">Mediana (50%)</span>
+                            <span class="css-label" style="bottom: -20px; right: -40px;">Q1 (25%)</span>
+                        </div>
+
+                        <div class="css-whisker-bottom"></div>
+                        <div class="css-whisker-cap-bottom"><span class="css-label" style="left: 60px;">Mín (Q1 - 1.5
+                                IQR)</span></div>
+                    </div>
+                </div>
+                <div>
+                    <pre><code class="language-python">sns.boxplot(
+    data=tips, 
+    x='day', 
+    y='total_bill'
+)</code></pre>
+                    <p>Divide los datos en cuartiles. La caja central contiene el 50% de los datos. Todo lo que esté
+                        fuera de los "bigotes" (1.5 veces el rango intercuartílico) se considera matemáticamente
+                        anómalo.</p>
+                </div>
+            </div>
+            <div class="slide-number">8</div>
+        </section>
+
+        <!-- SLIDE 9: Scatter Plots -->
+        <section class="slide">
+            <h2>Scatter Plots (Dispersión)</h2>
+            <p>Revelan la relación (correlación) entre dos variables numéricas.</p>
+
+            <div class="grid-2">
+                <div>
+                    <pre><code class="language-python">plt.scatter(tips['total_bill'], tips['tip'])
+plt.xlabel('Factura ($)')
+plt.ylabel('Propina ($)')</code></pre>
+                </div>
+                <div>
+                    <div class="note note-yellow">
+                        <strong>Patrones a buscar:</strong>
+                        <ul style="margin-top: 0.5rem;">
+                            <li><strong>Dirección:</strong> ¿Positiva (suben juntos) o negativa?</li>
+                            <li><strong>Forma:</strong> ¿Lineal o curva?</li>
+                            <li><strong>Fuerza:</strong> ¿Están los puntos muy pegados o dispersos?</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-number">9</div>
+        </section>
+
+        <!-- NEW SLIDE 10: Correlation Intro -->
+        <section class="slide">
+            <h2>Correlación vs Causalidad</h2>
+            <p>Una de las trampas más peligrosas en el análisis de datos.</p>
+
+            <div class="card" style="text-align: center; padding: 3rem;">
+                <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">"Correlación ≠ Causalidad"</h1>
+                <p style="font-size: 1.25rem;">Que dos eventos ocurran juntos no significa que uno cause al otro.</p>
+            </div>
+
+            <div class="grid-2" style="margin-top: 2rem;">
+                <div>
+                    <h3>Correlación</h3>
+                    <p>Medida estadística que describe el tamaño y dirección de una relación entre dos o más variables.
+                    </p>
+                    <span style="background: #e0e0e0; padding: 2px 6px; border-radius: 4px;">Lo que observamos en los
+                        datos</span>
+                </div>
+                <div>
+                    <h3>Causalidad</h3>
+                    <p>Indica que un evento es el resultado de la ocurrencia del otro evento.</p>
+                    <span style="background: #e0e0e0; padding: 2px 6px; border-radius: 4px;">Lo que queremos concluir
+                        (con cuidado)</span>
+                </div>
+            </div>
+            <div class="slide-number">10</div>
+        </section>
+
+        <!-- NEW SLIDE 11: Spurious Correlations -->
+        <section class="slide">
+            <h2>Correlaciones Espurias</h2>
+            <p>Ejemplos clásicos donde el sentido común es más importante que el coeficiente matemático.</p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h4>🍦 Helados vs 🦈 Tiburones</h4>
+                    <p>Existe una alta correlación positiva entre la venta de helados y los ataques de tiburones.</p>
+                    <div class="note note-yellow" style="margin-top: 1rem;">
+                        <strong>Variable de confusión:</strong> El Verano.<br>
+                        Cuando hace calor, la gente compra más helados y también nada más en el mar.
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h4>🎵 Nobleza vs Nudillos</h4>
+                    <p>Históricamente, la gente con manos suaves vivía más tiempo que la gente con manos rudas.</p>
+                    <div class="note note-blue" style="margin-top: 1rem;">
+                        <strong>Causa real:</strong> La riqueza.<br>
+                        Los ricos no hacían trabajo manual y tenían mejor acceso a comida y medicina.
+                    </div>
+                </div>
+            </div>
+            <div class="slide-number">11</div>
+        </section>
+
+        <!-- NEW SLIDE 12: Establishing Causality -->
+        <section class="slide">
+            <h2>¿Cómo probamos Causalidad?</h2>
+            <p>Para pasar de "están relacionados" a "A causa B", necesitamos más que un scatter plot.</p>
+
+            <div class="card">
+                <ul style="margin: 0;">
+                    <li style="margin-bottom: 1.5rem;">
+                        <strong>1. Precedencia Temporal:</strong><br>
+                        La causa debe ocurrir antes que el efecto. Si subo el precio hoy, las ventas bajan mañana.
+                    </li>
+                    <li style="margin-bottom: 1.5rem;">
+                        <strong>2. Asociación Covariante:</strong><br>
+                        Si la causa cambia, el efecto debe cambiar también.
+                    </li>
+                    <li>
+                        <strong>3. Eliminación de Alternativas:</strong><br>
+                        Debemos descartar que una tercera variable (como "El Verano") sea la responsable real.
+                    </li>
+                </ul>
+            </div>
+
+            <div class="note note-yellow">
+                En Data Science de negocios, el <strong>A/B Testing</strong> (experimentos controlados) es el estándar
+                de oro para probar causalidad.
+            </div>
+            <div class="slide-number">12</div>
+        </section>
+
+        <!-- SLIDE 13: Decision Matrix -->
+        <section class="slide">
+            <h2>Matriz de Decisión Visual</h2>
+            <p>Resumen para elegir el gráfico correcto.</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Objetivo</th>
+                        <th>Variables</th>
+                        <th>Gráfico</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Distribución</td>
+                        <td>1 Numérica</td>
+                        <td>Histograma, KDE</td>
+                    </tr>
+                    <tr>
+                        <td>Comparación</td>
+                        <td>1 Cat + 1 Num</td>
+                        <td>Boxplot, Violin</td>
+                    </tr>
+                    <tr>
+                        <td>Relación</td>
+                        <td>2 Numéricas</td>
+                        <td>Scatter Plot</td>
+                    </tr>
+                    <tr>
+                        <td>Composición</td>
+                        <td>1 Categórica</td>
+                        <td>Bar Chart</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="slide-number">13</div>
+        </section>
+
+        <!-- SLIDE 14: Exercise -->
+        <section class="slide">
+            <h2>Ejercicio Final</h2>
+            <p>Reflexiona sobre los siguientes escenarios:</p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h4>Caso A: Marketing</h4>
+                    <p>Observas que los usuarios que reciben más emails gastan más dinero.</p>
+                    <p style="margin-top:1rem; font-style:italic; font-size: 0.9rem;">¿Causalidad? ¿O es que los
+                        usuarios fieles se suscriben a más emails?</p>
+                </div>
+                <div class="card">
+                    <h4>Caso B: Operaciones</h4>
+                    <p>Quieres comparar el tiempo de entrega entre 3 empresas de logística diferentes.</p>
+                    <p style="margin-top:1rem; font-style:italic; font-size: 0.9rem;">¿Qué gráfico usarías para ver no
+                        solo el promedio, sino la fiabilidad?</p>
+                </div>
+            </div>
+            <div class="slide-number">14</div>
+        </section>
+
+    </div>
+
+    <div class="controls">
+        <button class="btn" id="prevBtn" onclick="plusSlides(-1)" disabled>Anterior</button>
+        <button class="btn" id="nextBtn" onclick="plusSlides(1)">Siguiente</button>
+    </div>
+
+    <script>
+        let slideIndex = 1;
+        showSlides(slideIndex);
+
+        // Highlight code blocks
+        hljs.highlightAll();
+
+        function plusSlides(n) {
+            showSlides(slideIndex += n);
+        }
+
+        function currentSlide(n) {
+            showSlides(slideIndex = n);
+        }
+
+        function showSlides(n) {
+            let i;
+            let slides = document.getElementsByClassName("slide");
+            let prevBtn = document.getElementById("prevBtn");
+            let nextBtn = document.getElementById("nextBtn");
+
+            if (n > slides.length) { slideIndex = 1 }
+            if (n < 1) { slideIndex = slides.length }
+
+            for (i = 0; i < slides.length; i++) {
+                slides[i].style.display = "none";
+                slides[i].classList.remove("active");
+            }
+
+            slides[slideIndex - 1].style.display = "block";
+            slides[slideIndex - 1].classList.add("active");
+
+            // Update button states
+            prevBtn.disabled = (slideIndex === 1);
+            nextBtn.innerHTML = (slideIndex === slides.length) ? "Finalizar" : "Siguiente";
+        }
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === "ArrowRight") {
+                plusSlides(1);
+            } else if (event.key === "ArrowLeft") {
+                if (slideIndex > 1) {
+                    plusSlides(-1);
+                }
+            }
+        });
+    </script>
+
+</body>
+
+</html>

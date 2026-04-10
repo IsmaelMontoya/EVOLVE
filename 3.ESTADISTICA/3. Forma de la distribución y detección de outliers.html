@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clase 3: Forma de Distribuciones y Detección de Outliers</title>
+
+    <!-- Highlight.js for code syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-body: #ffffff;
+            --bg-slide: #ffffff;
+            --text-main: #111111;
+            --text-secondary: #555555;
+            --border-color: #e0e0e0;
+            --accent-black: #000000;
+            --accent-gray: #f4f4f4;
+            --highlight-yellow-bg: #fffde7;
+            --highlight-yellow-border: #fbc02d;
+            --highlight-blue-bg: #e3f2fd;
+            --highlight-blue-border: #2196f3;
+            --highlight-red: #d32f2f;
+            --highlight-green: #2e7d32;
+            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: #f0f0f0;
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo svg {
+            height: 32px;
+            width: auto;
+        }
+
+        .nav-logo svg path {
+            fill: #000000 !important;
+        }
+
+        .nav-info {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .presentation-container {
+            max-width: 1200px;
+            margin: 80px auto 40px;
+            background: var(--bg-slide);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            min-height: calc(100vh - 120px);
+            position: relative;
+        }
+
+        .slide {
+            display: none;
+            padding: 4rem 5rem;
+            height: 100%;
+            animation: fadeIn 0.4s ease-in-out;
+            position: relative;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        .slide-number {
+            position: absolute;
+            bottom: 2rem;
+            right: 2rem;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: #999;
+            background: #f4f4f4;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 600;
+            letter-spacing: -0.05em;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            color: var(--accent-black);
+        }
+
+        h2 {
+            font-size: 2.25rem;
+            font-weight: 600;
+            letter-spacing: -0.03em;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--accent-black);
+            padding-bottom: 1rem;
+            display: inline-block;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        h4 {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            font-size: 1.125rem;
+            margin-bottom: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 80ch;
+        }
+
+        strong {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .card {
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            border-radius: 4px;
+            background: #fafafa;
+        }
+
+        .card h4 {
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+            color: var(--accent-black);
+        }
+
+        .card p {
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
+
+        .note {
+            padding: 1rem 1.5rem;
+            border-radius: 0 4px 4px 0;
+            margin: 1.5rem 0;
+            font-size: 1rem;
+        }
+
+        .note-yellow {
+            background-color: var(--highlight-yellow-bg);
+            border-left: 4px solid var(--highlight-yellow-border);
+            color: #5d4037;
+        }
+
+        .note-blue {
+            background-color: var(--highlight-blue-bg);
+            border-left: 4px solid var(--highlight-blue-border);
+            color: #0d47a1;
+        }
+
+        .note strong {
+            color: inherit;
+        }
+
+        .formula {
+            background: #f9f9f9;
+            border: 2px solid #333;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 1.3rem;
+            margin: 1.5rem 0;
+            font-weight: 500;
+        }
+
+        ul {
+            list-style-type: none;
+        }
+
+        ul li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        ul li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--accent-black);
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 1rem;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            font-weight: 600;
+            background-color: var(--accent-gray);
+            color: var(--accent-black);
+        }
+
+        pre {
+            background: #1e1e1e;
+            padding: 1.5rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+
+        code {
+            font-family: var(--font-mono);
+            font-size: 0.9em;
+        }
+
+        p code {
+            background: var(--accent-gray);
+            color: var(--accent-black);
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 2000;
+        }
+
+        .btn {
+            background: black;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-family: var(--font-main);
+            font-weight: 500;
+            border-radius: 4px;
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover {
+            opacity: 0.8;
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .slide-title-page {
+            display: flex !important;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .slide-title-page .subtitle {
+            font-size: 1.5rem;
+            font-weight: 300;
+            color: var(--text-secondary);
+            border-left: 4px solid black;
+            padding-left: 1.5rem;
+        }
+
+        .meta-info {
+            margin-top: 3rem;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        /* Distribution shape visualization */
+        .distrib-visual {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            padding: 2rem;
+            background: #fafafa;
+            border-radius: 8px;
+            margin: 2rem 0;
+            height: 200px;
+        }
+
+        .distrib-shape {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .shape-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        /* Decision tree style */
+        .decision-tree {
+            background: #f9f9f9;
+            padding: 2rem;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            line-height: 1.8;
+            margin: 1.5rem 0;
+        }
+
+        /* Strategy boxes */
+        .strategy-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .strategy-box {
+            border: 2px solid #333;
+            padding: 1.5rem;
+            border-radius: 6px;
+            background: white;
+        }
+
+        .strategy-box h4 {
+            background: #333;
+            color: white;
+            padding: 0.5rem 1rem;
+            margin: -1.5rem -1.5rem 1rem -1.5rem;
+            border-radius: 4px 4px 0 0;
+        }
+
+        .pro-con {
+            display: flex;
+            gap: 0.5rem;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .icon {
+            font-size: 1.1rem;
+        }
+
+        /* Visual limits diagram */
+        .limits-diagram {
+            background: #f9f9f9;
+            border: 2px solid #333;
+            padding: 2rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .limit-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 1rem 0;
+            padding: 0.75rem;
+            background: white;
+            border-radius: 4px;
+        }
+
+        .limit-value {
+            font-family: var(--font-mono);
+            font-weight: 600;
+            color: var(--highlight-blue-border);
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="nav">
+        <div class="nav-logo">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 111 39">
+                <path
+                    d="M110.949 22.0598C110.949 18.124 108.692 15.8178 104.961 15.8178C101.231 15.8178 99.0003 18.3173 99.0003 22.2255C99.0003 26.1336 101.933 28.716 105.231 28.716C108.529 28.716 110.165 26.9484 110.733 24.8493L107.678 23.9655C107.313 24.9184 106.624 25.5536 105.272 25.5536C103.92 25.5536 102.623 24.5731 102.555 23.206H110.868C110.922 22.8193 110.949 22.4464 110.935 22.0598H110.949ZM102.636 20.8169C102.704 19.9054 103.474 18.7592 105.015 18.7592C106.556 18.7592 107.353 19.9054 107.421 20.8169H102.636ZM79.726 10.6392H83.3754V28.357H79.726V10.6392ZM49.5845 28.357H38.7714V11.012H49.571V14.6578H42.5695V17.9583H48.9222V21.3555H42.5695V24.6836H49.5845V28.357ZM71.0215 28.716C74.5763 28.716 77.3742 26.0507 77.3742 22.2531C77.3742 18.4554 74.5898 15.8178 71.035 15.8178C67.4802 15.8178 64.6823 18.4969 64.6823 22.2531C64.6823 26.0093 67.4667 28.716 71.035 28.716H71.0215ZM71.0215 19.2426C72.4137 19.2426 73.7112 20.1954 73.7112 22.2531C73.7112 24.3107 72.4137 25.2912 71.0215 25.2912C69.6563 25.2912 68.3317 24.3245 68.3317 22.2669C68.3317 20.2093 69.6563 19.2426 71.0215 19.2426ZM60.1813 16.1906H64.0335L59.492 28.357H55.8156L50.9091 16.1906H54.8694L57.6403 23.7583L60.1813 16.1906ZM94.5129 16.1906H98.3651L93.8236 28.357H90.1471L85.2407 16.1906H89.201L91.9718 23.7583L94.5129 16.1906ZM21.7814 15.4725C26.5256 21.9217 27.7015 25.7746 27.2825 28.8679C26.8635 31.9613 24.4711 35.2342 21.7814 37.5128L14.5096 28.5503C12.5632 25.7607 6.71063 18.925 6.79173 15.4725C6.18349 11.4263 10.6033 5.68148 12.5767 2.7124L21.7814 15.4725ZM7.38645 26.0646C8.04875 27.045 8.40017 28.2051 8.42721 29.3927C8.45424 30.5803 8.12985 31.7541 7.50809 32.7622L4.5345 37.5266L1.08782 32.5689C0.425523 31.616 0.0605812 30.4975 0.0065158 29.3236C-0.0475496 28.1636 0.236294 27.0036 0.803981 25.9955L3.81813 20.6788L7.41348 26.0646H7.38645Z"
+                    fill="#000000" />
+            </svg>
+        </div>
+        <div class="nav-info">
+            Estadística para Data Science &mdash; Clase 3
+        </div>
+    </nav>
+
+    <div class="presentation-container">
+
+        <!-- SLIDE 1: Title -->
+        <section class="slide slide-title-page active">
+            <h1>Forma de Distribuciones<br>y Detección de Outliers</h1>
+            <p class="subtitle">Diagnosticando la asimetría y curtosis de los datos, e identificando valores atípicos
+                con métodos estadísticos robustos.</p>
+
+            <div class="meta-info">
+                CLASE 3 DE 8 &bull; MÓDULO DE ESTADÍSTICA
+            </div>
+            <div class="slide-number">1</div>
+        </section>
+
+        <!-- SLIDE 2: Objectives -->
+        <section class="slide">
+            <h2>Objetivos de la Sesión</h2>
+            <p>Al finalizar esta clase, dominaremos:</p>
+
+            <ul>
+                <li><strong>Asimetría (Skewness):</strong> Interpretar la simetría o sesgo de una distribución y su
+                    impacto en el análisis.</li>
+                <li><strong>Curtosis:</strong> Evaluar el peso de las colas y predecir la presencia de valores
+                    extremos.</li>
+                <li><strong>Detección de outliers:</strong> Aplicar métodos IQR y Z-score para identificar valores
+                    atípicos.</li>
+                <li><strong>Tratamiento documentado:</strong> Decidir y justificar estrategias apropiadas para manejar
+                    outliers.</li>
+                <li><strong>Análisis crítico:</strong> Distinguir entre errores de datos y valores legítimos pero
+                    raros.</li>
+            </ul>
+            <div class="slide-number">2</div>
+        </section>
+
+        <!-- SLIDE 3: Skewness Concept -->
+        <section class="slide">
+            <h2>Asimetría (Skewness)</h2>
+            <p>La asimetría mide la <strong>falta de simetría</strong> de una distribución respecto a su media.</p>
+
+            <div class="grid-3">
+                <div class="card" style="text-align: center;">
+                    <h4>Simétrica</h4>
+                    <div style="font-size: 3rem; margin: 1rem 0;">⛰️</div>
+                    <p style="font-family: var(--font-mono); font-size: 0.9rem;">Skewness ≈ 0</p>
+                    <p style="margin-top: 1rem;">Media = Mediana</p>
+                </div>
+                <div class="card" style="text-align: center;">
+                    <h4>Sesgada Derecha</h4>
+                    <div style="font-size: 3rem; margin: 1rem 0;">📈</div>
+                    <p style="font-family: var(--font-mono); font-size: 0.9rem;">Skewness > 0</p>
+                    <p style="margin-top: 1rem;">Mediana &lt; Media<br><small>Cola larga a la derecha</small></p>
+                </div>
+                <div class="card" style="text-align: center;">
+                    <h4>Sesgada Izquierda</h4>
+                    <div style="font-size: 3rem; margin: 1rem 0;">📉</div>
+                    <p style="font-family: var(--font-mono); font-size: 0.9rem;">Skewness &lt; 0</p>
+                    <p style="margin-top: 1rem;">Media &lt; Mediana<br><small>Cola larga a la izquierda</small></p>
+                </div>
+            </div>
+
+            <pre style="margin-top: 2rem;"><code class="language-python">from scipy import stats
+
+skewness = stats.skew(datos)
+print(f"Skewness: {skewness:.2f}")</code></pre>
+            <div class="slide-number">3</div>
+        </section>
+
+        <!-- SLIDE 4: Skewness Interpretation -->
+        <section class="slide">
+            <h2>Interpretación de Skewness</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Valor de Skewness</th>
+                        <th>Interpretación</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>≈ 0</strong></td>
+                        <td>Distribución simétrica</td>
+                    </tr>
+                    <tr>
+                        <td><strong>0 a 0.5</strong></td>
+                        <td>Ligeramente sesgada a la derecha</td>
+                    </tr>
+                    <tr>
+                        <td><strong>0.5 a 1</strong></td>
+                        <td>Moderadamente sesgada a la derecha</td>
+                    </tr>
+                    <tr>
+                        <td><strong>&gt; 1</strong></td>
+                        <td>Muy sesgada a la derecha</td>
+                    </tr>
+                    <tr>
+                        <td><strong>-0.5 a 0</strong></td>
+                        <td>Ligeramente sesgada a la izquierda</td>
+                    </tr>
+                    <tr>
+                        <td><strong>-1 a -0.5</strong></td>
+                        <td>Moderadamente sesgada a la izquierda</td>
+                    </tr>
+                    <tr>
+                        <td><strong>&lt; -1</strong></td>
+                        <td>Muy sesgada a la izquierda</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="note note-yellow" style="margin-top: 2rem;">
+                <strong>💡 Ejemplos prácticos:</strong><br>
+                • Ingresos/salarios: Sesgada derecha (pocos muy ricos)<br>
+                • Edad de jubilación: Sesgada izquierda (mayoría se jubila tarde)<br>
+                • Altura humana: Aproximadamente simétrica
+            </div>
+            <div class="slide-number">4</div>
+        </section>
+
+        <!-- SLIDE 5: Kurtosis Concept -->
+        <section class="slide">
+            <h2>Curtosis (Kurtosis)</h2>
+            <p>La curtosis mide el <strong>peso de las colas</strong> de la distribución y la altura del pico central.
+            </p>
+
+            <div class="grid-3">
+                <div class="card" style="text-align: center;">
+                    <h4>Platicúrtica</h4>
+                    <div style="font-size: 2.5rem; margin: 1rem 0;">⏜</div>
+                    <p style="font-family: var(--font-mono); font-size: 0.9rem;">Curtosis &lt; 0</p>
+                    <ul style="margin-top: 1rem; font-size: 0.9rem;">
+                        <li>Pico aplanado</li>
+                        <li>Colas ligeras</li>
+                        <li>Menos outliers</li>
+                    </ul>
+                </div>
+                <div class="card" style="text-align: center;">
+                    <h4>Mesocúrtica</h4>
+                    <div style="font-size: 2.5rem; margin: 1rem 0;">⌒</div>
+                    <p style="font-family: var(--font-mono); font-size: 0.9rem;">Curtosis ≈ 0</p>
+                    <ul style="margin-top: 1rem; font-size: 0.9rem;">
+                        <li>Distribución Normal</li>
+                        <li>Referencia estándar</li>
+                        <li>Curtosis = 0</li>
+                    </ul>
+                </div>
+                <div class="card" style="text-align: center;">
+                    <h4>Leptocúrtica</h4>
+                    <div style="font-size: 2.5rem; margin: 1rem 0;">⋀</div>
+                    <p style="font-family: var(--font-mono); font-size: 0.9rem;">Curtosis &gt; 0</p>
+                    <ul style="margin-top: 1rem; font-size: 0.9rem;">
+                        <li>Pico alto</li>
+                        <li>Colas pesadas</li>
+                        <li>Más outliers</li>
+                    </ul>
+                </div>
+            </div>
+
+            <pre style="margin-top: 1.5rem;"><code class="language-python">curtosis = stats.kurtosis(datos)  # Exceso de curtosis
+print(f"Curtosis: {curtosis:.2f}")</code></pre>
+
+            <div class="note note-blue">
+                Se resta 3 para que la distribución normal tenga curtosis = 0. Esto se llama "exceso de curtosis".
+            </div>
+            <div class="slide-number">5</div>
+        </section>
+
+        <!-- SLIDE 6: Impact on Measures -->
+        <section class="slide">
+            <h2>Impacto en la Elección de Medidas</h2>
+            <p>La forma de la distribución determina qué medidas descriptivas son más apropiadas.</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Forma de Distribución</th>
+                        <th>Medida Central</th>
+                        <th>Medida de Dispersión</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Simétrica, sin outliers</strong></td>
+                        <td>Media</td>
+                        <td>Desviación estándar</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sesgada (cualquier dirección)</strong></td>
+                        <td>Mediana</td>
+                        <td>IQR</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Alta curtosis (muchos outliers)</strong></td>
+                        <td>Mediana</td>
+                        <td>IQR</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Baja curtosis</strong></td>
+                        <td>Media o Mediana</td>
+                        <td>IQR o Std (ambos válidos)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="note note-yellow" style="margin-top: 2rem;">
+                <strong>Regla práctica:</strong> Si skewness &gt; 0.5 o curtosis &gt; 1, considera usar
+                <strong>mediana</strong> en lugar de media.
+            </div>
+            <div class="slide-number">6</div>
+        </section>
+
+        <!-- SLIDE 7: What is an Outlier -->
+        <section class="slide">
+            <h2>¿Qué es un Outlier?</h2>
+            <p>Un <strong>outlier</strong> (valor atípico) es una observación que se desvía significativamente del
+                patrón general de los datos.</p>
+
+            <div class="strategy-grid">
+                <div class="strategy-box">
+                    <h4 style="background: #d32f2f;">⚠️ Outliers como ERRORES</h4>
+                    <p style="margin-top: 1rem;"><strong>Deben corregirse o eliminarse</strong></p>
+                    <ul style="margin-top: 1rem; font-size: 0.95rem;">
+                        <li>Edad = -5 años (imposible)</li>
+                        <li>Precio = 0€ (error de entrada)</li>
+                        <li>Temperatura = 500°C (sensor roto)</li>
+                    </ul>
+                </div>
+
+                <div class="strategy-box">
+                    <h4 style="background: #2e7d32;">✅ Outliers LEGÍTIMOS</h4>
+                    <p style="margin-top: 1rem;"><strong>Valores raros pero válidos</strong></p>
+                    <ul style="margin-top: 1rem; font-size: 0.95rem;">
+                        <li>Salario de CEO en empresa</li>
+                        <li>Ventas del Black Friday</li>
+                        <li>Tiempos de respuesta en caída</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 2rem; padding: 2rem; text-align: center; background: #fffde7;">
+                <h3 style="margin: 0;">¡Los outliers pueden ser la información más valiosa!</h3>
+                <p style=" margin-top: 1rem;">Detección de fraude, comportamiento anómalo, oportunidades de
+                    negocio...</p>
+            </div>
+            <div class="slide-number">7</div>
+        </section>
+
+        <!-- SLIDE 8: IQR Method -->
+        <section class="slide">
+            <h2>Método IQR (Rango Intercuartílico)</h2>
+            <p>El método más <strong>robusto y ampliamente usado</strong>. Define outliers como valores fuera de los
+                "bigotes" del boxplot.</p>
+
+            <div class="formula">
+                Límite Inferior = Q1 - 1.5 × IQR<br>
+                Límite Superior = Q3 + 1.5 × IQR
+            </div>
+
+            <div class="grid-2">
+                <div>
+                    <pre><code class="language-python"># Calcular límites
+Q1 = np.percentile(datos, 25)
+Q3 = np.percentile(datos, 75)
+IQR = Q3 - Q1
+
+lim_inf = Q1 - 1.5 * IQR
+lim_sup = Q3 + 1.5 * IQR
+
+# Detectar outliers
+outliers = (datos < lim_inf) | (datos > lim_sup)
+print(f"Outliers: {outliers.sum()}")</code></pre>
+                </div>
+                <div>
+                    <h4>Características del método IQR:</h4>
+                    <div class="pro-con">
+                        <span class="icon">✅</span>
+                        <span>Robusto ante distribuciones sesgadas</span>
+                    </div>
+                    <div class="pro-con">
+                        <span class="icon">✅</span>
+                        <span>No asume normalidad de los datos</span>
+                    </div>
+                    <div class="pro-con">
+                        <span class="icon">✅</span>
+                        <span>Visualización clara con boxplot</span>
+                    </div>
+                    <div class="pro-con">
+                        <span class="icon">❌</span>
+                        <span>Puede ser conservador (detecta muchos)</span>
+                    </div>
+
+                    <div class="note note-blue" style="margin-top: 1.5rem; font-size: 0.9rem;">
+                        <strong>Variante IQR 3×:</strong> Usar factor 3.0 en lugar de 1.5 para detectar solo outliers
+                        extremos.
+                    </div>
+                </div>
+            </div>
+            <div class="slide-number">8</div>
+        </section>
+
+        <!-- SLIDE 9: Z-score Method -->
+        <section class="slide">
+            <h2>Método Z-score</h2>
+            <p>El Z-score mide <strong>cuántas desviaciones estándar</strong> está un valor de la media.</p>
+
+            <div class="formula">
+                Z = (x - μ) / σ
+            </div>
+
+            <p style="text-align: center; font-size: 1.2rem; margin: 2rem 0;"><strong>Regla común:</strong> valores con
+                |Z| &gt; 3 se consideran outliers</p>
+
+            <div class="grid-2">
+                <div>
+                    <pre><code class="language-python"># Calcular Z-scores
+media = np.mean(datos)
+std = np.std(datos, ddof=1)
+
+z_scores = (datos - media) / std
+
+# Detectar outliers
+outliers_z = np.abs(z_scores) > 3
+
+print(f"Outliers Z-score: {outliers_z.sum()}")</code></pre>
+                </div>
+                <div>
+                    <h4>Características del Z-score:</h4>
+                    <div class="pro-con">
+                        <span class="icon">✅</span>
+                        <span>Intuitivo: basado en σ</span>
+                    </div>
+                    <div class="pro-con">
+                        <span class="icon">✅</span>
+                        <span>Fácil de interpretar</span>
+                    </div>
+                    <div class="pro-con">
+                        <span class="icon">❌</span>
+                        <span>Asume distribución normal</span>
+                    </div>
+                    <div class="pro-con">
+                        <span class="icon">❌</span>
+                        <span>Sensible a outliers (usa media y std)</span>
+                    </div>
+
+                    <div class="note note-yellow" style="margin-top: 1.5rem; font-size: 0.9rem;">
+                        <strong>Paradoja:</strong> Los outliers afectan la media y std, lo que puede dificultar su
+                        propia detección.
+                    </div>
+                </div>
+            </div>
+            <div class="slide-number">9</div>
+        </section>
+
+        <!-- SLIDE 10: Method Comparison -->
+        <section class="slide">
+            <h2>¿Cuándo Usar Cada Método?</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Método</th>
+                        <th>Ventajas</th>
+                        <th>Cuándo Usar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>IQR (1.5×)</strong></td>
+                        <td>Robusto a distribuciones sesgadas</td>
+                        <td>Datos con distribución no normal o asimétrica</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Z-score (3σ)</strong></td>
+                        <td>Intuitivo, basado en desviación estándar</td>
+                        <td>Datos aproximadamente normales y simétricos</td>
+                    </tr>
+                    <tr>
+                        <td><strong>IQR (3×)</strong></td>
+                        <td>Detecta solo extremos</td>
+                        <td>Cuando solo interesan outliers muy extremos</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Z-score (2σ)</strong></td>
+                        <td>Más sensible</td>
+                        <td>Exploración inicial o control de calidad estricto</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="card" style="margin-top: 2rem; padding: 2rem;">
+                <h4 style="font-size: 1.3rem;">Recomendación General</h4>
+                <p style="font-size: 1.1rem; margin-top: 1rem;">
+                    <strong>Usa IQR como método predeterminado</strong>, especialmente si no estás seguro de la forma
+                    de la distribución. El Z-score funciona bien solo cuando los datos son aproximadamente normales.
+                </p>
+            </div>
+            <div class="slide-number">10</div>
+        </section>
+
+        <!-- SLIDE 11: Treatment Strategies -->
+        <section class="slide">
+            <h2>Estrategias de Tratamiento de Outliers</h2>
+            <p>Una vez detectados, hay varias opciones para tratarlos:</p>
+
+            <div class="strategy-grid">
+                <div class="strategy-box">
+                    <h4>1. ELIMINAR</h4>
+                    <ul style="margin-top: 1rem; font-size: 0.95rem;">
+                        <li>Quitar del dataset</li>
+                        <li><strong>Cuándo:</strong> Error claro de datos</li>
+                        <li><strong>⚠️ Precaución:</strong> Pérdida de información</li>
+                    </ul>
+                </div>
+
+                <div class="strategy-box">
+                    <h4>2. TRANSFORMAR</h4>
+                    <ul style="margin-top: 1rem; font-size: 0.95rem;">
+                        <li>Aplicar log, sqrt, Box-Cox</li>
+                        <li><strong>Cuándo:</strong> Reducir asimetría</li>
+                        <li><strong>⚠️ Precaución:</strong> Cambia interpretación</li>
+                    </ul>
+                </div>
+
+                <div class="strategy-box">
+                    <h4>3. IMPUTAR</h4>
+                    <ul style="margin-top: 1rem; font-size: 0.95rem;">
+                        <li>Reemplazar por mediana</li>
+                        <li><strong>Cuándo:</strong> Mantener tamaño de muestra</li>
+                        <li><strong>⚠️ Precaución:</strong> Introduce sesgo</li>
+                    </ul>
+                </div>
+
+                <div class="strategy-box">
+                    <h4>4. WINSORIZAR</h4>
+                    <ul style="margin-top: 1rem; font-size: 0.95rem;">
+                        <li>Cap en límites IQR</li>
+                        <li><strong>Cuándo:</strong> Reducir impacto sin eliminar</li>
+                        <li><strong>⚠️ Precaución:</strong> Modifica distribución</li>
+                    </ul>
+                </div>
+
+                <div class="strategy-box">
+                    <h4>5. MANTENER</h4>
+                    <ul style="margin-top: 1rem; font-size: 0.95rem;">
+                        <li>Dejar como está</li>
+                        <li><strong>Cuándo:</strong> Información válida importante</li>
+                        <li><strong>✅ Acción:</strong> Usar medidas robustas</li>
+                    </ul>
+                </div>
+
+                <div class="strategy-box">
+                    <h4>6. SEPARAR</h4>
+                    <ul style="margin-top: 1rem; font-size: 0.95rem;">
+                        <li>Analizar por separado</li>
+                        <li><strong>Cuándo:</strong> Outliers son su propio segmento</li>
+                        <li><strong>✅ Acción:</strong> Crear variable indicadora</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="slide-number">11</div>
+        </section>
+
+        <!-- SLIDE 12: Decision Tree -->
+        <section class="slide">
+            <h2>Árbol de Decisión para Tratamiento</h2>
+            <p>Sigue este proceso para decidir cómo tratar cada outlier:</p>
+
+            <div class="decision-tree">
+                ¿Es un ERROR de datos?
+                │
+                ├── SÍ → ¿Puedo corregirlo?
+                │ ├── SÍ → CORREGIR
+                │ └── NO → ELIMINAR
+                │
+                └── NO → ¿El outlier es importante para el análisis?
+                │
+                ├── SÍ → MANTENER
+                │ (separar análisis o crear indicador)
+                │
+                └── NO → ¿Necesito los datos para modelar?
+                ├── SÍ → TRANSFORMAR o IMPUTAR
+                └── NO → WINSORIZAR o ELIMINAR
+            </div>
+
+            <div class="note note-yellow" style="margin-top: 2rem;">
+                <strong>Principio fundamental:</strong> Siempre <strong>documenta</strong> tu decisión y
+                <strong>justifica</strong> por qué elegiste ese tratamiento. La transparencia es clave en Data Science.
+            </div>
+            <div class="slide-number">12</div>
+        </section>
+
+        <!-- SLIDE 13: Code Examples -->
+        <section class="slide">
+            <h2>Implementación de Estrategias</h2>
+
+            <pre><code class="language-python">import numpy as np
+import pandas as pd
+
+# Detectar outliers con IQR
+Q1, Q3 = df['valor'].quantile([0.25, 0.75])
+IQR = Q3 - Q1
+lim_inf = Q1 - 1.5 * IQR
+lim_sup = Q3 + 1.5 * IQR
+mask_outliers = (df['valor'] < lim_inf) | (df['valor'] > lim_sup)
+
+# 1. ELIMINAR
+df_sin_outliers = df[~mask_outliers].copy()
+
+# 2. TRANSFORMAR (Log)
+df['valor_log'] = np.log(df['valor'] + 1)  # +1 para valores positivos
+
+# 3. IMPUTAR con mediana
+df['valor_imputado'] = df['valor'].copy()
+df.loc[mask_outliers, 'valor_imputado'] = df['valor'].median()
+
+# 4. WINSORIZAR (cap en límites)
+df['valor_winsorizado'] = df['valor'].clip(lower=lim_inf, upper=lim_sup)
+
+# 5. MANTENER + crear indicador
+df['es_outlier'] = mask_outliers.astype(int)</code></pre>
+            <div class="slide-number">13</div>
+        </section>
+
+        <!-- SLIDE 14: Practical Case Summary -->
+        <section class="slide">
+            <h2>Caso Práctico: E-commerce</h2>
+            <p>Análisis de transacciones para detectar anomalías y decidir tratamiento.</p>
+
+            <div class="card" style="background: #f9f9f9; padding: 2rem; margin: 1.5rem 0;">
+                <h4>Contexto</h4>
+                <p style="margin-top: 1rem;">500 transacciones con montos que van desde $0.01 hasta $25,000. Necesitamos
+                    identificar:</p>
+                <ul style="margin-top: 1rem;">
+                    <li>Errores de entrada de datos</li>
+                    <li>Compras mayoristas legítimas</li>
+                    <li>Posible fraude</li>
+                    <li>Actividad de bots</li>
+                </ul>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h4>Hallazgos con IQR</h4>
+                    <ul style="margin-top: 1rem; font-size: 0.95rem;">
+                        <li>Q1: $33.12, Q3: $84.51</li>
+                        <li>IQR: $51.39</li>
+                        <li>Límite superior: $161.60</li>
+                        <li>20 outliers detectados (4%)</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>Decisiones Tomadas</h4>
+                    <ul style="margin-top: 1rem; font-size: 0.95rem;">
+                        <li><strong>$0.01-$1:</strong> Eliminar (errores)</li>
+                        <li><strong>$2k-$10k:</strong> Marcar como mayorista</li>
+                        <li><strong>&gt;$10k:</strong> Revisar manualmente</li>
+                        <li><strong>$50 repetidos:</strong> Investigar bot</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="note note-blue" style="margin-top: 1.5rem;">
+                <strong>Recomendación:</strong> Usar <strong>mediana</strong> para reportar ventas típicas y separar
+                análisis de retail vs mayorista.
+            </div>
+            <div class="slide-number">14</div>
+        </section>
+
+        <!-- SLIDE 15: Summary Table -->
+        <section class="slide">
+            <h2>Resumen de Conceptos</h2>
+
+            <h3>Forma de Distribuciones</h3>
+            <table style="font-size: 0.9rem;">
+                <thead>
+                    <tr>
+                        <th>Concepto</th>
+                        <th>Definición</th>
+                        <th>Valores de Referencia</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Skewness</strong></td>
+                        <td>Asimetría de la distribución</td>
+                        <td>0 = simétrica, &gt;0 = derecha, &lt;0 = izquierda</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Curtosis</strong></td>
+                        <td>Peso de las colas</td>
+                        <td>0 = normal, &gt;0 = colas pesadas, &lt;0 = ligeras</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 style="margin-top: 2rem;">Detección de Outliers</h3>
+            <table style="font-size: 0.9rem;">
+                <thead>
+                    <tr>
+                        <th>Método</th>
+                        <th>Fórmula</th>
+                        <th>Cuándo Usar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>IQR (1.5×)</strong></td>
+                        <td>&lt; Q1-1.5×IQR o &gt; Q3+1.5×IQR</td>
+                        <td>Datos no normales, robusto</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Z-score (3σ)</strong></td>
+                        <td>|Z| &gt; 3</td>
+                        <td>Datos aproximadamente normales</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="note note-yellow" style="margin-top: 1.5rem;">
+                <strong>Código de referencia:</strong> <code>stats.skew()</code>, <code>stats.kurtosis()</code>,
+                <code>np.percentile()</code>
+            </div>
+            <div class="slide-number">15</div>
+        </section>
+
+        <!-- SLIDE 16: Exercise -->
+        <section class="slide">
+            <h2>Ejercicio Práctico</h2>
+
+            <div class="card" style="padding: 2rem; margin: 2rem 0;">
+                <h3>Escenario: Tiempos de Entrega</h3>
+                <p style="margin-top: 1rem;">Eres analista en una empresa de delivery. Tienes estos tiempos de entrega
+                    (minutos):</p>
+                <pre
+                    style="background: white; color: #333; padding: 1rem; border: 1px solid #ddd; margin: 1rem 0;"><code>[25, 28, 30, 22, 35, 180, 27, 31, 29, 0, 26, 28, 150, 24, 33, 27, -5]</code></pre>
+
+                <h4 style="margin-top: 2rem;">Tareas:</h4>
+                <ol style="margin-left: 2rem; margin-top: 1rem;">
+                    <li style="margin-bottom: 1rem;"><strong>Clasifica:</strong> ¿Qué valores son claramente errores?
+                        ¿Cuáles podrían ser legítimos?</li>
+                    <li style="margin-bottom: 1rem;"><strong>Detecta:</strong> Usa ambos métodos (IQR y Z-score) y
+                        compara resultados.</li>
+                    <li style="margin-bottom: 1rem;"><strong>Decide:</strong> Para cada outlier, propón una acción
+                        (eliminar/imputar/mantener).</li>
+                    <li><strong>Documenta:</strong> Justifica cada decisión con argumentos de negocio.</li>
+                </ol>
+            </div>
+
+            <div class="note note-blue">
+                <strong>Pista:</strong> Considera el contexto de negocio. ¿Un tiempo de 150 min es un error o una
+                entrega problemática real?
+            </div>
+            <div class="slide-number">16</div>
+        </section>
+
+        <!-- SLIDE 17: Conclusions -->
+        <section class="slide">
+            <h2>Conclusiones Clave</h2>
+
+            <div class="card" style="padding: 2rem; margin: 2rem 0;">
+                <h3 style="margin-bottom: 1.5rem;">Lo esencial de esta clase:</h3>
+                <ul style="font-size: 1.1rem;">
+                    <li><strong>La forma importa:</strong> Skewness y curtosis determinan qué medidas estadísticas son
+                        apropiadas.</li>
+                    <li><strong>IQR es tu aliado:</strong> Método robusto que funciona con cualquier distribución.</li>
+                    <li><strong>No todos los outliers son enemigos:</strong> Algunos son errores, otros son los datos
+                        más valiosos.</li>
+                    <li><strong>Documenta tus decisiones:</strong> Siempre justifica por qué elegiste eliminar,
+                        transformar o mantener.</li>
+                    <li><strong>Contexto de negocio:</strong> La decisión técnica debe alinearse con la realidad del
+                        dominio.</li>
+                </ul>
+            </div>
+
+            <div class="note note-blue">
+                <strong>Próxima clase:</strong> Profundizaremos en la distribución normal y otras distribuciones de
+                probabilidad importantes.
+            </div>
+
+            <div class="meta-info" style="margin-top: 3rem;">
+                FIN DE LA CLASE 3 &bull; GRACIAS
+            </div>
+            <div class="slide-number">17</div>
+        </section>
+
+    </div>
+
+    <div class="controls">
+        <button class="btn" id="prevBtn" onclick="plusSlides(-1)" disabled>Anterior</button>
+        <button class="btn" id="nextBtn" onclick="plusSlides(1)">Siguiente</button>
+    </div>
+
+    <script>
+        let slideIndex = 1;
+        showSlides(slideIndex);
+
+        hljs.highlightAll();
+
+        function plusSlides(n) {
+            showSlides(slideIndex += n);
+        }
+
+        function currentSlide(n) {
+            showSlides(slideIndex = n);
+        }
+
+        function showSlides(n) {
+            let i;
+            let slides = document.getElementsByClassName("slide");
+            let prevBtn = document.getElementById("prevBtn");
+            let nextBtn = document.getElementById("nextBtn");
+
+            if (n > slides.length) { slideIndex = 1 }
+            if (n < 1) { slideIndex = slides.length }
+
+            for (i = 0; i < slides.length; i++) {
+                slides[i].style.display = "none";
+                slides[i].classList.remove("active");
+            }
+
+            slides[slideIndex - 1].style.display = "block";
+            slides[slideIndex - 1].classList.add("active");
+
+            prevBtn.disabled = (slideIndex === 1);
+            nextBtn.innerHTML = (slideIndex === slides.length) ? "Finalizar" : "Siguiente";
+        }
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === "ArrowRight") {
+                plusSlides(1);
+            } else if (event.key === "ArrowLeft") {
+                if (slideIndex > 1) {
+                    plusSlides(-1);
+                }
+            }
+        });
+    </script>
+
+</body>
+
+</html>

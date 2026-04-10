@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clase 4: Distribuciones de Probabilidad</title>
+
+    <!-- Highlight.js for code syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+
+    <!-- KaTeX for math rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body, {delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+
+    <!-- Chart.js for distribution charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-body: #ffffff;
+            --bg-slide: #ffffff;
+            --text-main: #111111;
+            --text-secondary: #555555;
+            --border-color: #e0e0e0;
+            --accent-black: #000000;
+            --accent-gray: #f4f4f4;
+            --highlight-yellow-bg: #fffde7;
+            --highlight-yellow-border: #fbc02d;
+            --highlight-blue-bg: #e3f2fd;
+            --highlight-blue-border: #2196f3;
+            --highlight-red: #d32f2f;
+            --highlight-green: #2e7d32;
+            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: #f0f0f0;
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo svg {
+            height: 32px;
+            width: auto;
+        }
+
+        .nav-logo svg path {
+            fill: #000000 !important;
+        }
+
+        .nav-info {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .presentation-container {
+            max-width: 1200px;
+            margin: 80px auto 40px;
+            background: var(--bg-slide);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            min-height: calc(100vh - 120px);
+            position: relative;
+        }
+
+        .slide {
+            display: none;
+            padding: 4rem 5rem;
+            height: 100%;
+            animation: fadeIn 0.4s ease-in-out;
+            position: relative;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        .slide-number {
+            position: absolute;
+            bottom: 2rem;
+            right: 2rem;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: #999;
+            background: #f4f4f4;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 600;
+            letter-spacing: -0.05em;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            color: var(--accent-black);
+        }
+
+        h2 {
+            font-size: 2.25rem;
+            font-weight: 600;
+            letter-spacing: -0.03em;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--accent-black);
+            padding-bottom: 1rem;
+            display: inline-block;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        h4 {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            font-size: 1.125rem;
+            margin-bottom: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 80ch;
+        }
+
+        strong {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .card {
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            border-radius: 4px;
+            background: #fafafa;
+        }
+
+        .card h4 {
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+            color: var(--accent-black);
+        }
+
+        .card p {
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
+
+        .note {
+            padding: 1rem 1.5rem;
+            border-radius: 0 4px 4px 0;
+            margin: 1.5rem 0;
+            font-size: 1rem;
+        }
+
+        .note-yellow {
+            background-color: var(--highlight-yellow-bg);
+            border-left: 4px solid var(--highlight-yellow-border);
+            color: #5d4037;
+        }
+
+        .note-blue {
+            background-color: var(--highlight-blue-bg);
+            border-left: 4px solid var(--highlight-blue-border);
+            color: #0d47a1;
+        }
+
+        .note strong {
+            color: inherit;
+        }
+
+        .formula {
+            background: #f9f9f9;
+            border: 2px solid #333;
+            padding: 1.5rem 2rem;
+            border-radius: 8px;
+            text-align: center;
+            margin: 1.5rem 0;
+            font-size: 1.3rem;
+            overflow-x: auto;
+        }
+
+        .formula .katex-display {
+            margin: 0;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-height: 280px;
+            margin: 1.5rem 0;
+        }
+
+        ul {
+            list-style-type: none;
+        }
+
+        ul li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        ul li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--accent-black);
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 1rem;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            font-weight: 600;
+            background-color: var(--accent-gray);
+            color: var(--accent-black);
+        }
+
+        pre {
+            background: #1e1e1e;
+            padding: 1.5rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+
+        code {
+            font-family: var(--font-mono);
+            font-size: 0.9em;
+        }
+
+        p code {
+            background: var(--accent-gray);
+            color: var(--accent-black);
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 2000;
+        }
+
+        .btn {
+            background: black;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-family: var(--font-main);
+            font-weight: 500;
+            border-radius: 4px;
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover {
+            opacity: 0.8;
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .slide-title-page {
+            display: flex !important;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .slide-title-page .subtitle {
+            font-size: 1.5rem;
+            font-weight: 300;
+            color: var(--text-secondary);
+            border-left: 4px solid black;
+            padding-left: 1.5rem;
+        }
+
+        .meta-info {
+            margin-top: 3rem;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        /* Decision tree style */
+        .decision-tree {
+            background: #f9f9f9;
+            padding: 2rem;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            line-height: 1.8;
+            margin: 1.5rem 0;
+            white-space: pre;
+            overflow-x: auto;
+        }
+
+        .pro-con {
+            display: flex;
+            gap: 0.5rem;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .icon {
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="nav">
+        <div class="nav-logo">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 111 39">
+                <path
+                    d="M110.949 22.0598C110.949 18.124 108.692 15.8178 104.961 15.8178C101.231 15.8178 99.0003 18.3173 99.0003 22.2255C99.0003 26.1336 101.933 28.716 105.231 28.716C108.529 28.716 110.165 26.9484 110.733 24.8493L107.678 23.9655C107.313 24.9184 106.624 25.5536 105.272 25.5536C103.92 25.5536 102.623 24.5731 102.555 23.206H110.868C110.922 22.8193 110.949 22.4464 110.935 22.0598H110.949ZM102.636 20.8169C102.704 19.9054 103.474 18.7592 105.015 18.7592C106.556 18.7592 107.353 19.9054 107.421 20.8169H102.636ZM79.726 10.6392H83.3754V28.357H79.726V10.6392ZM49.5845 28.357H38.7714V11.012H49.571V14.6578H42.5695V17.9583H48.9222V21.3555H42.5695V24.6836H49.5845V28.357ZM71.0215 28.716C74.5763 28.716 77.3742 26.0507 77.3742 22.2531C77.3742 18.4554 74.5898 15.8178 71.035 15.8178C67.4802 15.8178 64.6823 18.4969 64.6823 22.2531C64.6823 26.0093 67.4667 28.716 71.035 28.716H71.0215ZM71.0215 19.2426C72.4137 19.2426 73.7112 20.1954 73.7112 22.2531C73.7112 24.3107 72.4137 25.2912 71.0215 25.2912C69.6563 25.2912 68.3317 24.3245 68.3317 22.2669C68.3317 20.2093 69.6563 19.2426 71.0215 19.2426ZM60.1813 16.1906H64.0335L59.492 28.357H55.8156L50.9091 16.1906H54.8694L57.6403 23.7583L60.1813 16.1906ZM94.5129 16.1906H98.3651L93.8236 28.357H90.1471L85.2407 16.1906H89.201L91.9718 23.7583L94.5129 16.1906ZM21.7814 15.4725C26.5256 21.9217 27.7015 25.7746 27.2825 28.8679C26.8635 31.9613 24.4711 35.2342 21.7814 37.5128L14.5096 28.5503C12.5632 25.7607 6.71063 18.925 6.79173 15.4725C6.18349 11.4263 10.6033 5.68148 12.5767 2.7124L21.7814 15.4725ZM7.38645 26.0646C8.04875 27.045 8.40017 28.2051 8.42721 29.3927C8.45424 30.5803 8.12985 31.7541 7.50809 32.7622L4.5345 37.5266L1.08782 32.5689C0.425523 31.616 0.0605812 30.4975 0.0065158 29.3236C-0.0475496 28.1636 0.236294 27.0036 0.803981 25.9955L3.81813 20.6788L7.41348 26.0646H7.38645Z"
+                    fill="#000000" />
+            </svg>
+        </div>
+        <div class="nav-info">
+            Estadística para Data Science &mdash; Clase 4
+        </div>
+    </nav>
+
+    <div class="presentation-container">
+
+        <!-- SLIDE 1: Title -->
+        <section class="slide slide-title-page active">
+            <h1>Distribuciones de Probabilidad</h1>
+            <p class="subtitle">Entendiendo los patrones matemáticos que rigen los datos y cómo usarlos para tomar
+                decisiones.</p>
+
+            <div class="meta-info">
+                CLASE 4 DE 8 &bull; MÓDULO DE ESTADÍSTICA
+            </div>
+            <div class="slide-number">1</div>
+        </section>
+
+        <!-- SLIDE 2: Objectives -->
+        <section class="slide">
+            <h2>Objetivos de la Sesión</h2>
+            <p>Al finalizar esta clase, serás capaz de:</p>
+
+            <ul>
+                <li><strong>Conceptos Base:</strong> Entender qué es una variable aleatoria y sus funciones de
+                    probabilidad.</li>
+                <li><strong>Distribuciones Clave:</strong> Reconocer y aplicar las distribuciones Normal, Binomial,
+                    Poisson, etc.</li>
+                <li><strong>Selección:</strong> Identificar qué distribución se ajusta mejor a un problema de negocio.
+                </li>
+                <li><strong>Cálculo:</strong> Calcular probabilidades para la toma de decisiones basada en datos.</li>
+                <li><strong>Simulación:</strong> Usar Python (scipy.stats) para modelar estos fenómenos.</li>
+            </ul>
+            <div class="slide-number">2</div>
+        </section>
+
+        <!-- SLIDE 3: Variables Aleatorias -->
+        <section class="slide">
+            <h2>Variables Aleatorias</h2>
+            <p>Una <strong>variable aleatoria</strong> es una función que asigna un valor numérico a cada resultado de
+                un experimento aleatorio.</p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h4>Variables Discretas</h4>
+                    <p>Valores contables (finitos o saltos).</p>
+                    <ul style="margin-top: 1rem; font-size: 0.95rem;">
+                        <li>Número de clicks en un anuncio</li>
+                        <li>Productos vendidos hoy</li>
+                        <li>Usuarios activos</li>
+                    </ul>
+                    <div class="note note-blue" style="margin-top: 1rem;">
+                        Usan <strong>PMF</strong> (Probability Mass Function)
+                    </div>
+                </div>
+                <div class="card">
+                    <h4>Variables Continuas</h4>
+                    <p>Cualquier valor en un intervalo.</p>
+                    <ul style="margin-top: 1rem; font-size: 0.95rem;">
+                        <li>Tiempo de carga de una web</li>
+                        <li>Temperatura del servidor</li>
+                        <li>Ingresos por venta</li>
+                    </ul>
+                    <div class="note note-yellow" style="margin-top: 1rem;">
+                        Usan <strong>PDF</strong> (Probability Density Function)
+                    </div>
+                </div>
+            </div>
+            <div class="slide-number">3</div>
+        </section>
+
+        <!-- SLIDE 4: Funciones de Probabilidad -->
+        <section class="slide">
+            <h2>Funciones de Probabilidad</h2>
+            <p>Las fórmulas matemáticas que describen cómo se comportan las probabilidades.</p>
+
+            <div class="grid-2">
+                <div>
+                    <h3>Función de Densidad (PDF)</h3>
+                    <p>Para variables continuas. La probabilidad es el área bajo la curva.</p>
+                    <div class="formula">
+                        $$P(a \leq X \leq b) = \int_a^b f(x)\,dx$$
+                    </div>
+                </div>
+                <div>
+                    <h3>Función Acumulada (CDF)</h3>
+                    <p>Probabilidad de que la variable sea menor o igual a un valor x.</p>
+                    <div class="formula">
+                        $$F(x) = P(X \leq x) = \int_{-\infty}^{x} f(t)\,dt$$
+                    </div>
+                </div>
+            </div>
+
+            <div class="note note-blue" style="margin-top: 2rem;">
+                <strong>En Python (scipy.stats):</strong><br>
+                <code>dist.pdf(x)</code> / <code>dist.pmf(k)</code> para densidad/masa.<br>
+                <code>dist.cdf(x)</code> para probabilidad acumulada (muy útil para p-values).
+            </div>
+            <div class="slide-number">4</div>
+        </section>
+
+        <!-- SLIDE 5: Distribución Uniforme -->
+        <section class="slide">
+            <h2>Distribución Uniforme</h2>
+            <p>Todos los valores en un intervalo tienen la <strong>misma probabilidad</strong> de ocurrir.</p>
+
+            <div class="formula">
+                $$f(x) = \frac{1}{b - a}, \quad a \leq x \leq b$$
+            </div>
+
+            <div class="grid-2">
+                <div>
+                    <h4>Propiedades</h4>
+                    <ul>
+                        <li><strong>Media:</strong> (a + b) / 2</li>
+                        <li><strong>Varianza:</strong> (b - a)² / 12</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Casos de Uso</h4>
+                    <ul>
+                        <li>Generación de números aleatorios</li>
+                        <li>Simulaciones Monte Carlo</li>
+                        <li>Asignación en A/B Testing</li>
+                    </ul>
+                </div>
+            </div>
+
+            <pre><code class="language-python">from scipy import stats
+uniforme = stats.uniform(loc=0, scale=10) # U(0, 10)
+prob = uniforme.cdf(3) # P(X < 3) = 0.3</code></pre>
+            <div class="slide-number">5</div>
+        </section>
+
+        <!-- SLIDE 6: Distribución Normal -->
+        <section class="slide">
+            <h2>Distribución Normal (Gaussiana)</h2>
+            <p>La reina de las distribuciones. Forma de campana simétrica.</p>
+
+            <div class="formula">
+                $$f(x) = \frac{1}{\sigma\sqrt{2\pi}}\, e^{-\dfrac{(x-\mu)^2}{2\sigma^2}}$$
+            </div>
+
+            <div class="grid-2">
+                <div>
+                    <h4>Parámetros</h4>
+                    <ul>
+                        <li><strong>μ (mu):</strong> Media (centro)</li>
+                        <li><strong>σ (sigma):</strong> Desviación estándar (ancho)</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Por qué es importante</h4>
+                    <p>Muchos fenómenos naturales y errores de medición siguen esta forma (Teorema del Límite Central).
+                    </p>
+                </div>
+            </div>
+            <div class="slide-number">6</div>
+        </section>
+
+        <!-- SLIDE 7: Regla Empírica -->
+        <section class="slide">
+            <h2>Regla Empírica 68-95-99.7</h2>
+            <p>Porcentajes de datos dentro de desviaciones estándar de la media.</p>
+
+            <div class="chart-container" style="max-height:230px;">
+                <canvas id="normalChart"></canvas>
+            </div>
+
+            <div class="grid-3" style="margin-top: 0.75rem; text-align: center;">
+                <div class="card" style="border-left: 4px solid rgba(255,193,7,0.8);">
+                    <h4>68%</h4>
+                    <p>Entre $\mu \pm 1\sigma$</p>
+                </div>
+                <div class="card" style="border-left: 4px solid rgba(33,150,243,0.8);">
+                    <h4>95%</h4>
+                    <p>Entre $\mu \pm 2\sigma$</p>
+                </div>
+                <div class="card" style="border-left: 4px solid rgba(76,175,80,0.8);">
+                    <h4>99.7%</h4>
+                    <p>Entre $\mu \pm 3\sigma$</p>
+                </div>
+            </div>
+            <div class="slide-number">7</div>
+        </section>
+
+        <!-- SLIDE 8: Z-Score -->
+        <section class="slide">
+            <h2>Z-Score (Estandarización)</h2>
+            <p>Convierte cualquier normal a la <strong>Normal Estándar</strong> (μ=0, σ=1).</p>
+
+            <div class="formula">
+                $$Z = \frac{X - \mu}{\sigma}$$
+            </div>
+
+            <div class="grid-2">
+                <div>
+                    <p>Nos dice <strong>cuántas desviaciones estándar</strong> está un valor de la media.</p>
+                    <ul>
+                        <li>Z = 0 → Valor es igual a la media</li>
+                        <li>Z = 1 → Valor está a 1σ por encima</li>
+                        <li>Z = -2 → Valor está a 2σ por debajo</li>
+                    </ul>
+                </div>
+                <div>
+                    <pre><code class="language-python"># Calcular probabilidad P(X > 120)
+# para N(100, 15)
+mu, sigma = 100, 15
+prob = 1 - stats.norm.cdf(120, mu, sigma)
+# Resultado: 0.091 (9.1%)</code></pre>
+                </div>
+            </div>
+            <div class="slide-number">8</div>
+        </section>
+
+        <!-- SLIDE 9: Distribución Binomial -->
+        <section class="slide">
+            <h2>Distribución Binomial</h2>
+            <p>Modela el <strong>número de éxitos</strong> en <em>n</em> ensayos independientes.</p>
+
+            <div class="formula">
+                $$P(X = k) = \binom{n}{k} p^k (1-p)^{n-k}$$
+            </div>
+
+            <div class="grid-2">
+                <div>
+                    <h4>Parámetros</h4>
+                    <ul>
+                        <li><strong>n:</strong> Número de ensayos</li>
+                        <li><strong>p:</strong> Probabilidad de éxito</li>
+                    </ul>
+                    <p style="margin-top: 1rem;"><strong>Media:</strong> μ = n·p</p>
+                </div>
+                <div>
+                    <h4>Casos de Uso</h4>
+                    <ul>
+                        <li>Conversiones de 100 visitas</li>
+                        <li>Emails abiertos de 1000 enviados</li>
+                        <li>Productos defectuosos en un lote</li>
+                    </ul>
+                </div>
+            </div>
+
+            <pre><code class="language-python"># Probabilidad de 15 ventas en 500 visitas (conv=2.5%)
+stats.binom(n=500, p=0.025).pmf(15)</code></pre>
+            <div class="slide-number">9</div>
+        </section>
+
+        <!-- SLIDE 10: Distribución Poisson -->
+        <section class="slide">
+            <h2>Distribución de Poisson</h2>
+            <p>Modela el <strong>número de eventos</strong> en un intervalo de tiempo o espacio.</p>
+
+            <div class="formula">
+                $$P(X = k) = \frac{\lambda^k e^{-\lambda}}{k!}$$
+            </div>
+
+            <div class="grid-2">
+                <div>
+                    <h4>Parámetros</h4>
+                    <ul>
+                        <li><strong>λ (lambda):</strong> Tasa promedio de eventos</li>
+                    </ul>
+                    <p style="margin-top: 1rem;"><strong>Media:</strong> μ = λ<br><strong>Varianza:</strong> σ² = λ</p>
+                </div>
+                <div>
+                    <h4>Casos de Uso</h4>
+                    <ul>
+                        <li>Llamadas a call center por hora</li>
+                        <li>Visitas web por minuto</li>
+                        <li>Errores de código por 1000 líneas</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="slide-number">10</div>
+        </section>
+
+        <!-- SLIDE 11: Distribución Exponencial -->
+        <section class="slide">
+            <h2>Distribución Exponencial</h2>
+            <p>Modela el <strong>tiempo entre eventos</strong> de un proceso Poisson.</p>
+
+            <div class="formula">
+                $$f(x) = \lambda e^{-\lambda x}, \quad x \geq 0$$
+            </div>
+
+            <div class="grid-2">
+                <div>
+                    <h4>Propiedades</h4>
+                    <ul>
+                        <li><strong>Media:</strong> 1 / λ</li>
+                        <li><strong>Sin memoria:</strong> Lo que pasó antes no afecta al futuro.</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Casos de Uso</h4>
+                    <ul>
+                        <li>Tiempo hasta el próximo fallo</li>
+                        <li>Tiempo entre llegadas de clientes</li>
+                        <li>Duración de una llamada (a veces)</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="slide-number">11</div>
+        </section>
+
+        <!-- SLIDE 12: Distribución Log-Normal -->
+        <section class="slide">
+            <h2>Distribución Log-Normal</h2>
+            <p>Para variables cuyo <strong>logaritmo</strong> es normal. Típica en datos positivos con sesgo a la
+                derecha.</p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h4>Características</h4>
+                    <ul>
+                        <li>Solo valores positivos</li>
+                        <li>Cola larga a la derecha (asimetría positiva)</li>
+                        <li>Media > Mediana</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>Ejemplos Reales</h4>
+                    <ul>
+                        <li>Ingresos y Salarios</li>
+                        <li>Precios de activos financieros</li>
+                        <li>Tiempo de permanencia en sitio web</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="slide-number">12</div>
+        </section>
+
+        <!-- SLIDE 13: Árbol de Decisión -->
+        <section class="slide">
+            <h2>¿Cómo elegir la distribución?</h2>
+
+            <svg viewBox="0 0 820 320" xmlns="http://www.w3.org/2000/svg"
+                style="width:100%;max-height:300px;font-family:'Inter',sans-serif;">
+
+                <!-- Root node -->
+                <rect x="280" y="4" width="260" height="36" rx="6" fill="#111" />
+                <text x="410" y="26" text-anchor="middle" fill="white" font-size="13" font-weight="600">¿Qué tipo de
+                    variable?</text>
+
+                <!-- Root branches -->
+                <line x1="360" y1="40" x2="200" y2="88" stroke="#888" stroke-width="1.5" />
+                <text x="255" y="76" text-anchor="middle" fill="#555" font-size="11">Discreta</text>
+                <line x1="460" y1="40" x2="620" y2="88" stroke="#888" stroke-width="1.5" />
+                <text x="565" y="76" text-anchor="middle" fill="#555" font-size="11">Continua</text>
+
+                <!-- Level 2: DISCRETA -->
+                <rect x="90" y="88" width="220" height="34" rx="6" fill="#333" />
+                <text x="200" y="109" text-anchor="middle" fill="white" font-size="12">¿Qué modelamos?</text>
+
+                <!-- Level 2: CONTINUA -->
+                <rect x="510" y="88" width="220" height="34" rx="6" fill="#333" />
+                <text x="620" y="109" text-anchor="middle" fill="white" font-size="12">¿Qué modelamos?</text>
+
+                <!-- DISCRETA branches -->
+                <line x1="145" y1="122" x2="80" y2="168" stroke="#999" stroke-width="1.2" />
+                <line x1="200" y1="122" x2="200" y2="168" stroke="#999" stroke-width="1.2" />
+                <line x1="255" y1="122" x2="320" y2="168" stroke="#999" stroke-width="1.2" />
+
+                <!-- CONTINUA branches -->
+                <line x1="570" y1="122" x2="490" y2="168" stroke="#999" stroke-width="1.2" />
+                <line x1="620" y1="122" x2="620" y2="168" stroke="#999" stroke-width="1.2" />
+                <line x1="670" y1="122" x2="750" y2="168" stroke="#999" stroke-width="1.2" />
+
+                <!-- Labels discreta -->
+                <text x="80" y="162" text-anchor="middle" fill="#555" font-size="10">Éxitos en n</text>
+                <text x="80" y="174" text-anchor="middle" fill="#555" font-size="10">intentos</text>
+                <text x="200" y="162" text-anchor="middle" fill="#555" font-size="10">Eventos por</text>
+                <text x="200" y="174" text-anchor="middle" fill="#555" font-size="10">intervalo</text>
+                <text x="320" y="162" text-anchor="middle" fill="#555" font-size="10">Ensayos hasta</text>
+                <text x="320" y="174" text-anchor="middle" fill="#555" font-size="10">1er éxito</text>
+
+                <!-- Labels continua -->
+                <text x="490" y="162" text-anchor="middle" fill="#555" font-size="10">Tiempo entre</text>
+                <text x="490" y="174" text-anchor="middle" fill="#555" font-size="10">eventos</text>
+                <text x="620" y="162" text-anchor="middle" fill="#555" font-size="10">Variables</text>
+                <text x="620" y="174" text-anchor="middle" fill="#555" font-size="10">simétricas</text>
+                <text x="750" y="162" text-anchor="middle" fill="#555" font-size="10">Variables</text>
+                <text x="750" y="174" text-anchor="middle" fill="#555" font-size="10">positivas/sesgadas</text>
+
+                <!-- Result nodes Discreta -->
+                <rect x="18" y="192" width="124" height="34" rx="5" fill="#1565c0" />
+                <text x="80" y="213" text-anchor="middle" fill="white" font-size="12" font-weight="600">BINOMIAL</text>
+                <line x1="80" y1="184" x2="80" y2="192" stroke="#1565c0" stroke-width="1.5" />
+
+                <rect x="138" y="192" width="124" height="34" rx="5" fill="#1565c0" />
+                <text x="200" y="213" text-anchor="middle" fill="white" font-size="12" font-weight="600">POISSON</text>
+                <line x1="200" y1="184" x2="200" y2="192" stroke="#1565c0" stroke-width="1.5" />
+
+                <rect x="258" y="192" width="124" height="34" rx="5" fill="#1565c0" />
+                <text x="320" y="213" text-anchor="middle" fill="white" font-size="11"
+                    font-weight="600">GEOMÉTRICA</text>
+                <line x1="320" y1="184" x2="320" y2="192" stroke="#1565c0" stroke-width="1.5" />
+
+                <!-- Result nodes Continua -->
+                <rect x="428" y="192" width="124" height="34" rx="5" fill="#2e7d32" />
+                <text x="490" y="213" text-anchor="middle" fill="white" font-size="11"
+                    font-weight="600">EXPONENCIAL</text>
+                <line x1="490" y1="184" x2="490" y2="192" stroke="#2e7d32" stroke-width="1.5" />
+
+                <rect x="558" y="192" width="124" height="34" rx="5" fill="#2e7d32" />
+                <text x="620" y="213" text-anchor="middle" fill="white" font-size="12" font-weight="600">NORMAL</text>
+                <line x1="620" y1="184" x2="620" y2="192" stroke="#2e7d32" stroke-width="1.5" />
+
+                <rect x="688" y="192" width="124" height="34" rx="5" fill="#2e7d32" />
+                <text x="750" y="213" text-anchor="middle" fill="white" font-size="11"
+                    font-weight="600">LOG-NORMAL</text>
+                <line x1="750" y1="184" x2="750" y2="192" stroke="#2e7d32" stroke-width="1.5" />
+
+                <!-- Legend -->
+                <rect x="20" y="262" width="14" height="14" rx="3" fill="#1565c0" />
+                <text x="40" y="274" fill="#444" font-size="11">Distribuciones Discretas</text>
+                <rect x="210" y="262" width="14" height="14" rx="3" fill="#2e7d32" />
+                <text x="230" y="274" fill="#444" font-size="11">Distribuciones Continuas</text>
+            </svg>
+            <div class="slide-number">13</div>
+        </section>
+
+        <!-- SLIDE 14: Tabla de Referencia -->
+        <section class="slide">
+            <h2>Resumen Rápido</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Distribución</th>
+                        <th>Tipo</th>
+                        <th>Pregunta Clave</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Uniforme</strong></td>
+                        <td>Continua</td>
+                        <td>¿Cualquier valor es igual de probable?</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Normal</strong></td>
+                        <td>Continua</td>
+                        <td>¿Es simétrica y resultado de muchos factores?</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Binomial</strong></td>
+                        <td>Discreta</td>
+                        <td>¿Cuántos éxitos en n intentos?</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Poisson</strong></td>
+                        <td>Discreta</td>
+                        <td>¿Cuántos eventos en un intervalo?</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Exponencial</strong></td>
+                        <td>Continua</td>
+                        <td>¿Cuánto tiempo hasta el próximo evento?</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Log-Normal</strong></td>
+                        <td>Continua</td>
+                        <td>¿Variable positiva con sesgo (ingresos)?</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="slide-number">14</div>
+        </section>
+
+        <!-- SLIDE 15: Ejercicios -->
+        <section class="slide">
+            <h2>Ejercicios Prácticos</h2>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h4>1. E-commerce</h4>
+                    <p>500 visitas, conv=2.5%. ¿Probabilidad de ≥15 ventas?</p>
+                    <p style="margin-top:0.5rem;"><strong>Dist:</strong> Binomial(n=500, p=0.025)</p>
+                </div>
+                <div class="card">
+                    <h4>2. Call Center</h4>
+                    <p>20 llamadas/hora. ¿Probabilidad de >25 llamadas?</p>
+                    <p style="margin-top:0.5rem;"><strong>Dist:</strong> Poisson(λ=20)</p>
+                </div>
+                <div class="card">
+                    <h4>3. Tiempos Respuesta</h4>
+                    <p>Normal(μ=200ms, σ=30ms). ¿% > 250ms?</p>
+                    <p style="margin-top:0.5rem;"><strong>Dist:</strong> Normal</p>
+                </div>
+                <div class="card">
+                    <h4>4. Fiabilidad</h4>
+                    <p>Fallo cada 30 días. ¿P(durar > 60 días)?</p>
+                    <p style="margin-top:0.5rem;"><strong>Dist:</strong> Exponencial(λ=1/30)</p>
+                </div>
+            </div>
+            <div class="slide-number">15</div>
+        </section>
+
+        <!-- SLIDE 16: Conclusiones -->
+        <section class="slide">
+            <h2>Conclusiones</h2>
+
+            <div class="card" style="padding: 2rem; margin: 2rem 0;">
+                <h3 style="margin-bottom: 1.5rem;">Puntos Clave:</h3>
+                <ul style="font-size: 1.1rem;">
+                    <li>Las distribuciones son <strong>modelos</strong> de la realidad, no la realidad misma.</li>
+                    <li>Identificar la distribución correcta es el 80% del trabajo.</li>
+                    <li><strong>Python (scipy.stats)</strong> facilita todos los cálculos complejos.</li>
+                    <li>La <strong>Normal</strong> es fundamental, pero en negocios (ingresos, conversiones) a menudo
+                        usamos otras.</li>
+                </ul>
+            </div>
+
+            <div class="meta-info" style="margin-top: 3rem;">
+                FIN DE LA CLASE 4 &bull; GRACIAS
+            </div>
+            <div class="slide-number">16</div>
+        </section>
+
+    </div>
+
+    <div class="controls">
+        <button class="btn" id="prevBtn" onclick="plusSlides(-1)" disabled>Anterior</button>
+        <button class="btn" id="nextBtn" onclick="plusSlides(1)">Siguiente</button>
+    </div>
+
+    <script>
+        let slideIndex = 1;
+        showSlides(slideIndex);
+
+        hljs.highlightAll();
+
+        function plusSlides(n) {
+            showSlides(slideIndex += n);
+        }
+
+        function currentSlide(n) {
+            showSlides(slideIndex = n);
+        }
+
+        function showSlides(n) {
+            let i;
+            let slides = document.getElementsByClassName("slide");
+            let prevBtn = document.getElementById("prevBtn");
+            let nextBtn = document.getElementById("nextBtn");
+
+            if (n > slides.length) { slideIndex = 1 }
+            if (n < 1) { slideIndex = slides.length }
+
+            for (i = 0; i < slides.length; i++) {
+                slides[i].style.display = "none";
+                slides[i].classList.remove("active");
+            }
+
+            slides[slideIndex - 1].style.display = "block";
+            slides[slideIndex - 1].classList.add("active");
+
+            prevBtn.disabled = (slideIndex === 1);
+            nextBtn.innerHTML = (slideIndex === slides.length) ? "Finalizar" : "Siguiente";
+        }
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === "ArrowRight") {
+                plusSlides(1);
+            } else if (event.key === "ArrowLeft") {
+                if (slideIndex > 1) {
+                    plusSlides(-1);
+                }
+            }
+        });
+
+        // Normal distribution chart for Slide 7
+        function normalPDF(x, mu, sigma) {
+            return (1 / (sigma * Math.sqrt(2 * Math.PI))) *
+                Math.exp(-0.5 * Math.pow((x - mu) / sigma, 2));
+        }
+
+        function buildNormalChart() {
+            const canvas = document.getElementById('normalChart');
+            if (!canvas) return;
+            const xs = [], ys = [];
+            for (let x = -4; x <= 4; x += 0.05) {
+                xs.push(parseFloat(x.toFixed(2)));
+                ys.push(normalPDF(x, 0, 1));
+            }
+            function band(label, low, high, color) {
+                return {
+                    label, fill: true, borderColor: 'transparent', pointRadius: 0, tension: 0.4,
+                    backgroundColor: color, spanGaps: false,
+                    data: xs.map((x, i) => (x >= low && x <= high ? ys[i] : null))
+                };
+            }
+            new Chart(canvas, {
+                type: 'line',
+                data: {
+                    labels: xs,
+                    datasets: [
+                        band('99.7%', -3, 3, 'rgba(76,175,80,0.2)'),
+                        band('95%', -2, 2, 'rgba(33,150,243,0.3)'),
+                        band('68%', -1, 1, 'rgba(255,193,7,0.5)'),
+                        { label: 'PDF', data: ys, fill: false, borderColor: '#111', borderWidth: 2, pointRadius: 0, tension: 0.4 }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: true,
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                    scales: {
+                        x: {
+                            ticks: {
+                                maxTicksLimit: 9,
+                                callback: (val, i) => {
+                                    const labels = { '-3': 'μ-3σ', '-2': 'μ-2σ', '-1': 'μ-σ', '0': 'μ', '1': 'μ+σ', '2': 'μ+2σ', '3': 'μ+3σ' };
+                                    return labels[String(xs[i])] || '';
+                                },
+                                font: { size: 11 }
+                            },
+                            grid: { display: false }
+                        },
+                        y: { display: false }
+                    }
+                }
+            });
+        }
+        window.addEventListener('load', buildNormalChart);
+    </script>
+
+</body>
+
+</html>

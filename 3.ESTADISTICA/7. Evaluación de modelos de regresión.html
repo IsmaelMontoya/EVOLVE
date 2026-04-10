@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clase 7: Evaluación de Modelos de Regresión</title>
+
+    <!-- Highlight.js for code syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+
+    <!-- KaTeX for math rendering -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-body: #ffffff;
+            --bg-slide: #ffffff;
+            --text-main: #111111;
+            --text-secondary: #555555;
+            --border-color: #e0e0e0;
+            --accent-black: #000000;
+            --accent-gray: #f4f4f4;
+            --highlight-yellow-bg: #fffde7;
+            --highlight-yellow-border: #fbc02d;
+            --highlight-blue-bg: #e3f2fd;
+            --highlight-blue-border: #2196f3;
+            --highlight-red: #d32f2f;
+            --highlight-green: #2e7d32;
+            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-main);
+            background-color: #f0f0f0;
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            background: #ffffff; border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center;
+        }
+        .nav-logo svg { height: 32px; width: auto; }
+        .nav-info { font-size: 0.875rem; color: var(--text-secondary); font-weight: 500; }
+
+        .presentation-container {
+            max-width: 1200px; margin: 80px auto 40px;
+            background: var(--bg-slide);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            min-height: calc(100vh - 120px); position: relative;
+        }
+
+        .slide {
+            display: none; padding: 4rem 5rem; height: 100%;
+            animation: fadeIn 0.4s ease-in-out; position: relative;
+        }
+        .slide.active { display: block; }
+
+        .slide-number {
+            position: absolute; bottom: 2rem; right: 2rem;
+            font-family: var(--font-mono); font-size: 0.9rem; color: #999;
+            background: #f4f4f4; padding: 0.2rem 0.6rem; border-radius: 4px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 { font-size: 3.5rem; font-weight: 600; letter-spacing: -0.05em; line-height: 1.1; margin-bottom: 1.5rem; color: var(--accent-black); }
+        h2 { font-size: 2.25rem; font-weight: 600; letter-spacing: -0.03em; margin-bottom: 2rem; border-bottom: 2px solid var(--accent-black); padding-bottom: 1rem; display: inline-block; }
+        h3 { font-size: 1.5rem; font-weight: 500; margin-bottom: 1rem; margin-top: 1.5rem; }
+
+        p { font-size: 1.125rem; margin-bottom: 1.25rem; color: var(--text-secondary); max-width: 80ch; }
+        strong { color: var(--text-main); font-weight: 600; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2rem; }
+
+        .card { border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 4px; background: #fafafa; }
+        .card h4 { margin-bottom: 0.5rem; font-size: 1.1rem; color: var(--accent-black); }
+        .card p  { font-size: 1rem; margin-bottom: 0; }
+
+        .note { padding: 1rem 1.5rem; border-radius: 0 4px 4px 0; margin: 1.5rem 0; font-size: 1rem; }
+        .note-yellow { background-color: var(--highlight-yellow-bg); border-left: 4px solid var(--highlight-yellow-border); color: #5d4037; }
+        .note-blue   { background-color: var(--highlight-blue-bg);   border-left: 4px solid var(--highlight-blue-border);   color: #0d47a1; }
+        .note-red    { background-color: #ffebee; border-left: 4px solid var(--highlight-red); color: #b71c1c; }
+        .note-green  { background-color: #e8f5e9; border-left: 4px solid var(--highlight-green); color: #1b5e20; }
+
+        table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 1rem; }
+        th, td { text-align: left; padding: 1rem; border-bottom: 1px solid var(--border-color); }
+        th { font-weight: 600; background-color: var(--accent-gray); color: var(--accent-black); }
+
+        pre { background: #1e1e1e; padding: 1.5rem; border-radius: 6px; overflow-x: auto; margin: 1.5rem 0; }
+        code { font-family: var(--font-mono); font-size: 0.9em; }
+
+        ul { list-style-type: none; }
+        ul li { position: relative; padding-left: 1.5rem; margin-bottom: 0.75rem; font-size: 1.1rem; color: var(--text-secondary); }
+        ul li::before { content: "•"; position: absolute; left: 0; color: var(--accent-black); font-weight: bold; }
+
+        .controls { position: fixed; bottom: 20px; right: 20px; display: flex; gap: 10px; z-index: 2000; }
+        .btn { background: black; color: white; border: none; padding: 0.5rem 1rem; cursor: pointer; font-family: var(--font-main); font-weight: 500; border-radius: 4px; transition: opacity 0.2s; }
+        .btn:hover { opacity: 0.8; }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
+
+        .slide-title-page { display: flex !important; flex-direction: column; justify-content: center; align-items: flex-start; }
+        .slide-title-page .subtitle { font-size: 1.5rem; font-weight: 300; color: var(--text-secondary); border-left: 4px solid black; padding-left: 1.5rem; }
+        .meta-info { margin-top: 3rem; font-family: var(--font-mono); font-size: 0.9rem; color: #888; }
+
+        /* Math block: clean container for KaTeX display */
+        .math-block {
+            margin: 2rem 0; text-align: center;
+            background: white; padding: 1.5rem;
+            border: 1px solid #eee; border-radius: 4px; overflow-x: auto;
+        }
+        .math-block .katex-display { margin: 0; }
+
+        /* Train/Test split bar */
+        .split-bar {
+            width: 100%; height: 60px; display: flex;
+            margin: 2rem 0; border-radius: 8px; overflow: hidden;
+            font-family: var(--font-mono); font-weight: bold; color: white;
+        }
+        .split-train { width: 80%; background-color: var(--highlight-blue-border); display: flex; align-items: center; justify-content: center; }
+        .split-test  { width: 20%; background-color: var(--highlight-red); display: flex; align-items: center; justify-content: center; }
+
+        /* SVG wrappers */
+        .svg-plot-wrapper { display: flex; justify-content: center; margin: 1.5rem 0; }
+        .svg-plot-wrapper svg { max-width: 100%; height: auto; }
+    </style>
+</head>
+
+<body>
+
+<nav class="nav">
+    <div class="nav-logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 111 39">
+            <path d="M110.949 22.0598C110.949 18.124 108.692 15.8178 104.961 15.8178C101.231 15.8178 99.0003 18.3173 99.0003 22.2255C99.0003 26.1336 101.933 28.716 105.231 28.716C108.529 28.716 110.165 26.9484 110.733 24.8493L107.678 23.9655C107.313 24.9184 106.624 25.5536 105.272 25.5536C103.92 25.5536 102.623 24.5731 102.555 23.206H110.868C110.922 22.8193 110.949 22.4464 110.935 22.0598H110.949ZM102.636 20.8169C102.704 19.9054 103.474 18.7592 105.015 18.7592C106.556 18.7592 107.353 19.9054 107.421 20.8169H102.636ZM79.726 10.6392H83.3754V28.357H79.726V10.6392ZM49.5845 28.357H38.7714V11.012H49.571V14.6578H42.5695V17.9583H48.9222V21.3555H42.5695V24.6836H49.5845V28.357ZM71.0215 28.716C74.5763 28.716 77.3742 26.0507 77.3742 22.2531C77.3742 18.4554 74.5898 15.8178 71.035 15.8178C67.4802 15.8178 64.6823 18.4969 64.6823 22.2531C64.6823 26.0093 67.4667 28.716 71.035 28.716H71.0215ZM71.0215 19.2426C72.4137 19.2426 73.7112 20.1954 73.7112 22.2531C73.7112 24.3107 72.4137 25.2912 71.0215 25.2912C69.6563 25.2912 68.3317 24.3245 68.3317 22.2669C68.3317 20.2093 69.6563 19.2426 71.0215 19.2426ZM60.1813 16.1906H64.0335L59.492 28.357H55.8156L50.9091 16.1906H54.8694L57.6403 23.7583L60.1813 16.1906ZM94.5129 16.1906H98.3651L93.8236 28.357H90.1471L85.2407 16.1906H89.201L91.9718 23.7583L94.5129 16.1906ZM21.7814 15.4725C26.5256 21.9217 27.7015 25.7746 27.2825 28.8679C26.8635 31.9613 24.4711 35.2342 21.7814 37.5128L14.5096 28.5503C12.5632 25.7607 6.71063 18.925 6.79173 15.4725C6.18349 11.4263 10.6033 5.68148 12.5767 2.7124L21.7814 15.4725ZM7.38645 26.0646C8.04875 27.045 8.40017 28.2051 8.42721 29.3927C8.45424 30.5803 8.12985 31.7541 7.50809 32.7622L4.5345 37.5266L1.08782 32.5689C0.425523 31.616 0.0605812 30.4975 0.0065158 29.3236C-0.0475496 28.1636 0.236294 27.0036 0.803981 25.9955L3.81813 20.6788L7.41348 26.0646H7.38645Z" fill="#000000"/>
+        </svg>
+    </div>
+    <div class="nav-info">Estadística para Data Science &mdash; Clase 7</div>
+</nav>
+
+<div class="presentation-container">
+
+    <!-- SLIDE 1: Title -->
+    <section class="slide slide-title-page active">
+        <h1>Evaluación de Modelos de Regresión</h1>
+        <p class="subtitle">Cómo medimos el error y diagnosticamos problemas para construir modelos en los que podamos confiar.</p>
+        <div class="meta-info">CLASE 7 DE 8 &bull; MÓDULO DE ESTADÍSTICA</div>
+        <div class="slide-number">1</div>
+    </section>
+
+    <!-- SLIDE 2: Objectives -->
+    <section class="slide">
+        <h2>Objetivos de la Sesión</h2>
+        <p>Al finalizar esta clase, seremos capaces de:</p>
+        <ul>
+            <li><strong>Validación Honesta:</strong> Entender por qué necesitamos dividir los datos en Train y Test.</li>
+            <li><strong>Métricas de Error:</strong> Calcular e interpretar MAE, RMSE y \(R^2\).</li>
+            <li><strong>Comparación:</strong> Saber cuándo usar cada métrica según el contexto de negocio.</li>
+            <li><strong>Diagnóstico Visual:</strong> Analizar los Residuos para detectar problemas ocultos en el modelo.</li>
+            <li><strong>Implementación:</strong> Ejecutar todo el flujo de evaluación en Python con Scikit-Learn.</li>
+        </ul>
+        <div class="slide-number">2</div>
+    </section>
+
+    <!-- SLIDE 3: The Need for Evaluation -->
+    <section class="slide">
+        <h2>Evaluación Honesta</h2>
+        <p>Si un estudiante conoce las preguntas del examen de antemano, sacará un 10. Pero, ¿realmente aprendió?</p>
+
+        <div class="grid-2">
+            <div class="card">
+                <h4>El Problema: Overfitting</h4>
+                <p>Si evaluamos el modelo con los mismos datos que usó para entrenar, simplemente "memorizará" los resultados.</p>
+                <p style="margin-top:1rem; color:var(--highlight-red); font-weight:500;">Resultado: Parece perfecto en laboratorio, pero falla en el mundo real.</p>
+            </div>
+            <div class="card">
+                <h4>La Solución: Train/Test Split</h4>
+                <p>Esconderle una parte de los datos al modelo durante el entrenamiento. Esa parte "oculta" será su examen real.</p>
+                <p style="margin-top:1rem; font-weight:bold;">"Entrena con el pasado, examínate con el futuro."</p>
+            </div>
+        </div>
+        <div class="slide-number">3</div>
+    </section>
+
+    <!-- SLIDE 4: Train Test Split Diagram -->
+    <section class="slide">
+        <h2>Train / Test Split</h2>
+        <p>La práctica estándar en la industria es dividir el dataset aleatoriamente.</p>
+
+        <div class="split-bar">
+            <div class="split-train">TRAIN SET (80%)</div>
+            <div class="split-test">TEST (20%)</div>
+        </div>
+
+        <div class="grid-2">
+            <div class="card">
+                <h4>🎓 Train Set</h4>
+                <p>El modelo <strong>ve</strong> estos datos. Aquí ajusta sus coeficientes \(\beta_0, \beta_1, \ldots\) mediante OLS. No sirve para evaluar.</p>
+            </div>
+            <div class="card">
+                <h4>🔒 Test Set</h4>
+                <p>El modelo <strong>nunca</strong> ve estos datos durante el entrenamiento. Se reservan exclusivamente para medir qué tan bien generaliza a datos nuevos.</p>
+            </div>
+        </div>
+        <div class="note note-yellow" style="margin-top:1.5rem;">
+            El porcentaje 80/20 es una convención habitual, pero puede variar (70/30, 90/10) según el tamaño del dataset. Con muy pocos datos se suele usar validación cruzada (<em>k-fold cross-validation</em>).
+        </div>
+        <div class="slide-number">4</div>
+    </section>
+
+    <!-- SLIDE 5: Introducing Metrics -->
+    <section class="slide">
+        <h2>Métricas de Evaluación</h2>
+        <p>No basta con decir "el modelo predice bien". En Data Science, necesitamos cuantificar el error de forma precisa y reproducible.</p>
+
+        <div class="note note-blue" style="font-size: 1.2rem; text-align: center; margin: 2rem 0;">
+            ¿Qué tan lejos están nuestras predicciones \(\hat{y}\) de la realidad \(y\)?
+        </div>
+
+        <div class="grid-3">
+            <div class="card" style="text-align:center;">
+                <h4>MAE</h4>
+                <p>Error medio absoluto. Fácil de explicar al negocio.</p>
+            </div>
+            <div class="card" style="text-align:center;">
+                <h4>RMSE</h4>
+                <p>Raíz del error cuadrático medio. Penaliza errores grandes.</p>
+            </div>
+            <div class="card" style="text-align:center;">
+                <h4>\(R^2\)</h4>
+                <p>Bondad de ajuste. ¿Qué porcentaje de la varianza explicamos?</p>
+            </div>
+        </div>
+        <div class="slide-number">5</div>
+    </section>
+
+    <!-- SLIDE 6: MAE -->
+    <section class="slide">
+        <h2>MAE — Mean Absolute Error</h2>
+        <p>El promedio de los errores absolutos. Es la métrica más intuitiva y fácil de comunicar al negocio.</p>
+
+        <div class="math-block">
+            $$\text{MAE} = \frac{1}{n} \sum_{i=1}^{n} \left| y_i - \hat{y}_i \right|$$
+        </div>
+
+        <div class="grid-2">
+            <div class="card">
+                <h4>Interpretación directa</h4>
+                <p>Si \(\text{MAE} = 500\,€\), significa: <em>"En promedio, nuestro modelo se equivoca en ±500 € por predicción"</em>.</p>
+                <p style="margin-top:0.75rem;">Está expresado en las <strong>mismas unidades</strong> que la variable objetivo \(y\).</p>
+            </div>
+            <div class="card">
+                <h4>Ventajas y limitaciones</h4>
+                <p>✅ Robusto frente a outliers (los errores no se amplifican).</p>
+                <p style="margin-top:0.5rem;">⚠️ Trata por igual errores grandes y pequeños. Si un fallo catastrófico importa, considera RMSE.</p>
+            </div>
+        </div>
+        <div class="slide-number">6</div>
+    </section>
+
+    <!-- SLIDE 7: MSE and RMSE -->
+    <section class="slide">
+        <h2>MSE y RMSE</h2>
+        <p>A veces, cometer un error gigante es mucho peor que cometer muchos errores pequeños. El cuadrado amplifica esa penalización.</p>
+
+        <div class="math-block">
+            $$\text{MSE} = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2 \qquad \text{RMSE} = \sqrt{\text{MSE}}$$
+        </div>
+
+        <div class="grid-2">
+            <div>
+                <h3>El efecto cuadrático</h3>
+                <p>Un error de 10 unidades contribuye con \(10^2 = 100\). Un error de 2 unidades contribuye con \(2^2 = 4\). El modelo es penalizado desproporcionadamente por fallos grandes.</p>
+                <p>Ejemplo: predecir un precio de 50 000 € cuando era 100 000 € (error de 50 000) se castiga <strong>625 veces más</strong> que un error de 2 000 €.</p>
+            </div>
+            <div class="note note-yellow" style="align-self:start; margin-top:1.5rem;">
+                <strong>¿Por qué RMSE en lugar de MSE?</strong><br><br>
+                El MSE está en unidades <em>al cuadrado</em> (€²), lo cual no tiene interpretación directa. Al sacarle la raíz cuadrada, el RMSE vuelve a las <strong>unidades originales</strong> (€) y puede compararse con el MAE.
+            </div>
+        </div>
+        <div class="slide-number">7</div>
+    </section>
+
+    <!-- SLIDE 8: R Squared -->
+    <section class="slide">
+        <h2>Coeficiente de Determinación \(R^2\)</h2>
+        <p>No mide el error en unidades absolutas, sino la <em>calidad relativa</em> del ajuste: ¿cuánta variabilidad de los datos explica nuestro modelo?</p>
+
+        <div class="math-block">
+            $$R^2 = 1 - \frac{\text{SS}_{\text{res}}}{\text{SS}_{\text{tot}}} = 1 - \frac{\sum (y_i - \hat{y}_i)^2}{\sum (y_i - \bar{y})^2}$$
+        </div>
+
+        <div class="grid-3" style="margin-top:1.5rem;">
+            <div class="card" style="border-left: 3px solid var(--highlight-green);">
+                <h4>\(R^2 = 1\)</h4>
+                <p>Modelo perfecto. Predice exactamente todos los puntos. (Rarísimo en datos reales.)</p>
+            </div>
+            <div class="card" style="border-left: 3px solid var(--highlight-yellow-border);">
+                <h4>\(R^2 = 0\)</h4>
+                <p>El modelo no es mejor que predecir siempre el promedio \(\bar{y}\). No aporta nada.</p>
+            </div>
+            <div class="card" style="border-left: 3px solid var(--highlight-red);">
+                <h4>\(R^2 &lt; 0\)</h4>
+                <p>El modelo es peor que predecir la media. Algo está muy mal (datos, escala, outliers).</p>
+            </div>
+        </div>
+        <div class="slide-number">8</div>
+    </section>
+
+    <!-- SLIDE 9: Metrics Comparison -->
+    <section class="slide">
+        <h2>Comparativa Rápida</h2>
+        <p>Cada métrica responde a una pregunta distinta. En la práctica, se reportan las tres.</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Métrica</th>
+                    <th>Fórmula</th>
+                    <th>Sensibilidad a Outliers</th>
+                    <th>Cuándo usarla</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>MAE</strong></td>
+                    <td>\(\frac{1}{n}\sum|y_i - \hat{y}_i|\)</td>
+                    <td>Baja</td>
+                    <td>Comunicación al negocio. Error comprensible en unidades reales.</td>
+                </tr>
+                <tr>
+                    <td><strong>RMSE</strong></td>
+                    <td>\(\sqrt{\frac{1}{n}\sum(y_i-\hat{y}_i)^2}\)</td>
+                    <td>Alta (castiga errores grandes)</td>
+                    <td>Optimización técnica. Si los fallos grandes son inaceptables.</td>
+                </tr>
+                <tr>
+                    <td><strong>\(R^2\)</strong></td>
+                    <td>\(1 - \frac{\text{SS}_\text{res}}{\text{SS}_\text{tot}}\)</td>
+                    <td>Moderada</td>
+                    <td>Comparar modelos entre sí. Medir "fuerza explicativa" del modelo.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="note note-blue">
+            <strong>Regla práctica:</strong> MAE para explicar al cliente, RMSE para entrenar y comparar modelos, \(R^2\) para contextualizar la bondad de ajuste.
+        </div>
+        <div class="slide-number">9</div>
+    </section>
+
+    <!-- SLIDE 10: Python Code - Split -->
+    <section class="slide">
+        <h2>Implementación: 1. El Split</h2>
+        <p>Usamos <code>train_test_split</code> de Scikit-Learn para dividir los datos de forma aleatoria y reproducible.</p>
+
+        <pre><code class="language-python">from sklearn.model_selection import train_test_split
+
+# X = Features (variables predictoras), y = Target (variable objetivo)
+# test_size=0.2  → reserva el 20% para test
+# random_state=42 → fija la semilla aleatoria para reproducibilidad
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+print(f"Train: {X_train.shape[0]} muestras")   # → ~16 512 filas
+print(f"Test:  {X_test.shape[0]} muestras")    # → ~4 128 filas</code></pre>
+
+        <div class="note note-yellow">
+            <strong>¿Por qué <code>random_state=42</code>?</strong> Sin fijar la semilla, cada ejecución generaría un split diferente y los resultados no serían reproducibles. Cualquier número entero vale; 42 es simplemente convencional.
+        </div>
+        <div class="slide-number">10</div>
+    </section>
+
+    <!-- SLIDE 11: Python Code - Train/Predict -->
+    <section class="slide">
+        <h2>Implementación: 2. Entrenar y Predecir</h2>
+        <p>Es crucial entrenar <strong>solo con <code>X_train</code></strong> y predecir sobre <code>X_test</code>. Mezclarlos invalida la evaluación.</p>
+
+        <pre><code class="language-python">from sklearn.linear_model import LinearRegression
+
+# 1. Instanciar el modelo
+modelo = LinearRegression()
+
+# 2. Entrenar SOLO con los datos de entrenamiento
+modelo.fit(X_train, y_train)
+
+# 3. Predecir SOBRE los datos de test (datos que el modelo nunca vio)
+y_pred = modelo.predict(X_test)
+
+# y_pred contiene las predicciones del modelo para cada fila de X_test
+# Comparamos y_pred con y_test para calcular las métricas</code></pre>
+
+        <div class="note note-red">
+            <strong>Error común:</strong> Hacer <code>modelo.fit(X, y)</code> con todos los datos y luego evaluar con <code>modelo.predict(X)</code>. Esto genera métricas artificialmente buenas porque el modelo ya "vio" esos datos. Siempre usa <code>X_train</code> para entrenar y <code>X_test</code> para evaluar.
+        </div>
+        <div class="slide-number">11</div>
+    </section>
+
+    <!-- SLIDE 12: Python Code - Metrics -->
+    <section class="slide">
+        <h2>Implementación: 3. Calcular Métricas</h2>
+        <p>Comparamos lo que el modelo predijo (<code>y_pred</code>) contra la realidad (<code>y_test</code>).</p>
+
+        <pre><code class="language-python">from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+import numpy as np
+
+mae  = mean_absolute_error(y_test, y_pred)
+rmse = np.sqrt(mean_squared_error(y_test, y_pred))  # RMSE = √MSE
+r2   = r2_score(y_test, y_pred)
+
+print(f"MAE:  {mae:.4f}")   # → 0.5332  (en unidades de 100k$)
+print(f"RMSE: {rmse:.4f}")  # → 0.7168
+print(f"R²:   {r2:.4f}")   # → 0.5958</code></pre>
+
+        <div class="card" style="margin-top:1rem;">
+            <h4>Nota sobre scikit-learn ≥ 1.4</h4>
+            <p>A partir de la versión 1.4, puedes calcular el RMSE directamente con <code>mean_squared_error(y_test, y_pred, squared=False)</code>, sin necesidad de <code>np.sqrt()</code>.</p>
+        </div>
+        <div class="slide-number">12</div>
+    </section>
+
+    <!-- SLIDE 13: Analysis of Residuals -->
+    <section class="slide">
+        <h2>Diagnóstico de Residuos</h2>
+        <p>Los números solos no lo dicen todo. Un modelo puede tener un \(R^2\) aceptable pero fallar sistemáticamente en ciertas zonas.</p>
+
+        <div class="card">
+            <h4>Definición de Residuo</h4>
+            <p>Es la diferencia exacta entre el valor real y la predicción del modelo para cada observación \(i\):</p>
+            <div class="math-block" style="margin: 1rem 0 0 0;">
+                $$e_i = y_i - \hat{y}_i$$
+            </div>
+        </div>
+
+        <p style="margin-top:1.5rem;">Si el modelo capturó toda la señal relevante, los residuos deberían ser <strong>ruido aleatorio puro</strong>, sin ningún patrón visible. Cualquier patrón en los residuos indica información que el modelo no está aprovechando.</p>
+
+        <div class="note note-blue">
+            <strong>Supuestos que verificamos con los residuos:</strong> media cero (\(\mathbb{E}[e]=0\)), independencia entre residuos, varianza constante (homocedasticidad) y, si aplicamos inferencia estadística, normalidad.
+        </div>
+        <div class="slide-number">13</div>
+    </section>
+
+    <!-- SLIDE 14: Good Residuals -->
+    <section class="slide">
+        <h2>Residuos "Sanos"</h2>
+        <p>Distribución aleatoria alrededor de la línea cero, sin ningún patrón visible.</p>
+
+        <div class="grid-2">
+            <!-- SVG: good residual plot (random cloud) -->
+            <div class="svg-plot-wrapper" style="margin:0;">
+                <svg width="320" height="220" viewBox="0 0 320 220" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Axes -->
+                    <line x1="40" y1="185" x2="300" y2="185" stroke="#111" stroke-width="1.5"/>
+                    <line x1="40" y1="185" x2="40" y2="20"  stroke="#111" stroke-width="1.5"/>
+                    <!-- Zero line -->
+                    <line x1="40" y1="103" x2="300" y2="103" stroke="#d32f2f" stroke-width="1.5" stroke-dasharray="5,4"/>
+                    <!-- Axis labels -->
+                    <text x="170" y="202" font-size="12" fill="#555" font-family="Inter,sans-serif" text-anchor="middle">Valores Predichos (Ŷ)</text>
+                    <text x="16"  y="103" font-size="12" fill="#555" font-family="Inter,sans-serif" text-anchor="middle" transform="rotate(-90,16,103)">Residuos (e)</text>
+                    <text x="295" y="99"  font-size="11" fill="#d32f2f" font-family="Inter,sans-serif">e = 0</text>
+                    <!-- Random scatter (good) -->
+                    <circle cx="60"  cy="90"  r="4.5" fill="#333" opacity="0.8"/>
+                    <circle cx="80"  cy="115" r="4.5" fill="#333" opacity="0.8"/>
+                    <circle cx="100" cy="95"  r="4.5" fill="#333" opacity="0.8"/>
+                    <circle cx="115" cy="118" r="4.5" fill="#333" opacity="0.8"/>
+                    <circle cx="130" cy="88"  r="4.5" fill="#333" opacity="0.8"/>
+                    <circle cx="150" cy="105" r="4.5" fill="#333" opacity="0.8"/>
+                    <circle cx="165" cy="80"  r="4.5" fill="#333" opacity="0.8"/>
+                    <circle cx="180" cy="122" r="4.5" fill="#333" opacity="0.8"/>
+                    <circle cx="200" cy="97"  r="4.5" fill="#333" opacity="0.8"/>
+                    <circle cx="215" cy="110" r="4.5" fill="#333" opacity="0.8"/>
+                    <circle cx="235" cy="85"  r="4.5" fill="#333" opacity="0.8"/>
+                    <circle cx="255" cy="115" r="4.5" fill="#333" opacity="0.8"/>
+                    <circle cx="275" cy="93"  r="4.5" fill="#333" opacity="0.8"/>
+                    <!-- Title -->
+                    <text x="170" y="38" font-size="13" fill="#2e7d32" font-family="Inter,sans-serif" font-weight="600" text-anchor="middle">✓ Nube aleatoria — Modelo correcto</text>
+                </svg>
+            </div>
+            <div class="note note-green" style="align-self:center; margin:0;">
+                <strong>Conclusión:</strong> Los residuos se distribuyen aleatoriamente alrededor del cero sin ningún patrón discernible. El modelo lineal es adecuado para estos datos y el error que queda es ruido irreducible.
+            </div>
+        </div>
+        <div class="slide-number">14</div>
+    </section>
+
+    <!-- SLIDE 15: Bad Residuals -->
+    <section class="slide">
+        <h2>Residuos "Enfermos"</h2>
+        <p>Si aparece cualquier forma o patrón, el modelo está fallando sistemáticamente.</p>
+
+        <div class="grid-2">
+            <!-- SVG: bad residual plot (U-shape) -->
+            <div class="svg-plot-wrapper" style="margin:0;">
+                <svg width="320" height="220" viewBox="0 0 320 220" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Axes -->
+                    <line x1="40" y1="185" x2="300" y2="185" stroke="#111" stroke-width="1.5"/>
+                    <line x1="40" y1="185" x2="40" y2="20"  stroke="#111" stroke-width="1.5"/>
+                    <!-- Zero line -->
+                    <line x1="40" y1="103" x2="300" y2="103" stroke="#d32f2f" stroke-width="1.5" stroke-dasharray="5,4"/>
+                    <!-- Axis labels -->
+                    <text x="170" y="202" font-size="12" fill="#555" font-family="Inter,sans-serif" text-anchor="middle">Valores Predichos (Ŷ)</text>
+                    <text x="16"  y="103" font-size="12" fill="#555" font-family="Inter,sans-serif" text-anchor="middle" transform="rotate(-90,16,103)">Residuos (e)</text>
+                    <text x="295" y="99"  font-size="11" fill="#d32f2f" font-family="Inter,sans-serif">e = 0</text>
+                    <!-- U-shape pattern points -->
+                    <circle cx="60"  cy="50"  r="4.5" fill="#d32f2f" opacity="0.85"/>
+                    <circle cx="90"  cy="70"  r="4.5" fill="#d32f2f" opacity="0.85"/>
+                    <circle cx="120" cy="90"  r="4.5" fill="#d32f2f" opacity="0.85"/>
+                    <circle cx="150" cy="103" r="4.5" fill="#d32f2f" opacity="0.85"/>
+                    <circle cx="170" cy="103" r="4.5" fill="#d32f2f" opacity="0.85"/>
+                    <circle cx="200" cy="90"  r="4.5" fill="#d32f2f" opacity="0.85"/>
+                    <circle cx="230" cy="70"  r="4.5" fill="#d32f2f" opacity="0.85"/>
+                    <circle cx="260" cy="50"  r="4.5" fill="#d32f2f" opacity="0.85"/>
+                    <!-- Curve hint -->
+                    <path d="M60,50 Q170,135 260,50" stroke="#d32f2f" stroke-width="1.5" fill="none" stroke-dasharray="4,3" opacity="0.5"/>
+                    <!-- Title -->
+                    <text x="170" y="38" font-size="13" fill="#d32f2f" font-family="Inter,sans-serif" font-weight="600" text-anchor="middle">✗ Patrón en "U" — Modelo incorrecto</text>
+                </svg>
+            </div>
+            <div>
+                <div class="card">
+                    <h4>¿Qué indica el patrón en "U"?</h4>
+                    <p><strong>No-linealidad:</strong> Estás intentando ajustar una recta a una relación curvilínea. El modelo deja escapar un patrón sistemático.</p>
+                </div>
+                <div class="note note-yellow" style="margin-top:1rem;">
+                    <strong>Soluciones posibles:</strong>
+                    <ul style="margin-top:0.5rem;">
+                        <li>Añadir términos polinómicos: \(X^2\), \(X^3\)</li>
+                        <li>Transformar la variable: \(\log(X)\), \(\sqrt{X}\)</li>
+                        <li>Usar modelos no lineales (árboles, etc.)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="slide-number">15</div>
+    </section>
+
+    <!-- SLIDE 16: Example Interpretation -->
+    <section class="slide">
+        <h2>Ejemplo: California Housing Results</h2>
+        <p>Al evaluar nuestro modelo de precios de casas (3 variables: MedInc, HouseAge, AveRooms) sobre el test set, obtuvimos:</p>
+
+        <div class="grid-3">
+            <div class="card">
+                <h4>\(\text{RMSE} = 0.72\)</h4>
+                <p style="font-size:0.95rem;">Como el precio está en unidades de 100 000 $, esto equivale a un error típico de <strong>72 000 $</strong> por predicción.</p>
+            </div>
+            <div class="card">
+                <h4>\(R^2 = 0.60\)</h4>
+                <p style="font-size:0.95rem;">El modelo explica el <strong>60 %</strong> de la variabilidad de precios. El 40 % restante depende de factores no medidos (vistas, ruido, calidad de construcción…).</p>
+            </div>
+            <div class="card">
+                <h4>¿Es un buen modelo?</h4>
+                <p style="font-size:0.95rem;"><strong>Depende del contexto.</strong> Para una estimación rápida del rango de precio, es útil. Para tomar decisiones de compra sin ver el inmueble, el error es probablemente demasiado alto.</p>
+            </div>
+        </div>
+
+        <div class="note note-blue" style="margin-top:1.5rem;">
+            <strong>Siguiente paso natural:</strong> Añadir más variables predictoras (latitud, longitud, densidad de población…) y comparar los nuevos valores de RMSE y \(R^2\) para ver si el modelo mejora.
+        </div>
+        <div class="slide-number">16</div>
+    </section>
+
+    <!-- SLIDE 17: Summary -->
+    <section class="slide">
+        <h2>Resumen Ejecutivo</h2>
+
+        <ul>
+            <li>Nunca evalúes con los datos de entrenamiento. Usa siempre <strong>Train/Test Split</strong> (o validación cruzada).</li>
+            <li>Usa <strong>MAE</strong> para comunicar el error al negocio en unidades comprensibles.</li>
+            <li>Usa <strong>RMSE</strong> para optimizar y comparar modelos técnicamente, especialmente cuando los errores grandes son críticos.</li>
+            <li>Usa <strong>\(R^2\)</strong> para entender qué porcentaje de la variabilidad explica el modelo y compararlo con alternativas.</li>
+            <li>Siempre visualiza los <strong>Residuos</strong>: un patrón en forma de curva o embudo indica que el modelo necesita más complejidad o una transformación de variables.</li>
+        </ul>
+
+        <div class="note note-blue" style="margin-top: 2.5rem; text-align:center;">
+            <strong>Próxima Clase:</strong> Series Temporales. ¿Qué ocurre cuando el tiempo es la variable clave y los datos no son independientes entre sí?
+        </div>
+        <div class="slide-number">17</div>
+    </section>
+
+</div>
+
+<!-- Navigation Controls -->
+<div class="controls">
+    <button class="btn" id="prevBtn" onclick="plusSlides(-1)" disabled>Anterior</button>
+    <button class="btn" id="nextBtn" onclick="plusSlides(1)">Siguiente</button>
+</div>
+
+<script>
+    // Render KaTeX math
+    document.addEventListener("DOMContentLoaded", function () {
+        renderMathInElement(document.body, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            throwOnError: false
+        });
+        hljs.highlightAll();
+    });
+
+    let slideIndex = 1;
+    showSlides(slideIndex);
+
+    function plusSlides(n) { showSlides(slideIndex += n); }
+    function currentSlide(n) { showSlides(slideIndex = n); }
+
+    function showSlides(n) {
+        let slides = document.getElementsByClassName("slide");
+        let prevBtn = document.getElementById("prevBtn");
+        let nextBtn = document.getElementById("nextBtn");
+
+        if (n > slides.length) { slideIndex = 1; }
+        if (n < 1) { slideIndex = slides.length; }
+
+        for (let i = 0; i < slides.length; i++) {
+            slides[i].style.display = "none";
+            slides[i].classList.remove("active");
+        }
+
+        slides[slideIndex - 1].style.display = "block";
+        slides[slideIndex - 1].classList.add("active");
+
+        prevBtn.disabled = (slideIndex === 1);
+        nextBtn.innerHTML = (slideIndex === slides.length) ? "Finalizar" : "Siguiente";
+    }
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === "ArrowRight") { plusSlides(1); }
+        else if (event.key === "ArrowLeft" && slideIndex > 1) { plusSlides(-1); }
+    });
+</script>
+
+</body>
+</html>

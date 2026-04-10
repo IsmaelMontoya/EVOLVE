@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clase 6: Regresión Lineal Simple y Múltiple</title>
+
+    <!-- Highlight.js for code syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+
+    <!-- KaTeX for math rendering -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-body: #ffffff;
+            --bg-slide: #ffffff;
+            --text-main: #111111;
+            --text-secondary: #555555;
+            --border-color: #e0e0e0;
+            --accent-black: #000000;
+            --accent-gray: #f4f4f4;
+
+            --highlight-yellow-bg: #fffde7;
+            --highlight-yellow-border: #fbc02d;
+            --highlight-blue-bg: #e3f2fd;
+            --highlight-blue-border: #2196f3;
+            --highlight-red: #d32f2f;
+
+            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: #f0f0f0;
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Nav Bar */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo svg {
+            height: 32px;
+            width: auto;
+        }
+
+        .nav-info {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .presentation-container {
+            max-width: 1200px;
+            margin: 80px auto 40px;
+            background: var(--bg-slide);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            min-height: calc(100vh - 120px);
+            position: relative;
+        }
+
+        /* Slide Styles */
+        .slide {
+            display: none;
+            padding: 4rem 5rem;
+            height: 100%;
+            animation: fadeIn 0.4s ease-in-out;
+            position: relative;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        .slide-number {
+            position: absolute;
+            bottom: 2rem;
+            right: 2rem;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: #999;
+            background: #f4f4f4;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 600;
+            letter-spacing: -0.05em;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            color: var(--accent-black);
+        }
+
+        h2 {
+            font-size: 2.25rem;
+            font-weight: 600;
+            letter-spacing: -0.03em;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--accent-black);
+            padding-bottom: 1rem;
+            display: inline-block;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        p {
+            font-size: 1.125rem;
+            margin-bottom: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 80ch;
+        }
+
+        strong {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        /* Layout Grids */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .card {
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            border-radius: 4px;
+            background: #fafafa;
+        }
+
+        .card h4 {
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+            color: var(--accent-black);
+        }
+
+        .card p {
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
+
+        /* Callouts / Notes with Color */
+        .note {
+            padding: 1rem 1.5rem;
+            border-radius: 0 4px 4px 0;
+            margin: 1.5rem 0;
+            font-size: 1rem;
+        }
+
+        .note-yellow {
+            background-color: var(--highlight-yellow-bg);
+            border-left: 4px solid var(--highlight-yellow-border);
+            color: #5d4037;
+        }
+
+        .note-blue {
+            background-color: var(--highlight-blue-bg);
+            border-left: 4px solid var(--highlight-blue-border);
+            color: #0d47a1;
+        }
+
+        .note-red {
+            background-color: #ffebee;
+            border-left: 4px solid var(--highlight-red);
+            color: #b71c1c;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 1rem;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            font-weight: 600;
+            background-color: var(--accent-gray);
+            color: var(--accent-black);
+        }
+
+        /* Code Blocks */
+        pre {
+            background: #1e1e1e;
+            padding: 1.5rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+
+        code {
+            font-family: var(--font-mono);
+            font-size: 0.9em;
+        }
+
+        ul {
+            list-style-type: none;
+        }
+
+        ul li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        ul li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--accent-black);
+            font-weight: bold;
+        }
+
+        /* Controllers */
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 2000;
+        }
+
+        .btn {
+            background: black;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-family: var(--font-main);
+            font-weight: 500;
+            border-radius: 4px;
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover {
+            opacity: 0.8;
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Specific Slide Styling */
+        .slide-title-page {
+            display: flex !important;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .slide-title-page .subtitle {
+            font-size: 1.5rem;
+            font-weight: 300;
+            color: var(--text-secondary);
+            border-left: 4px solid black;
+            padding-left: 1.5rem;
+        }
+
+        .meta-info {
+            margin-top: 3rem;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        /* Math block: clean container for KaTeX display */
+        .math-block {
+            margin: 2rem 0;
+            text-align: center;
+            background: white;
+            padding: 1.5rem;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+
+        .math-block .katex-display {
+            margin: 0;
+        }
+
+        /* SVG plot wrappers */
+        .svg-plot-wrapper {
+            display: flex;
+            justify-content: center;
+            margin: 1.5rem 0;
+        }
+
+        .svg-plot-wrapper svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-label {
+            font-family: var(--font-main);
+            font-size: 13px;
+            fill: #555;
+        }
+
+        .svg-axis-label {
+            font-family: var(--font-main);
+            font-size: 14px;
+            fill: #222;
+            font-weight: 500;
+        }
+
+        .svg-title {
+            font-family: var(--font-main);
+            font-size: 15px;
+            fill: #111;
+            font-weight: 600;
+        }
+
+        /* KaTeX inline styling */
+        .katex {
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="nav">
+        <div class="nav-logo">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 111 39">
+                <path
+                    d="M110.949 22.0598C110.949 18.124 108.692 15.8178 104.961 15.8178C101.231 15.8178 99.0003 18.3173 99.0003 22.2255C99.0003 26.1336 101.933 28.716 105.231 28.716C108.529 28.716 110.165 26.9484 110.733 24.8493L107.678 23.9655C107.313 24.9184 106.624 25.5536 105.272 25.5536C103.92 25.5536 102.623 24.5731 102.555 23.206H110.868C110.922 22.8193 110.949 22.4464 110.935 22.0598H110.949ZM102.636 20.8169C102.704 19.9054 103.474 18.7592 105.015 18.7592C106.556 18.7592 107.353 19.9054 107.421 20.8169H102.636ZM79.726 10.6392H83.3754V28.357H79.726V10.6392ZM49.5845 28.357H38.7714V11.012H49.571V14.6578H42.5695V17.9583H48.9222V21.3555H42.5695V24.6836H49.5845V28.357ZM71.0215 28.716C74.5763 28.716 77.3742 26.0507 77.3742 22.2531C77.3742 18.4554 74.5898 15.8178 71.035 15.8178C67.4802 15.8178 64.6823 18.4969 64.6823 22.2531C64.6823 26.0093 67.4667 28.716 71.035 28.716H71.0215ZM71.0215 19.2426C72.4137 19.2426 73.7112 20.1954 73.7112 22.2531C73.7112 24.3107 72.4137 25.2912 71.0215 25.2912C69.6563 25.2912 68.3317 24.3245 68.3317 22.2669C68.3317 20.2093 69.6563 19.2426 71.0215 19.2426ZM60.1813 16.1906H64.0335L59.492 28.357H55.8156L50.9091 16.1906H54.8694L57.6403 23.7583L60.1813 16.1906ZM94.5129 16.1906H98.3651L93.8236 28.357H90.1471L85.2407 16.1906H89.201L91.9718 23.7583L94.5129 16.1906ZM21.7814 15.4725C26.5256 21.9217 27.7015 25.7746 27.2825 28.8679C26.8635 31.9613 24.4711 35.2342 21.7814 37.5128L14.5096 28.5503C12.5632 25.7607 6.71063 18.925 6.79173 15.4725C6.18349 11.4263 10.6033 5.68148 12.5767 2.7124L21.7814 15.4725ZM7.38645 26.0646C8.04875 27.045 8.40017 28.2051 8.42721 29.3927C8.45424 30.5803 8.12985 31.7541 7.50809 32.7622L4.5345 37.5266L1.08782 32.5689C0.425523 31.616 0.0605812 30.4975 0.0065158 29.3236C-0.0475496 28.1636 0.236294 27.0036 0.803981 25.9955L3.81813 20.6788L7.41348 26.0646H7.38645Z"
+                    fill="#000000" />
+            </svg>
+        </div>
+        <div class="nav-info">
+            Estadística para Data Science &mdash; Clase 6
+        </div>
+    </nav>
+
+    <div class="presentation-container">
+
+        <!-- SLIDE 1: Title -->
+        <section class="slide slide-title-page active">
+            <h1>Regresión Lineal Simple y Múltiple</h1>
+            <p class="subtitle">Creando modelos predictivos interpretables y entendiendo sus fundamentos matemáticos.</p>
+            <div class="meta-info">
+                CLASE 6 DE 8 &bull; MÓDULO DE ESTADÍSTICA
+            </div>
+            <div class="slide-number">1</div>
+        </section>
+
+        <!-- SLIDE 2: Objectives -->
+        <section class="slide">
+            <h2>Objetivos de la Sesión</h2>
+            <p>Al finalizar esta clase, dominaremos los siguientes fundamentos:</p>
+            <ul>
+                <li><strong>Intuición Matemática:</strong> Entender qué significa "ajustar una recta" a los datos.</li>
+                <li><strong>Modelado Práctico:</strong> Usar Scikit-Learn para entrenar modelos simples y múltiples.</li>
+                <li><strong>Interpretación de Coeficientes:</strong> Leer el significado real de la pendiente y el intercepto.</li>
+                <li><strong>Regla "Ceteris Paribus":</strong> Interpretar variables en contextos multivariantes.</li>
+                <li><strong>Diagnóstico de Errores:</strong> Introducir el concepto de residuos y los peligros de la multicolinealidad.</li>
+            </ul>
+            <div class="slide-number">2</div>
+        </section>
+
+        <!-- SLIDE 3: The Core Concept -->
+        <section class="slide">
+            <h2>¿Qué es la Regresión Lineal?</h2>
+            <p>Es el "Hola Mundo" del Machine Learning, pero sigue siendo el caballo de batalla de la industria.</p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h4>El Objetivo</h4>
+                    <p>Encontrar la relación entre:</p>
+                    <ul style="margin-top:1rem;">
+                        <li><strong>Variable Independiente (\(X\)):</strong> El dato que tenemos (Input).</li>
+                        <li><strong>Variable Dependiente (\(Y\)):</strong> El dato que queremos predecir (Target/Output).</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>Requisito Fundamental</h4>
+                    <p>La variable a predecir (\(Y\)) debe ser <strong>continua</strong> (números reales como precio, temperatura, ventas).</p>
+                    <p style="margin-top:0.5rem; font-size:0.9rem; color:#666;">Si \(Y\) fuera categórica (Sí/No), usaríamos Clasificación, no Regresión.</p>
+                </div>
+            </div>
+            <div class="slide-number">3</div>
+        </section>
+
+        <!-- SLIDE 4: The Equation (Simple) -->
+        <section class="slide">
+            <h2>La Ecuación de la Recta</h2>
+            <p>Todo el modelo se resume en esta fórmula matemática simple:</p>
+
+            <div class="math-block">
+                $$Y = \beta_0 + \beta_1 X + \epsilon$$
+            </div>
+
+            <div class="grid-2">
+                <div>
+                    <ul>
+                        <li><strong>\(Y\):</strong> La predicción final (variable dependiente).</li>
+                        <li><strong>\(X\):</strong> El dato de entrada (variable independiente).</li>
+                        <li><strong>\(\epsilon\):</strong> El error aleatorio (lo que el modelo no puede explicar).</li>
+                    </ul>
+                </div>
+                <div>
+                    <ul>
+                        <li><strong>\(\beta_0\) (Intercepto):</strong> ¿Cuánto vale \(Y\) si \(X = 0\)? (Punto de partida).</li>
+                        <li><strong>\(\beta_1\) (Pendiente):</strong> ¿Cuánto cambia \(Y\) si \(X\) sube 1 unidad? (La fuerza de la relación).</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="slide-number">4</div>
+        </section>
+
+        <!-- SLIDE 5: Visualizing Linearity -->
+        <section class="slide">
+            <h2>Visualizando la Linealidad</h2>
+            <p>Imagina que queremos predecir el <strong>Precio</strong> de una casa según su <strong>Tamaño</strong>.</p>
+
+            <div class="svg-plot-wrapper">
+                <!-- SVG scatter plot with regression line -->
+                <svg width="520" height="320" viewBox="0 0 520 320" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Axes -->
+                    <line x1="60" y1="270" x2="480" y2="270" stroke="#111" stroke-width="2"/>
+                    <line x1="60" y1="270" x2="60" y2="20" stroke="#111" stroke-width="2"/>
+                    <!-- Arrow tips -->
+                    <polygon points="480,265 490,270 480,275" fill="#111"/>
+                    <polygon points="55,20 60,10 65,20" fill="#111"/>
+
+                    <!-- Grid lines (light) -->
+                    <line x1="60" y1="220" x2="480" y2="220" stroke="#eee" stroke-width="1"/>
+                    <line x1="60" y1="170" x2="480" y2="170" stroke="#eee" stroke-width="1"/>
+                    <line x1="60" y1="120" x2="480" y2="120" stroke="#eee" stroke-width="1"/>
+                    <line x1="60" y1="70" x2="480" y2="70" stroke="#eee" stroke-width="1"/>
+
+                    <!-- Axis tick labels -->
+                    <text x="110" y="288" class="svg-label" text-anchor="middle">50</text>
+                    <text x="200" y="288" class="svg-label" text-anchor="middle">75</text>
+                    <text x="290" y="288" class="svg-label" text-anchor="middle">100</text>
+                    <text x="380" y="288" class="svg-label" text-anchor="middle">125</text>
+                    <text x="460" y="288" class="svg-label" text-anchor="middle">150</text>
+
+                    <text x="52" y="224" class="svg-label" text-anchor="end">150k</text>
+                    <text x="52" y="174" class="svg-label" text-anchor="end">200k</text>
+                    <text x="52" y="124" class="svg-label" text-anchor="end">250k</text>
+                    <text x="52" y="74" class="svg-label" text-anchor="end">300k</text>
+
+                    <!-- Regression line: Y = 10.5 + 2.5*X  mapped to SVG coords -->
+                    <!-- mapping: x_svg = 60 + (X-40)*4; y_svg = 270 - (Y-100)*1.0 -->
+                    <!-- At X=40 (x_svg=60): Y=110.5 => y_svg=160.5 -->
+                    <!-- At X=160 (x_svg=480): Y=410.5 => y_svg=-140.5 (clip at top) -->
+                    <!-- Fit within chart: at x=60, y~165; at x=480, y~30 -->
+                    <line x1="60" y1="230" x2="480" y2="42" stroke="#d32f2f" stroke-width="2.5" stroke-linecap="round"/>
+                    <text x="390" y="75" fill="#d32f2f" font-size="13" font-family="Inter, sans-serif" font-weight="600">Ŷ = β₀ + β₁X</text>
+
+                    <!-- Data points (realistic scatter around line) -->
+                    <circle cx="110" cy="222" r="5" fill="#111"/>
+                    <circle cx="140" cy="208" r="5" fill="#111"/>
+                    <circle cx="170" cy="196" r="5" fill="#111"/>
+                    <circle cx="185" cy="185" r="5" fill="#111"/>
+                    <circle cx="220" cy="172" r="5" fill="#111"/>
+                    <circle cx="240" cy="162" r="5" fill="#111"/>
+                    <circle cx="270" cy="155" r="5" fill="#111"/>
+                    <circle cx="290" cy="140" r="5" fill="#111"/>
+                    <circle cx="320" cy="133" r="5" fill="#111"/>
+                    <circle cx="350" cy="125" r="5" fill="#111"/>
+                    <circle cx="370" cy="115" r="5" fill="#111"/>
+                    <circle cx="400" cy="105" r="5" fill="#111"/>
+                    <circle cx="430" cy="97" r="5" fill="#111"/>
+                    <circle cx="455" cy="82" r="5" fill="#111"/>
+                    <!-- A couple of "noisy" outlier-ish points -->
+                    <circle cx="200" cy="192" r="5" fill="#888"/>
+                    <circle cx="310" cy="148" r="5" fill="#888"/>
+                    <circle cx="415" cy="118" r="5" fill="#888"/>
+
+                    <!-- Axis labels -->
+                    <text x="270" y="310" class="svg-axis-label" text-anchor="middle">Tamaño (m²)</text>
+                    <text x="20" y="150" class="svg-axis-label" text-anchor="middle" transform="rotate(-90,20,150)">Precio (€)</text>
+                </svg>
+            </div>
+            <p style="text-align: center;">El modelo busca dibujar la línea roja que pase "más cerca" de todos los puntos negros.</p>
+            <div class="slide-number">5</div>
+        </section>
+
+        <!-- SLIDE 6: OLS Method -->
+        <section class="slide">
+            <h2>Mínimos Cuadrados Ordinarios (OLS)</h2>
+            <p>¿Cómo decide el ordenador cuál es la "mejor" línea entre infinitas posibilidades?</p>
+
+            <div class="grid-2">
+                <div>
+                    <h3>La Estrategia</h3>
+                    <p>El algoritmo calcula la distancia vertical (error o residuo) entre cada punto real y la línea propuesta.</p>
+                    <p>Luego eleva esas distancias al cuadrado y las suma. Se elevan al cuadrado para <strong>penalizar errores grandes</strong> y evitar que errores positivos y negativos se cancelen.</p>
+                    <div class="note note-blue">
+                        <strong>Objetivo OLS:</strong> Minimizar la Suma de los Errores al Cuadrado:
+                        $$\min_{\beta_0, \beta_1} \sum_{i=1}^{n} \epsilon_i^2 = \sum_{i=1}^{n} (y_i - \hat{y}_i)^2$$
+                    </div>
+                </div>
+                <div style="display:flex; align-items:center; justify-content:center;">
+                    <!-- SVG residuals diagram -->
+                    <svg width="280" height="220" viewBox="0 0 280 220" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Axes -->
+                        <line x1="30" y1="190" x2="260" y2="190" stroke="#111" stroke-width="1.5"/>
+                        <line x1="30" y1="190" x2="30" y2="20" stroke="#111" stroke-width="1.5"/>
+                        <!-- Regression line -->
+                        <line x1="30" y1="170" x2="260" y2="50" stroke="#ccc" stroke-width="2"/>
+                        <!-- Points and residuals -->
+                        <!-- Point 1: above line -->
+                        <circle cx="90" cy="100" r="5" fill="#111"/>
+                        <!-- Line value at cx=90: y=170+(90-30)*(50-170)/(260-30) = 170+60*(-120/230)≈138.7 -->
+                        <line x1="90" y1="100" x2="90" y2="139" stroke="#d32f2f" stroke-width="1.5" stroke-dasharray="4,3"/>
+                        <text x="95" y="122" font-size="11" fill="#d32f2f" font-family="Inter,sans-serif">ε₁</text>
+                        <!-- Point 2: below line -->
+                        <circle cx="160" cy="125" r="5" fill="#111"/>
+                        <!-- Line value at cx=160: 170+130*(-120/230)≈102.2 -->
+                        <line x1="160" y1="125" x2="160" y2="102" stroke="#d32f2f" stroke-width="1.5" stroke-dasharray="4,3"/>
+                        <text x="165" y="116" font-size="11" fill="#d32f2f" font-family="Inter,sans-serif">ε₂</text>
+                        <!-- Point 3: above line -->
+                        <circle cx="220" cy="55" r="5" fill="#111"/>
+                        <!-- Line value at cx=220: 170+190*(-120/230)≈70.9 -->
+                        <line x1="220" y1="55" x2="220" y2="71" stroke="#d32f2f" stroke-width="1.5" stroke-dasharray="4,3"/>
+                        <text x="225" y="65" font-size="11" fill="#d32f2f" font-family="Inter,sans-serif">ε₃</text>
+
+                        <!-- Legend -->
+                        <line x1="35" y1="210" x2="55" y2="210" stroke="#ccc" stroke-width="2"/>
+                        <text x="60" y="214" font-size="11" fill="#555" font-family="Inter,sans-serif">Línea ajustada</text>
+                        <line x1="140" y1="210" x2="160" y2="210" stroke="#d32f2f" stroke-width="1.5" stroke-dasharray="4,3"/>
+                        <text x="165" y="214" font-size="11" fill="#d32f2f" font-family="Inter,sans-serif">Residuo εᵢ</text>
+                    </svg>
+                </div>
+            </div>
+            <div class="slide-number">6</div>
+        </section>
+
+        <!-- SLIDE 7: Python Workflow -->
+        <section class="slide">
+            <h2>Flujo de Trabajo en Python</h2>
+            <p>Usaremos <code>scikit-learn</code>, el estándar de la industria.</p>
+
+            <pre><code class="language-python"># 1. Importaciones
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+
+# 2. Preparar datos
+# X debe ser siempre 2D (Tabla/DataFrame), y debe ser 1D (Serie)
+df = pd.DataFrame({
+    'superficie': [50, 60, 80, 100],
+    'precio':     [150, 180, 220, 280]
+})
+
+X = df[['superficie']]  # Doble corchete → DataFrame (2D)  ✓
+y = df['precio']        # Un corchete    → Series (1D)     ✓</code></pre>
+            <div class="slide-number">7</div>
+        </section>
+
+        <!-- SLIDE 8: Training -->
+        <section class="slide">
+            <h2>Entrenando el Modelo</h2>
+            <p>El método <code>.fit()</code> es donde ocurre la magia matemática (el cálculo de OLS).</p>
+
+            <pre><code class="language-python"># 3. Inicializar el modelo
+modelo = LinearRegression()
+
+# 4. Entrenar: ajustar la recta a los datos
+modelo.fit(X, y)
+
+print("¡Modelo entrenado exitosamente!")</code></pre>
+
+            <div class="note note-yellow">
+                En este punto, el objeto <code>modelo</code> ya ha calculado internamente los valores óptimos para
+                \(\beta_0\) (intercepto) y \(\beta_1\) (pendiente) que minimizan la suma de errores al cuadrado.
+            </div>
+            <div class="slide-number">8</div>
+        </section>
+
+        <!-- SLIDE 9: Interpreting Coefficients -->
+        <section class="slide">
+            <h2>Interpretación de Resultados</h2>
+            <p>No basta con ejecutar el código, hay que leer lo que nos dice.</p>
+
+            <pre><code class="language-python">print(f"Intercepto (β₀): {modelo.intercept_:.1f}")  # → 10.5
+print(f"Pendiente  (β₁): {modelo.coef_[0]:.1f}")    # → 2.5</code></pre>
+
+            <div class="card" style="margin-top: 2rem;">
+                <h4>Traducción al Negocio:</h4>
+                <ul>
+                    <li><strong>Intercepto \(\hat{\beta}_0 = 10.5\):</strong> "El precio base estimado —incluso con 0 m² de superficie— es 10 500 €. (Interpretación teórica; fuera del rango de los datos puede carecer de sentido práctico.)"</li>
+                    <li><strong>Pendiente \(\hat{\beta}_1 = 2.5\):</strong> "Por cada metro cuadrado <strong>adicional</strong> que tenga la casa, el precio sube <strong>2 500 €</strong> en promedio, manteniendo el resto de factores constante."</li>
+                </ul>
+            </div>
+            <div class="slide-number">9</div>
+        </section>
+
+        <!-- SLIDE 10: Making Predictions -->
+        <section class="slide">
+            <h2>Predicciones (Inferencia)</h2>
+            <p>Una vez entrenado, usamos el modelo para estimar el valor de casos desconocidos.</p>
+
+            <pre><code class="language-python"># Queremos saber el precio para casas de 130 y 150 m²
+nuevos_datos = pd.DataFrame({'superficie': [130, 150]})
+
+predicciones = modelo.predict(nuevos_datos)
+
+print(predicciones)
+# Salida esperada: [335.5  385.5]</code></pre>
+
+            <p>El modelo aplica la fórmula \(\hat{Y} = 10.5 + 2.5 \cdot X\) automáticamente:</p>
+            <div class="card" style="margin-top:0.5rem;">
+                <ul>
+                    <li>\(\hat{Y}(130) = 10.5 + 2.5 \times 130 = 10.5 + 325 = \mathbf{335.5}\)</li>
+                    <li>\(\hat{Y}(150) = 10.5 + 2.5 \times 150 = 10.5 + 375 = \mathbf{385.5}\)</li>
+                </ul>
+            </div>
+            <div class="slide-number">10</div>
+        </section>
+
+        <!-- SLIDE 11: Multiple Regression Intro -->
+        <section class="slide">
+            <h2>Regresión Lineal Múltiple</h2>
+            <p>El mundo real es complejo. El precio de una casa no depende solo del tamaño.</p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h4>Regresión Simple</h4>
+                    <p>1 Variable Predictora (\(X\))</p>
+                    <p style="color: #666;">Precio ~ Tamaño</p>
+                </div>
+                <div class="card" style="border: 2px solid black;">
+                    <h4>Regresión Múltiple</h4>
+                    <p>Múltiples Variables Predictoras (\(X_1, X_2, \ldots\))</p>
+                    <p style="color: #666;">Precio ~ Tamaño + Habitaciones + Antigüedad + Barrio</p>
+                </div>
+            </div>
+            <div class="slide-number">11</div>
+        </section>
+
+        <!-- SLIDE 12: Multiple Equation -->
+        <section class="slide">
+            <h2>La Ecuación se Expande</h2>
+            <p>Simplemente añadimos más términos a nuestra suma.</p>
+
+            <div class="math-block">
+                $$Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \cdots + \beta_p X_p + \epsilon$$
+            </div>
+
+            <p>Cada variable (\(X_j\)) tiene su propio coeficiente o "peso" (\(\beta_j\)) que indica cuánto influye en el resultado final, <em>manteniendo las demás variables constantes</em>.</p>
+
+            <div class="note note-blue">
+                <strong>Nota sobre notación:</strong> Usamos \(p\) para el número de predictores. El modelo tiene en total \(p + 1\) parámetros: \(\beta_0, \beta_1, \ldots, \beta_p\).
+            </div>
+            <div class="slide-number">12</div>
+        </section>
+
+        <!-- SLIDE 13: Ceteris Paribus -->
+        <section class="slide">
+            <h2>Interpretación "Ceteris Paribus"</h2>
+            <p>Una frase en latín crucial para los economistas y data scientists: <em>"Si todo lo demás permanece constante"</em>.</p>
+
+            <div class="card">
+                <h4>Ejemplo de Interpretación en Regresión Múltiple</h4>
+                <p>Supongamos el modelo: \(\text{Precio} = \beta_0 + \beta_1 \cdot \text{Tamaño} + \beta_2 \cdot \text{Habitaciones} + \beta_3 \cdot \text{Antigüedad}\)</p>
+                <p style="margin-top: 1rem;">Si \(\hat{\beta}_2 = 5\,000\):</p>
+                <p style="margin-top: 0.5rem;">"Añadir <strong>1 habitación</strong> más se asocia con un aumento de <strong>5 000 €</strong> en el precio, <strong>asumiendo que el tamaño y la antigüedad de la casa NO CAMBIAN</strong>."</p>
+            </div>
+            <div class="note note-yellow">
+                Esto aísla el efecto de una variable específica, controlando el ruido de las demás. Es la gran ventaja de la regresión múltiple sobre analizar cada variable por separado.
+            </div>
+            <div class="slide-number">13</div>
+        </section>
+
+        <!-- SLIDE 14: Real World Example Setup -->
+        <section class="slide">
+            <h2>Ejemplo Real: California Housing</h2>
+            <p>Vamos a predecir precios de casas usando múltiples factores del dataset <em>California Housing</em> de Scikit-Learn.</p>
+
+            <pre><code class="language-python">import pandas as pd
+from sklearn.datasets import fetch_california_housing
+from sklearn.linear_model import LinearRegression
+
+data = fetch_california_housing()
+X = pd.DataFrame(data.data, columns=data.feature_names)
+y = data.target  # Precio medio en cientos de miles de dólares
+
+# Seleccionamos 3 variables representativas
+X_subset = X[['MedInc', 'HouseAge', 'AveRooms']]
+
+modelo_multi = LinearRegression()
+modelo_multi.fit(X_subset, y)
+
+print("Intercepto:", modelo_multi.intercept_)
+print("Coeficientes:", dict(zip(X_subset.columns, modelo_multi.coef_)))</code></pre>
+            <div class="slide-number">14</div>
+        </section>
+
+        <!-- SLIDE 15: Interpreting Multiple Coefficients -->
+        <section class="slide">
+            <h2>Leyendo los Resultados Reales</h2>
+            <p>La ecuación ajustada es: \(\hat{Y} = \beta_0 + 0.45 \cdot \text{MedInc} + 0.01 \cdot \text{HouseAge} - 0.05 \cdot \text{AveRooms}\)</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Variable</th>
+                        <th>Coeficiente (\(\hat{\beta}\))</th>
+                        <th>Interpretación (ceteris paribus)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>MedInc</strong> (Ingreso Medio)</td>
+                        <td>\(+0.45\)</td>
+                        <td>A mayor ingreso medio del barrio, mayor precio de la vivienda. (Relación lógica y esperada.)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>HouseAge</strong> (Edad de la Casa)</td>
+                        <td>\(+0.01\)</td>
+                        <td>Casas más antiguas valen <em>ligeramente</em> más. Posible explicación: ubicaciones céntricas o factor "vintage".</td>
+                    </tr>
+                    <tr>
+                        <td><strong>AveRooms</strong> (Promedio de Cuartos)</td>
+                        <td>\(-0.05\)</td>
+                        <td>Coeficiente negativo: más habitaciones por bloque puede indicar particiones pequeñas o zonas rurales de menor valor.</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="note note-yellow">
+                Los signos de los coeficientes no siempre son intuitivos. Siempre interpretar en el contexto de las demás variables incluidas en el modelo.
+            </div>
+            <div class="slide-number">15</div>
+        </section>
+
+        <!-- SLIDE 16: Multicollinearity -->
+        <section class="slide">
+            <h2>Peligro: Multicolinealidad</h2>
+            <p>¿Qué pasa si incluimos dos variables que dicen lo mismo? (Ej: "Tamaño en pies" y "Tamaño en metros")</p>
+
+            <div class="grid-2">
+                <div>
+                    <h3>El Problema</h3>
+                    <p>El modelo se confunde. No sabe a cuál variable atribuirle el mérito sobre la predicción.</p>
+                    <p>Resultado: coeficientes inestables, con signos inesperados o con alta varianza.</p>
+                    <h3>Cómo Detectarla</h3>
+                    <p>Calcula la <strong>matriz de correlación</strong> entre tus variables \(X\):</p>
+                    <pre><code class="language-python">import seaborn as sns
+corr = X_subset.corr()
+sns.heatmap(corr, annot=True, cmap='coolwarm')</code></pre>
+                </div>
+                <div class="note note-red" style="align-self:start; margin-top:1.5rem;">
+                    <strong>Regla práctica:</strong><br><br>
+                    Si dos variables tienen una correlación \(|r| > 0.9\), elimina una de ellas antes de entrenar.<br><br>
+                    Para análisis más rigurosos, usa el <strong>Factor de Inflación de la Varianza (VIF)</strong>: un VIF &gt; 10 indica multicolinealidad problemática.
+                </div>
+            </div>
+            <div class="slide-number">16</div>
+        </section>
+
+        <!-- SLIDE 17: Visualizing Residuals -->
+        <section class="slide">
+            <h2>Diagnóstico: Análisis de Residuos</h2>
+            <p>En regresión múltiple no podemos dibujar el hiperplano en 2D. Diagnosticamos el modelo a través de sus <strong>residuos</strong> \(e_i = y_i - \hat{y}_i\).</p>
+
+            <div class="grid-2">
+                <div>
+                    <pre><code class="language-python">preds    = modelo_multi.predict(X_subset)
+residuos = y - preds
+
+import matplotlib.pyplot as plt
+plt.scatter(preds, residuos, alpha=0.4, color='black')
+plt.axhline(0, color='red', linewidth=1.5)
+plt.xlabel("Valores Predichos (Ŷ)")
+plt.ylabel("Residuos (e = Y - Ŷ)")
+plt.title("Gráfico de Residuos")
+plt.show()</code></pre>
+                    <div class="note note-blue" style="margin-top:1rem;">
+                        <strong>Supuesto clave:</strong> Los residuos deben ser <em>independientes</em>, tener <em>media cero</em> y <em>varianza constante</em> (homocedasticidad).
+                    </div>
+                </div>
+                <div>
+                    <!-- SVG residual plot: good (random cloud) vs bad (pattern) -->
+                    <svg width="270" height="200" viewBox="0 0 270 200" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Axes -->
+                        <line x1="30" y1="170" x2="260" y2="170" stroke="#111" stroke-width="1.5"/>
+                        <line x1="30" y1="20"  x2="30"  y2="170" stroke="#111" stroke-width="1.5"/>
+                        <!-- Zero line -->
+                        <line x1="30" y1="95" x2="260" y2="95" stroke="#d32f2f" stroke-width="1.5"/>
+                        <!-- Random scatter around zero (good residuals) -->
+                        <circle cx="50"  cy="80"  r="4" fill="#111" opacity="0.7"/>
+                        <circle cx="70"  cy="105" r="4" fill="#111" opacity="0.7"/>
+                        <circle cx="90"  cy="88"  r="4" fill="#111" opacity="0.7"/>
+                        <circle cx="108" cy="112" r="4" fill="#111" opacity="0.7"/>
+                        <circle cx="125" cy="78"  r="4" fill="#111" opacity="0.7"/>
+                        <circle cx="140" cy="100" r="4" fill="#111" opacity="0.7"/>
+                        <circle cx="160" cy="83"  r="4" fill="#111" opacity="0.7"/>
+                        <circle cx="175" cy="108" r="4" fill="#111" opacity="0.7"/>
+                        <circle cx="195" cy="90"  r="4" fill="#111" opacity="0.7"/>
+                        <circle cx="215" cy="102" r="4" fill="#111" opacity="0.7"/>
+                        <circle cx="235" cy="86"  r="4" fill="#111" opacity="0.7"/>
+                        <circle cx="250" cy="97"  r="4" fill="#111" opacity="0.7"/>
+                        <!-- Axis labels -->
+                        <text x="145" y="190" class="svg-label" text-anchor="middle">Valores Predichos (Ŷ)</text>
+                        <text x="12"  y="95"  class="svg-label" text-anchor="middle" transform="rotate(-90,12,95)">Residuos</text>
+                        <!-- Annotation -->
+                        <text x="155" y="40" font-size="11" fill="#2e7d32" font-family="Inter,sans-serif" font-weight="600">✓ Nube aleatoria = Bien</text>
+                        <text x="155" y="55" font-size="10" fill="#555" font-family="Inter,sans-serif">Sin patrón visible</text>
+                    </svg>
+
+                    <p style="font-size: 0.9rem; text-align: center; margin-top: 0.5rem;">
+                        Si los puntos forman una <strong style="color:#2e7d32;">nube aleatoria</strong> alrededor del cero → modelo correcto.<br>
+                        Si aparece una <strong style="color:#d32f2f;">curva o embudo</strong> → puede haber no-linealidad o heterocedasticidad.
+                    </p>
+                </div>
+            </div>
+            <div class="slide-number">17</div>
+        </section>
+
+        <!-- SLIDE 18: Summary -->
+        <section class="slide">
+            <h2>Resumen Ejecutivo</h2>
+
+            <div class="grid-3">
+                <div class="card">
+                    <h4>La Base</h4>
+                    <p>Ajustamos una recta (o hiperplano) minimizando la suma de errores cuadráticos (OLS): \(\min \sum \epsilon_i^2\).</p>
+                </div>
+                <div class="card">
+                    <h4>La Herramienta</h4>
+                    <p><code>LinearRegression()</code> de Scikit-Learn. <code>.fit(X, y)</code> para entrenar, <code>.predict(X_new)</code> para inferir.</p>
+                </div>
+                <div class="card">
+                    <h4>Las Precauciones</h4>
+                    <p>Vigila la <strong>multicolinealidad</strong> (\(|r| > 0.9\)). Valida el modelo con el <strong>gráfico de residuos</strong>. Interpreta coeficientes siempre en contexto.</p>
+                </div>
+            </div>
+
+            <div class="note note-blue" style="margin-top: 2rem; text-align: center;">
+                <strong>Próxima Clase:</strong> ¿Cómo sabemos cuán bueno es nuestro modelo? Métricas de Evaluación: \(R^2\), MAE, RMSE y validación cruzada.
+            </div>
+            <div class="slide-number">18</div>
+        </section>
+
+    </div>
+
+    <!-- Navigation Controls -->
+    <div class="controls">
+        <button class="btn" id="prevBtn" onclick="plusSlides(-1)" disabled>Anterior</button>
+        <button class="btn" id="nextBtn" onclick="plusSlides(1)">Siguiente</button>
+    </div>
+
+    <script>
+        // Render KaTeX math
+        document.addEventListener("DOMContentLoaded", function () {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    { left: "$$", right: "$$", display: true },
+                    { left: "\\(", right: "\\)", display: false },
+                    { left: "\\[", right: "\\]", display: true }
+                ],
+                throwOnError: false
+            });
+
+            // Highlight code blocks after KaTeX renders
+            hljs.highlightAll();
+        });
+
+        let slideIndex = 1;
+        showSlides(slideIndex);
+
+        function plusSlides(n) {
+            showSlides(slideIndex += n);
+        }
+
+        function currentSlide(n) {
+            showSlides(slideIndex = n);
+        }
+
+        function showSlides(n) {
+            let slides = document.getElementsByClassName("slide");
+            let prevBtn = document.getElementById("prevBtn");
+            let nextBtn = document.getElementById("nextBtn");
+
+            if (n > slides.length) { slideIndex = 1; }
+            if (n < 1) { slideIndex = slides.length; }
+
+            for (let i = 0; i < slides.length; i++) {
+                slides[i].style.display = "none";
+                slides[i].classList.remove("active");
+            }
+
+            slides[slideIndex - 1].style.display = "block";
+            slides[slideIndex - 1].classList.add("active");
+
+            prevBtn.disabled = (slideIndex === 1);
+            nextBtn.innerHTML = (slideIndex === slides.length) ? "Finalizar" : "Siguiente";
+        }
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === "ArrowRight") {
+                plusSlides(1);
+            } else if (event.key === "ArrowLeft") {
+                if (slideIndex > 1) {
+                    plusSlides(-1);
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clase 8: Introducción a Series Temporales</title>
+
+    <!-- Highlight.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+
+    <!-- KaTeX -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-slide: #ffffff;
+            --text-main: #111111;
+            --text-secondary: #555555;
+            --border-color: #e0e0e0;
+            --accent-black: #000000;
+            --accent-gray: #f4f4f4;
+            --highlight-yellow-bg: #fffde7;
+            --highlight-yellow-border: #fbc02d;
+            --highlight-blue-bg: #e3f2fd;
+            --highlight-blue-border: #2196f3;
+            --highlight-red: #d32f2f;
+            --highlight-green: #2e7d32;
+            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-main);
+            background-color: #f0f0f0;
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            background: #ffffff; border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center;
+        }
+        .nav-logo svg { height: 32px; width: auto; }
+        .nav-info { font-size: 0.875rem; color: var(--text-secondary); font-weight: 500; }
+
+        .presentation-container {
+            max-width: 1200px; margin: 80px auto 40px;
+            background: var(--bg-slide);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            min-height: calc(100vh - 120px); position: relative;
+        }
+
+        .slide {
+            display: none; padding: 4rem 5rem;
+            animation: fadeIn 0.4s ease-in-out; position: relative;
+        }
+        .slide.active { display: block; }
+
+        .slide-number {
+            position: absolute; bottom: 2rem; right: 2rem;
+            font-family: var(--font-mono); font-size: 0.9rem; color: #999;
+            background: #f4f4f4; padding: 0.2rem 0.6rem; border-radius: 4px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 { font-size: 3.5rem; font-weight: 600; letter-spacing: -0.05em; line-height: 1.1; margin-bottom: 1.5rem; color: var(--accent-black); }
+        h2 { font-size: 2.25rem; font-weight: 600; letter-spacing: -0.03em; margin-bottom: 2rem; border-bottom: 2px solid var(--accent-black); padding-bottom: 1rem; display: inline-block; }
+        h3 { font-size: 1.5rem; font-weight: 500; margin-bottom: 1rem; margin-top: 1.5rem; }
+        h4 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent-black); }
+
+        p { font-size: 1.125rem; margin-bottom: 1.25rem; color: var(--text-secondary); max-width: 80ch; }
+        strong { color: var(--text-main); font-weight: 600; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2rem; }
+        .grid-4 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+
+        .card { border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 4px; background: #fafafa; }
+        .card h4 { margin-bottom: 0.5rem; }
+        .card p  { font-size: 1rem; margin-bottom: 0; }
+
+        .note { padding: 1rem 1.5rem; border-radius: 0 4px 4px 0; margin: 1.5rem 0; font-size: 1rem; }
+        .note-yellow { background-color: var(--highlight-yellow-bg); border-left: 4px solid var(--highlight-yellow-border); color: #5d4037; }
+        .note-blue   { background-color: var(--highlight-blue-bg);   border-left: 4px solid var(--highlight-blue-border);   color: #0d47a1; }
+        .note-red    { background-color: #ffebee; border-left: 4px solid var(--highlight-red);   color: #b71c1c; }
+        .note-green  { background-color: #e8f5e9; border-left: 4px solid var(--highlight-green); color: #1b5e20; }
+
+        table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 1rem; }
+        th, td { text-align: left; padding: 1rem; border-bottom: 1px solid var(--border-color); }
+        th { font-weight: 600; background-color: var(--accent-gray); color: var(--accent-black); }
+
+        pre { background: #1e1e1e; padding: 1.5rem; border-radius: 6px; overflow-x: auto; margin: 1.5rem 0; }
+        code { font-family: var(--font-mono); font-size: 0.9em; }
+
+        ul { list-style-type: none; }
+        ul li { position: relative; padding-left: 1.5rem; margin-bottom: 0.75rem; font-size: 1.1rem; color: var(--text-secondary); }
+        ul li::before { content: "•"; position: absolute; left: 0; color: var(--accent-black); font-weight: bold; }
+
+        .controls { position: fixed; bottom: 20px; right: 20px; display: flex; gap: 10px; z-index: 2000; }
+        .btn { background: black; color: white; border: none; padding: 0.5rem 1rem; cursor: pointer; font-family: var(--font-main); font-weight: 500; border-radius: 4px; transition: opacity 0.2s; }
+        .btn:hover { opacity: 0.8; }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
+
+        .slide-title-page { display: flex !important; flex-direction: column; justify-content: center; align-items: flex-start; }
+        .slide-title-page .subtitle { font-size: 1.5rem; font-weight: 300; color: var(--text-secondary); border-left: 4px solid black; padding-left: 1.5rem; }
+        .meta-info { margin-top: 3rem; font-family: var(--font-mono); font-size: 0.9rem; color: #888; }
+
+        /* Math block */
+        .math-block {
+            margin: 2rem 0; text-align: center;
+            background: white; padding: 1.5rem;
+            border: 1px solid #eee; border-radius: 4px; overflow-x: auto;
+        }
+        .math-block .katex-display { margin: 0; }
+
+        /* SVG chart wrappers */
+        .svg-chart { display: block; width: 100%; height: auto; }
+        .svg-wrapper { width: 100%; }
+
+        /* Component badge row */
+        .component-row {
+            display: flex; align-items: center; gap: 1rem;
+            background: #fafafa; border: 1px solid #eee;
+            border-radius: 6px; padding: 1rem 1.5rem; margin: 1.5rem 0;
+            font-size: 1.3rem;
+        }
+        .component-row .sep { color: #999; font-size: 1.5rem; }
+
+        /* Stationarity visual cards */
+        .stat-card {
+            border-radius: 6px; padding: 1.2rem 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="nav">
+    <div class="nav-logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 111 39">
+            <path d="M110.949 22.0598C110.949 18.124 108.692 15.8178 104.961 15.8178C101.231 15.8178 99.0003 18.3173 99.0003 22.2255C99.0003 26.1336 101.933 28.716 105.231 28.716C108.529 28.716 110.165 26.9484 110.733 24.8493L107.678 23.9655C107.313 24.9184 106.624 25.5536 105.272 25.5536C103.92 25.5536 102.623 24.5731 102.555 23.206H110.868C110.922 22.8193 110.949 22.4464 110.935 22.0598H110.949ZM102.636 20.8169C102.704 19.9054 103.474 18.7592 105.015 18.7592C106.556 18.7592 107.353 19.9054 107.421 20.8169H102.636ZM79.726 10.6392H83.3754V28.357H79.726V10.6392ZM49.5845 28.357H38.7714V11.012H49.571V14.6578H42.5695V17.9583H48.9222V21.3555H42.5695V24.6836H49.5845V28.357ZM71.0215 28.716C74.5763 28.716 77.3742 26.0507 77.3742 22.2531C77.3742 18.4554 74.5898 15.8178 71.035 15.8178C67.4802 15.8178 64.6823 18.4969 64.6823 22.2531C64.6823 26.0093 67.4667 28.716 71.035 28.716H71.0215ZM71.0215 19.2426C72.4137 19.2426 73.7112 20.1954 73.7112 22.2531C73.7112 24.3107 72.4137 25.2912 71.0215 25.2912C69.6563 25.2912 68.3317 24.3245 68.3317 22.2669C68.3317 20.2093 69.6563 19.2426 71.0215 19.2426ZM60.1813 16.1906H64.0335L59.492 28.357H55.8156L50.9091 16.1906H54.8694L57.6403 23.7583L60.1813 16.1906ZM94.5129 16.1906H98.3651L93.8236 28.357H90.1471L85.2407 16.1906H89.201L91.9718 23.7583L94.5129 16.1906ZM21.7814 15.4725C26.5256 21.9217 27.7015 25.7746 27.2825 28.8679C26.8635 31.9613 24.4711 35.2342 21.7814 37.5128L14.5096 28.5503C12.5632 25.7607 6.71063 18.925 6.79173 15.4725C6.18349 11.4263 10.6033 5.68148 12.5767 2.7124L21.7814 15.4725ZM7.38645 26.0646C8.04875 27.045 8.40017 28.2051 8.42721 29.3927C8.45424 30.5803 8.12985 31.7541 7.50809 32.7622L4.5345 37.5266L1.08782 32.5689C0.425523 31.616 0.0605812 30.4975 0.0065158 29.3236C-0.0475496 28.1636 0.236294 27.0036 0.803981 25.9955L3.81813 20.6788L7.41348 26.0646H7.38645Z" fill="#000000"/>
+        </svg>
+    </div>
+    <div class="nav-info">Estadística para Data Science &mdash; Clase 8</div>
+</nav>
+
+<div class="presentation-container">
+
+    <!-- SLIDE 1: Title -->
+    <section class="slide slide-title-page active">
+        <h1>Introducción a Series Temporales</h1>
+        <p class="subtitle">Entendiendo cómo el tiempo transforma nuestros datos: Tendencia, Estacionalidad y Ruido.</p>
+        <div class="meta-info">CLASE 8 DE 8 &bull; MÓDULO DE ESTADÍSTICA</div>
+        <div class="slide-number">1</div>
+    </section>
+
+    <!-- SLIDE 2: Objectives -->
+    <section class="slide">
+        <h2>Objetivos de la Sesión</h2>
+        <p>Al finalizar esta clase, seremos capaces de:</p>
+        <ul>
+            <li><strong>El Factor Tiempo:</strong> Distinguir datos transversales de series temporales y comprender por qué el orden importa.</li>
+            <li><strong>Deconstrucción:</strong> Identificar los componentes de una serie (Tendencia, Estacionalidad, Ciclo, Ruido) y sus modelos aditivo y multiplicativo.</li>
+            <li><strong>Procesamiento:</strong> Aplicar Resampling y Suavizado con medias móviles en Pandas.</li>
+            <li><strong>Estacionariedad:</strong> Validar estadísticamente con el ADF Test y corregir mediante diferenciación.</li>
+            <li><strong>Autocorrelación:</strong> Analizar la "memoria" de la serie con ACF Plots y Lag Plots.</li>
+        </ul>
+        <div class="slide-number">2</div>
+    </section>
+
+    <!-- SLIDE 3: What is a Time Series? -->
+    <section class="slide">
+        <h2>¿Qué es una Serie Temporal?</h2>
+        <p>Es una secuencia de observaciones \(y_1, y_2, \ldots, y_T\) donde el <strong>orden temporal es fundamental</strong>: lo que pasó ayer influye en lo que ocurre hoy.</p>
+
+        <div class="grid-2">
+            <div class="card">
+                <h4>Datos Transversales</h4>
+                <p>El orden de las filas <strong>no importa</strong>. Podemos barajar las observaciones sin perder información.</p>
+                <p style="font-size:0.9rem; color:#666; margin-top:0.5rem;">Ej: Encuesta de satisfacción a 100 clientes. Da igual encuestar primero al cliente 1 o al 50.</p>
+            </div>
+            <div class="card" style="border: 2px solid black;">
+                <h4>Serie Temporal</h4>
+                <p>El orden <strong>define</strong> la información. Barajar los datos destruye el significado.</p>
+                <p style="font-size:0.9rem; color:#666; margin-top:0.5rem;">Ej: Ventas diarias, precio de una acción, temperatura horaria. El pasado condiciona el futuro.</p>
+            </div>
+        </div>
+        <div class="note note-blue" style="margin-top:1.5rem;">
+            <strong>Consecuencia técnica:</strong> En series temporales <strong>no podemos</strong> usar Train/Test Split aleatorio. El test set debe ser siempre el bloque de tiempo más reciente, para que el modelo nunca "vea el futuro".
+        </div>
+        <div class="slide-number">3</div>
+    </section>
+
+    <!-- SLIDE 4: Components Intro -->
+    <section class="slide">
+        <h2>Los Componentes Base</h2>
+        <p>Cualquier serie temporal puede descomponerse matemáticamente en una "receta" de cuatro ingredientes. El modelo más común es el <strong>aditivo</strong>:</p>
+
+        <div class="math-block">
+            $$Y_t = T_t + S_t + C_t + \varepsilon_t$$
+        </div>
+
+        <div class="grid-4" style="margin-top:1rem;">
+            <div class="card" style="border-left: 3px solid var(--highlight-blue-border);">
+                <h4>\(T_t\) — Tendencia</h4>
+                <p style="font-size:0.95rem;">Dirección general a largo plazo. Crecimiento o declive sostenido.</p>
+            </div>
+            <div class="card" style="border-left: 3px solid var(--highlight-yellow-border);">
+                <h4>\(S_t\) — Estacionalidad</h4>
+                <p style="font-size:0.95rem;">Patrón periódico y predecible (diario, semanal, anual…).</p>
+            </div>
+            <div class="card" style="border-left: 3px solid var(--highlight-green);">
+                <h4>\(C_t\) — Ciclo</h4>
+                <p style="font-size:0.95rem;">Fluctuaciones de largo plazo sin periodo fijo (ciclos económicos).</p>
+            </div>
+            <div class="card" style="border-left: 3px solid #999;">
+                <h4>\(\varepsilon_t\) — Ruido</h4>
+                <p style="font-size:0.95rem;">Componente aleatoria irreducible. Lo que ningún modelo puede capturar.</p>
+            </div>
+        </div>
+
+        <div class="note note-yellow" style="margin-top:1rem;">
+            Cuando la amplitud de la estacionalidad <em>crece</em> con la tendencia, se usa el <strong>modelo multiplicativo</strong>: \(Y_t = T_t \times S_t \times C_t \times \varepsilon_t\).
+        </div>
+        <div class="slide-number">4</div>
+    </section>
+
+    <!-- SLIDE 5: Trend -->
+    <section class="slide">
+        <h2>1. Tendencia (Trend)</h2>
+        <p>La dirección general a largo plazo: la "pendiente" subyacente que persiste ignorando las fluctuaciones temporales.</p>
+
+        <div class="grid-2">
+            <div>
+                <ul>
+                    <li>¿Crece el número de usuarios de la plataforma?</li>
+                    <li>¿Bajan los costes de producción año tras año?</li>
+                    <li>Puede ser lineal, exponencial o incluso decreciente, pero es <strong>consistente en el tiempo</strong>.</li>
+                </ul>
+                <div class="note note-blue" style="margin-top:1.5rem;">
+                    La tendencia se extrae matemáticamente promediando (media móvil de ventana grande) o ajustando una regresión sobre el tiempo \(t\).
+                </div>
+            </div>
+            <!-- SVG: upward trend curve -->
+            <div class="svg-wrapper">
+                <svg viewBox="0 0 300 160" class="svg-chart" xmlns="http://www.w3.org/2000/svg">
+                    <line x1="30" y1="140" x2="285" y2="140" stroke="#111" stroke-width="1.5"/>
+                    <line x1="30" y1="140" x2="30"  y2="15"  stroke="#111" stroke-width="1.5"/>
+                    <!-- Trend line (smooth upward curve) -->
+                    <path d="M30,125 C80,115 130,90 180,65 S240,35 280,18"
+                          stroke="#2196f3" stroke-width="3" fill="none" stroke-linecap="round"/>
+                    <!-- Noisy data around trend -->
+                    <polyline points="30,130 50,118 70,122 90,108 110,100 130,95 150,82 170,70 190,65 210,55 230,48 250,38 270,28 280,22"
+                              stroke="#bbb" stroke-width="1.5" fill="none" stroke-dasharray="3,2"/>
+                    <!-- Labels -->
+                    <text x="160" y="155" font-size="11" fill="#555" font-family="Inter,sans-serif" text-anchor="middle">Tiempo →</text>
+                    <text x="18"  y="80"  font-size="11" fill="#555" font-family="Inter,sans-serif" text-anchor="middle" transform="rotate(-90,18,80)">Valor</text>
+                    <!-- Legend -->
+                    <line x1="35" y1="22" x2="60" y2="22" stroke="#2196f3" stroke-width="2.5"/>
+                    <text x="64" y="26" font-size="10" fill="#2196f3" font-family="Inter,sans-serif" font-weight="600">Tendencia</text>
+                    <line x1="130" y1="22" x2="155" y2="22" stroke="#bbb" stroke-width="1.5" stroke-dasharray="3,2"/>
+                    <text x="158" y="26" font-size="10" fill="#999" font-family="Inter,sans-serif">Serie original</text>
+                </svg>
+            </div>
+        </div>
+        <div class="slide-number">5</div>
+    </section>
+
+    <!-- SLIDE 6: Seasonality -->
+    <section class="slide">
+        <h2>2. Estacionalidad (Seasonality)</h2>
+        <p>Patrones que se <strong>repiten con periodo fijo y predecible</strong>. A diferencia de la tendencia, la estacionalidad vuelve siempre al mismo nivel base.</p>
+
+        <div class="grid-2">
+            <div>
+                <ul>
+                    <li><strong>Anual:</strong> Ventas de helados (pico en verano).</li>
+                    <li><strong>Semanal:</strong> Tráfico web (cae el fin de semana).</li>
+                    <li><strong>Diaria:</strong> Consumo eléctrico (sube por la noche).</li>
+                    <li><strong>Intradiaria:</strong> Llamadas a call center (pico a mediodía).</li>
+                </ul>
+                <div class="note note-yellow" style="margin-top:1rem;">
+                    La estacionalidad tiene un <strong>periodo \(s\)</strong> conocido. Detectarlo es clave: \(s=7\) para datos diarios con patrón semanal, \(s=12\) para datos mensuales con patrón anual.
+                </div>
+            </div>
+            <!-- SVG: seasonal wave -->
+            <div class="svg-wrapper">
+                <svg viewBox="0 0 300 160" class="svg-chart" xmlns="http://www.w3.org/2000/svg">
+                    <line x1="30" y1="140" x2="285" y2="140" stroke="#111" stroke-width="1.5"/>
+                    <line x1="30" y1="140" x2="30"  y2="15"  stroke="#111" stroke-width="1.5"/>
+                    <!-- Mean line -->
+                    <line x1="30" y1="80" x2="285" y2="80" stroke="#ccc" stroke-width="1" stroke-dasharray="4,3"/>
+                    <!-- Seasonal wave -->
+                    <path d="M30,80 C48,25 62,25 80,80 C98,135 112,135 130,80 C148,25 162,25 180,80 C198,135 212,135 230,80 C248,25 262,25 280,80"
+                          stroke="#fbc02d" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                    <!-- Period annotation -->
+                    <line x1="30" y1="15" x2="130" y2="15" stroke="#fbc02d" stroke-width="1" stroke-dasharray="3,2"/>
+                    <text x="80" y="12" font-size="10" fill="#fbc02d" font-family="Inter,sans-serif" text-anchor="middle" font-weight="600">periodo s</text>
+                    <!-- Labels -->
+                    <text x="160" y="155" font-size="11" fill="#555" font-family="Inter,sans-serif" text-anchor="middle">Tiempo →</text>
+                    <text x="18"  y="80"  font-size="11" fill="#555" font-family="Inter,sans-serif" text-anchor="middle" transform="rotate(-90,18,80)">Valor</text>
+                </svg>
+            </div>
+        </div>
+        <div class="slide-number">6</div>
+    </section>
+
+    <!-- SLIDE 7: Noise -->
+    <section class="slide">
+        <h2>3. Ruido / Residuo (\(\varepsilon_t\))</h2>
+        <p>Lo aleatorio e impredecible. Es la parte de la serie que ningún modelo puede —ni debe— capturar.</p>
+
+        <!-- SVG: noisy flat series -->
+        <div class="svg-wrapper" style="margin: 1.5rem 0;">
+            <svg viewBox="0 0 560 120" class="svg-chart" xmlns="http://www.w3.org/2000/svg">
+                <line x1="30" y1="100" x2="540" y2="100" stroke="#111" stroke-width="1.5"/>
+                <line x1="30" y1="100" x2="30"  y2="10"  stroke="#111" stroke-width="1.5"/>
+                <!-- Zero / mean line -->
+                <line x1="30" y1="55" x2="540" y2="55" stroke="#d32f2f" stroke-width="1.2" stroke-dasharray="5,4"/>
+                <!-- Jagged noise path -->
+                <polyline
+                    points="30,55 50,38 70,68 90,44 110,62 130,35 150,72 170,50 190,65 210,40 230,58 250,72 270,38 290,60 310,45 330,70 350,42 370,65 390,50 410,40 430,68 450,52 470,38 490,65 510,48 530,60 540,55"
+                    stroke="#999" stroke-width="1.5" fill="none"/>
+                <!-- Labels -->
+                <text x="290" y="115" font-size="11" fill="#555" font-family="Inter,sans-serif" text-anchor="middle">Tiempo →</text>
+                <text x="18"  y="55"  font-size="11" fill="#555" font-family="Inter,sans-serif" text-anchor="middle" transform="rotate(-90,18,55)">ε_t</text>
+                <text x="540" y="51" font-size="10" fill="#d32f2f" font-family="Inter,sans-serif">μ=0</text>
+            </svg>
+        </div>
+
+        <div class="grid-2">
+            <div class="note note-yellow" style="margin:0;">
+                Un buen modelo debería aislar la Tendencia y la Estacionalidad para que <strong>solo quede Ruido</strong>. Si los residuos todavía muestran un patrón, el modelo está dejando escapar información útil.
+            </div>
+            <div class="card">
+                <h4>¿Cómo sabemos si es ruido puro?</h4>
+                <p>El ruido ideal tiene <strong>media cero</strong>, <strong>varianza constante</strong> y <strong>sin autocorrelación</strong> (los valores no se influyen entre sí). Esto se verifica con el ACF Plot.</p>
+            </div>
+        </div>
+        <div class="slide-number">7</div>
+    </section>
+
+    <!-- SLIDE 8: Setup Python -->
+    <section class="slide">
+        <h2>Preparando Pandas para Series Temporales</h2>
+        <p>El índice del DataFrame <strong>debe</strong> ser de tipo <code>DatetimeIndex</code>. Sin esto, las operaciones temporales (resample, rolling, shift…) no funcionarán correctamente.</p>
+
+        <pre><code class="language-python">import pandas as pd
+
+# 1. Cargar el CSV
+df = pd.read_csv('ventas.csv')
+
+# 2. Convertir la columna de fecha a tipo datetime
+df['fecha'] = pd.to_datetime(df['fecha'])
+
+# 3. Establecer la fecha como índice
+df.set_index('fecha', inplace=True)
+
+# Verificar
+print(df.index.dtype)      # → datetime64[ns]
+print(df.index.freq)       # → None (frecuencia irregular) o 'D' (diario), etc.
+
+# Si la frecuencia no está definida, establecerla explícitamente:
+df = df.asfreq('D')        # 'D'=diario, 'M'=mensual, 'H'=horario</code></pre>
+        <div class="slide-number">8</div>
+    </section>
+
+    <!-- SLIDE 9: Resampling -->
+    <section class="slide">
+        <h2>Resampling (Cambio de Frecuencia)</h2>
+        <p>A veces los datos diarios tienen demasiado ruido y necesitamos ver el panorama general agrupando a una frecuencia menor.</p>
+
+        <div class="grid-2">
+            <div>
+                <pre><code class="language-python"># Agrupar por Mes y calcular la Media
+df_mensual = df['ventas'].resample('M').mean()
+
+# Agrupar por Semana y Sumar las ventas
+df_semanal = df['ventas'].resample('W').sum()
+
+# Agrupar por Trimestre
+df_trimestral = df['ventas'].resample('Q').sum()
+
+# Códigos frecuentes:
+# 'D' → Diario   'W' → Semanal
+# 'M' → Mensual  'Q' → Trimestral
+# 'Y' → Anual    'H' → Horario</code></pre>
+            </div>
+            <div>
+                <div class="card">
+                    <h4>¿Por qué hacerlo?</h4>
+                    <p>El resampling suaviza la curva y resalta patrones de largo plazo que están ocultos en el ruido de alta frecuencia.</p>
+                </div>
+                <div class="note note-blue" style="margin-top:1rem;">
+                    <strong>Upsampling vs Downsampling:</strong> Pasar de diario a mensual es <em>downsampling</em> (menos puntos). Pasar de mensual a diario es <em>upsampling</em> y requiere interpolación para rellenar los valores faltantes.
+                </div>
+            </div>
+        </div>
+        <div class="slide-number">9</div>
+    </section>
+
+    <!-- SLIDE 10: Smoothing Concept -->
+    <section class="slide">
+        <h2>Suavizado: Medias Móviles (Rolling Mean)</h2>
+        <p>Técnica para extraer la tendencia calculando el promedio de una ventana deslizante de \(n\) periodos anteriores.</p>
+
+        <div class="math-block">
+            $$\text{MA}_t(n) = \frac{1}{n} \sum_{k=0}^{n-1} y_{t-k} = \frac{y_t + y_{t-1} + \cdots + y_{t-n+1}}{n}$$
+        </div>
+
+        <div class="grid-2">
+            <div class="card">
+                <h4>Efecto de la ventana \(n\)</h4>
+                <p><strong>\(n\) pequeño</strong> (ej. 7 días): sigue de cerca los datos, suaviza poco.</p>
+                <p style="margin-top:0.5rem;"><strong>\(n\) grande</strong> (ej. 90 días): curva muy suave, resalta solo la tendencia estructural.</p>
+            </div>
+            <div class="note note-yellow" style="align-self:start; margin:0;">
+                <strong>Coste de la ventana:</strong> Los primeros \(n-1\) valores del resultado serán <code>NaN</code>, porque no hay suficiente historia. Usa <code>.rolling(n, min_periods=1)</code> si necesitas evitarlo.
+            </div>
+        </div>
+        <div class="slide-number">10</div>
+    </section>
+
+    <!-- SLIDE 11: Smoothing Code -->
+    <section class="slide">
+        <h2>Implementación: Rolling Windows</h2>
+        <p>Pandas hace que calcular y visualizar medias móviles sea sencillo con el método <code>.rolling()</code>.</p>
+
+        <pre><code class="language-python">import matplotlib.pyplot as plt
+
+# Media Móvil de 7 días (tendencia semanal)
+df['ma_7']  = df['ventas'].rolling(window=7).mean()
+
+# Media Móvil de 30 días (tendencia mensual)
+df['ma_30'] = df['ventas'].rolling(window=30).mean()
+
+# Graficar las tres series
+fig, ax = plt.subplots(figsize=(12, 5))
+ax.plot(df['ventas'],  alpha=0.35, color='gray',   label='Serie original')
+ax.plot(df['ma_7'],   color='orange', linewidth=1.5, label='MA(7) — semanal')
+ax.plot(df['ma_30'],  color='red',    linewidth=2,   label='MA(30) — mensual')
+ax.legend()
+ax.set_title('Ventas diarias con medias móviles')
+plt.tight_layout()
+plt.show()</code></pre>
+        <div class="slide-number">11</div>
+    </section>
+
+    <!-- SLIDE 12: Decomposition -->
+    <section class="slide">
+        <h2>Descomposición Automática con statsmodels</h2>
+        <p>La función <code>seasonal_decompose</code> separa matemáticamente los componentes en un solo paso.</p>
+
+        <pre><code class="language-python">from statsmodels.tsa.seasonal import seasonal_decompose
+import matplotlib.pyplot as plt
+
+# model='additive'      → Y_t = T_t + S_t + ε_t
+# model='multiplicative' → Y_t = T_t × S_t × ε_t
+# period: nº de observaciones por ciclo (365 para datos diarios con patrón anual)
+
+result = seasonal_decompose(df['ventas'], model='additive', period=365)
+fig = result.plot()
+fig.set_size_inches(12, 8)
+plt.tight_layout()
+plt.show()</code></pre>
+
+        <div class="card" style="margin-top:1rem;">
+            <h4>Output: 4 subgráficos apilados</h4>
+            <p>La función genera automáticamente: <strong>(1)</strong> Serie original, <strong>(2)</strong> Tendencia \(T_t\), <strong>(3)</strong> Estacionalidad \(S_t\) y <strong>(4)</strong> Residuo \(\varepsilon_t\). Si el residuo parece ruido aleatorio, la descomposición fue exitosa.</p>
+        </div>
+        <div class="slide-number">12</div>
+    </section>
+
+    <!-- SLIDE 13: Stationarity -->
+    <section class="slide">
+        <h2>Concepto Clave: Estacionariedad</h2>
+        <p>La mayoría de modelos de predicción (ARIMA, etc.) asumen que las propiedades estadísticas de la serie <strong>no cambian con el tiempo</strong>.</p>
+
+        <div class="grid-2">
+            <!-- SVG: stationary vs non-stationary -->
+            <div>
+                <p style="font-weight:600; margin-bottom:0.5rem; color:var(--highlight-green);">✓ Serie Estacionaria</p>
+                <svg viewBox="0 0 280 120" class="svg-chart" xmlns="http://www.w3.org/2000/svg">
+                    <line x1="20" y1="105" x2="265" y2="105" stroke="#111" stroke-width="1.2"/>
+                    <line x1="20" y1="105" x2="20"  y2="10"  stroke="#111" stroke-width="1.2"/>
+                    <line x1="20" y1="58" x2="265" y2="58" stroke="#2e7d32" stroke-width="1" stroke-dasharray="4,3"/>
+                    <polyline points="20,58 40,42 60,70 80,50 100,65 120,45 140,68 160,52 180,62 200,44 220,70 240,55 260,60"
+                              stroke="#2e7d32" stroke-width="2" fill="none"/>
+                    <text x="145" y="118" font-size="10" fill="#555" font-family="Inter,sans-serif" text-anchor="middle">Tiempo →</text>
+                    <text x="145" y="25" font-size="10" fill="#2e7d32" font-family="Inter,sans-serif" text-anchor="middle">Media y varianza constantes</text>
+                </svg>
+
+                <p style="font-weight:600; margin-bottom:0.5rem; margin-top:1.5rem; color:var(--highlight-red);">✗ Serie No Estacionaria</p>
+                <svg viewBox="0 0 280 120" class="svg-chart" xmlns="http://www.w3.org/2000/svg">
+                    <line x1="20" y1="105" x2="265" y2="105" stroke="#111" stroke-width="1.2"/>
+                    <line x1="20" y1="105" x2="20"  y2="10"  stroke="#111" stroke-width="1.2"/>
+                    <path d="M20,95 C60,90 100,80 140,65 S200,40 260,18"
+                          stroke="#d32f2f" stroke-width="2" fill="none"/>
+                    <polyline points="20,95 40,88 60,84 80,78 100,72 120,68 140,60 160,55 180,48 200,40 220,30 240,22 260,15"
+                              stroke="#ffcdd2" stroke-width="1.5" fill="none" stroke-dasharray="3,2"/>
+                    <text x="145" y="118" font-size="10" fill="#555" font-family="Inter,sans-serif" text-anchor="middle">Tiempo →</text>
+                    <text x="145" y="25" font-size="10" fill="#d32f2f" font-family="Inter,sans-serif" text-anchor="middle">Media creciente — tendencia</text>
+                </svg>
+            </div>
+
+            <div>
+                <div class="card" style="border-left: 3px solid var(--highlight-green);">
+                    <h4>Es Estacionaria si…</h4>
+                    <p>✅ Media constante en el tiempo (\(\mathbb{E}[Y_t] = \mu\)).</p>
+                    <p style="margin-top:0.5rem;">✅ Varianza constante (\(\text{Var}(Y_t) = \sigma^2\)).</p>
+                    <p style="margin-top:0.5rem;">✅ La autocorrelación solo depende del lag \(k\), no del tiempo \(t\).</p>
+                </div>
+                <div class="card" style="border-left: 3px solid var(--highlight-red); margin-top:1.5rem;">
+                    <h4>No es Estacionaria si…</h4>
+                    <p>❌ Tiene <strong>tendencia</strong> (media que sube o baja).</p>
+                    <p style="margin-top:0.5rem;">❌ Tiene <strong>estacionalidad</strong> marcada sin eliminar.</p>
+                    <p style="margin-top:0.5rem;">❌ La varianza <strong>crece</strong> con el tiempo (heterocedasticidad).</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-number">13</div>
+    </section>
+
+    <!-- SLIDE 14: ADF Test -->
+    <section class="slide">
+        <h2>Validación Estadística: ADF Test</h2>
+        <p>No adivines si la serie es estacionaria. El <strong>Augmented Dickey-Fuller Test</strong> lo contrasta formalmente.</p>
+
+        <pre><code class="language-python">from statsmodels.tsa.stattools import adfuller
+
+result  = adfuller(df['ventas'])
+p_value = result[1]
+stat    = result[0]
+
+print(f"Estadístico ADF: {stat:.4f}")
+print(f"P-Value:         {p_value:.4f}")
+print(f"Valores críticos: {result[4]}")</code></pre>
+
+        <div class="note note-blue" style="margin-top:0.5rem;">
+            <strong>Hipótesis del test:</strong><br>
+            <strong>H₀ (nula):</strong> La serie tiene raíz unitaria → <em>No es estacionaria</em>.<br>
+            <strong>H₁ (alternativa):</strong> La serie es estacionaria.<br><br>
+            <strong>Regla de decisión:</strong> Si el <strong>p-value &lt; 0.05</strong> → rechazamos H₀ → la serie <strong>es estacionaria</strong>.<br>
+            Si el p-value &gt; 0.05 → no podemos rechazar H₀ → debemos transformar la serie (diferenciación, log…).
+        </div>
+        <div class="slide-number">14</div>
+    </section>
+
+    <!-- SLIDE 15: Differencing -->
+    <section class="slide">
+        <h2>Solución: Diferenciación (Differencing)</h2>
+        <p>Cuando la serie no es estacionaria por tener tendencia, la solución más habitual es calcular la <strong>primera diferencia</strong>: el cambio de un periodo al siguiente.</p>
+
+        <div class="math-block">
+            $$Y'_t = Y_t - Y_{t-1} = \Delta Y_t$$
+        </div>
+
+        <div class="grid-2">
+            <div>
+                <pre><code class="language-python"># Primera diferencia
+df['diff_1'] = df['ventas'].diff()
+
+# Si una diferencia no basta (tendencia cuadrática):
+df['diff_2'] = df['ventas'].diff().diff()
+
+# Verificar con ADF después de diferenciar
+from statsmodels.tsa.stattools import adfuller
+p = adfuller(df['diff_1'].dropna())[1]
+print(f"P-Value tras diff: {p:.4f}")  # Debe ser < 0.05</code></pre>
+            </div>
+            <div>
+                <div class="card">
+                    <h4>¿Por qué funciona?</h4>
+                    <p>Si la tendencia es lineal (\(Y_t = a + bt + \varepsilon_t\)), al diferenciar obtenemos \(Y'_t = b + \varepsilon_t - \varepsilon_{t-1}\), que ya tiene media constante.</p>
+                </div>
+                <div class="note note-yellow" style="margin-top:1rem;">
+                    El número de diferencias necesarias se denomina <strong>orden de integración \(d\)</strong>. Es el parámetro \(d\) del modelo ARIMA(\(p, d, q\)).
+                </div>
+            </div>
+        </div>
+        <div class="slide-number">15</div>
+    </section>
+
+    <!-- SLIDE 16: Autocorrelation -->
+    <section class="slide">
+        <h2>Autocorrelación (ACF)</h2>
+        <p>La <strong>Función de Autocorrelación</strong> mide cuánto se parece la serie a una versión desplazada de sí misma (\(k\) pasos atrás, llamados <em>lags</em>).</p>
+
+        <pre><code class="language-python">from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+import matplotlib.pyplot as plt
+
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 6))
+
+# ACF: Autocorrelación con todos los lags previos (directa + indirecta)
+plot_acf(df['ventas'], lags=50, ax=ax1)
+ax1.set_title('ACF — Función de Autocorrelación')
+
+# PACF: Autocorrelación parcial (solo el efecto directo del lag k)
+plot_pacf(df['ventas'], lags=50, ax=ax2)
+ax2.set_title('PACF — Autocorrelación Parcial')
+
+plt.tight_layout()
+plt.show()</code></pre>
+
+        <div class="note note-blue">
+            <strong>Interpretación:</strong> Las barras que superan la banda azul (intervalo de confianza al 95%) indican lags estadísticamente significativos. Picos rítmicos cada 7 lags en datos diarios confirman estacionalidad semanal.
+        </div>
+        <div class="slide-number">16</div>
+    </section>
+
+    <!-- SLIDE 17: Lag Plots -->
+    <section class="slide">
+        <h2>Lag Plots: Visualizando la "Memoria"</h2>
+        <p>Un scatter plot donde el eje X es \(Y_{t-1}\) (valor de ayer) y el eje Y es \(Y_t\) (valor de hoy). Muestra visualmente si el pasado predice el presente.</p>
+
+        <div class="grid-2">
+            <div>
+                <pre><code class="language-python">from pandas.plotting import lag_plot
+import matplotlib.pyplot as plt
+
+fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+
+# Lag 1: correlación con ayer
+lag_plot(df['ventas'], lag=1, ax=axes[0])
+axes[0].set_title('Lag 1 (ayer vs hoy)')
+
+# Lag 7: correlación con el mismo día de la semana pasada
+lag_plot(df['ventas'], lag=7, ax=axes[1])
+axes[1].set_title('Lag 7 (misma semana)')
+
+plt.tight_layout()
+plt.show()</code></pre>
+            </div>
+            <div>
+                <div class="card" style="border-left:3px solid var(--highlight-blue-border); margin-bottom:1rem;">
+                    <h4>Diagonal fuerte (↗)</h4>
+                    <p><strong>Alta autocorrelación.</strong> Los valores de ayer predicen bien los de hoy. La serie tiene "memoria".</p>
+                </div>
+                <div class="card" style="border-left:3px solid #999;">
+                    <h4>Nube de puntos (⬛)</h4>
+                    <p><strong>Sin autocorrelación.</strong> La serie es ruido aleatorio (<em>random walk</em> si la causa es la tendencia). Ayer no dice nada de hoy.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-number">17</div>
+    </section>
+
+    <!-- SLIDE 18: Practical Exercise -->
+    <section class="slide">
+        <h2>Ejercicio Integrador</h2>
+        <p>Aplicamos el pipeline completo sobre un dataset de ventas reales para responder: <em>"¿En qué meses del año vendemos más?"</em></p>
+
+        <div class="grid-4">
+            <div class="card" style="border-top:3px solid var(--highlight-blue-border);">
+                <h4>Paso 1 — Cargar y preparar</h4>
+                <p>Leer el CSV, convertir la columna de fecha a <code>DatetimeIndex</code> y establecer la frecuencia con <code>.asfreq('D')</code>.</p>
+            </div>
+            <div class="card" style="border-top:3px solid var(--highlight-yellow-border);">
+                <h4>Paso 2 — Resamplear</h4>
+                <p>Agregar de diario a mensual con <code>.resample('M').sum()</code> para reducir el ruido y ver el patrón anual.</p>
+            </div>
+            <div class="card" style="border-top:3px solid var(--highlight-green);">
+                <h4>Paso 3 — Descomponer</h4>
+                <p>Aplicar <code>seasonal_decompose(period=12)</code> sobre la serie mensual para aislar la estacionalidad anual.</p>
+            </div>
+            <div class="card" style="border-top:3px solid var(--highlight-red);">
+                <h4>Paso 4 — Validar</h4>
+                <p>Ejecutar el ADF Test. Si p-value &gt; 0.05, aplicar <code>.diff()</code> y re-testear hasta obtener estacionariedad.</p>
+            </div>
+        </div>
+
+        <div class="note note-blue" style="margin-top:1.5rem;">
+            <strong>Output esperado:</strong> Un gráfico de la componente estacional mensual que muestre claramente los meses de mayor y menor actividad, listo para incluir en el informe ejecutivo del Proyecto Final.
+        </div>
+        <div class="slide-number">18</div>
+    </section>
+
+    <!-- SLIDE 19: Summary -->
+    <section class="slide">
+        <h2>Resumen del Módulo Completo</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Clases</th>
+                    <th>Bloque</th>
+                    <th>Conceptos clave</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>1–3</strong></td>
+                    <td>Entender los datos</td>
+                    <td>Media, mediana, desviación típica, outliers, distribuciones</td>
+                </tr>
+                <tr>
+                    <td><strong>4–5</strong></td>
+                    <td>Buscar relaciones</td>
+                    <td>Correlación de Pearson/Spearman, probabilidad, Bayes</td>
+                </tr>
+                <tr>
+                    <td><strong>6–7</strong></td>
+                    <td>Predecir</td>
+                    <td>Regresión lineal (OLS), coeficientes, MAE, RMSE, \(R^2\), residuos</td>
+                </tr>
+                <tr>
+                    <td><strong>8</strong></td>
+                    <td>Dominar el tiempo</td>
+                    <td>Tendencia, estacionalidad, resampling, ADF Test, diferenciación, ACF</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="note note-blue" style="margin-top:2rem; text-align:center;">
+            <strong>¡Felicidades por completar el módulo!</strong><br>
+            Estás listo para el Proyecto Final: un análisis de datos completo de extremo a extremo.
+        </div>
+        <div class="slide-number">19</div>
+    </section>
+
+</div>
+
+<!-- Navigation Controls -->
+<div class="controls">
+    <button class="btn" id="prevBtn" onclick="plusSlides(-1)" disabled>Anterior</button>
+    <button class="btn" id="nextBtn" onclick="plusSlides(1)">Siguiente</button>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        renderMathInElement(document.body, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            throwOnError: false
+        });
+        hljs.highlightAll();
+    });
+
+    let slideIndex = 1;
+    showSlides(slideIndex);
+
+    function plusSlides(n) { showSlides(slideIndex += n); }
+    function currentSlide(n) { showSlides(slideIndex = n); }
+
+    function showSlides(n) {
+        let slides = document.getElementsByClassName("slide");
+        let prevBtn = document.getElementById("prevBtn");
+        let nextBtn = document.getElementById("nextBtn");
+
+        if (n > slides.length) { slideIndex = 1; }
+        if (n < 1) { slideIndex = slides.length; }
+
+        for (let i = 0; i < slides.length; i++) {
+            slides[i].style.display = "none";
+            slides[i].classList.remove("active");
+        }
+
+        slides[slideIndex - 1].style.display = "block";
+        slides[slideIndex - 1].classList.add("active");
+
+        prevBtn.disabled = (slideIndex === 1);
+        nextBtn.innerHTML = (slideIndex === slides.length) ? "Finalizar" : "Siguiente";
+    }
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === "ArrowRight") { plusSlides(1); }
+        else if (event.key === "ArrowLeft" && slideIndex > 1) { plusSlides(-1); }
+    });
+</script>
+
+</body>
+</html>
