@@ -1,0 +1,109 @@
+SQL AGREGACION I - CHEATSHEET
+Sakila (SQLite)
+
+1) ORDEN LOGICO DE UNA QUERY DE AGREGACION
+FROM / JOIN
+WHERE
+GROUP BY
+HAVING
+SELECT
+ORDER BY
+LIMIT
+
+2) FUNCIONES AGREGADAS BASE
+- COUNT(*)                -> cuenta filas del grupo
+- COUNT(columna)          -> cuenta no-NULL de la columna
+- COUNT(DISTINCT columna) -> cuenta valores unicos
+- SUM(columna)
+- AVG(columna)
+
+Ejemplo:
+SELECT customer_id,
+       COUNT(*) AS n_payments,
+       ROUND(SUM(amount), 2) AS revenue,
+       ROUND(AVG(amount), 2) AS avg_ticket
+FROM payment
+GROUP BY customer_id;
+
+3) GROUP BY BASICO
+Regla practica:
+- Todo lo que selecciones y no sea agregado debe estar en GROUP BY.
+
+4) TOP-N
+Patron:
+SELECT dimension,
+       metrica
+FROM ...
+GROUP BY dimension
+ORDER BY metrica DESC
+LIMIT 10;
+
+Ejemplo top dias:
+SELECT date(payment_date) AS payment_day,
+       ROUND(SUM(amount), 2) AS revenue
+FROM payment
+GROUP BY date(payment_date)
+ORDER BY revenue DESC
+LIMIT 10;
+
+5) HAVING (FILTRO DE GRUPOS)
+- WHERE filtra filas antes de agrupar.
+- HAVING filtra grupos despues de agregar.
+
+Ejemplo:
+SELECT customer_id,
+       COUNT(*) AS n_payments,
+       SUM(amount) AS revenue
+FROM payment
+GROUP BY customer_id
+HAVING SUM(amount) >= 180 OR COUNT(*) >= 40;
+
+6) SEGMENTACION CON CASE + GROUP BY
+CASE crea buckets y luego agregas por bucket.
+
+Ejemplo:
+SELECT CASE
+         WHEN amount < 3 THEN 'low'
+         WHEN amount <= 6 THEN 'med'
+         ELSE 'high'
+       END AS amount_bucket,
+       COUNT(*) AS n_payments,
+       SUM(amount) AS revenue
+FROM payment
+GROUP BY amount_bucket;
+
+7) FECHAS EN AGREGACION (SQLITE)
+- date(payment_date)                  -> dia
+- strftime('%Y', payment_date)        -> anio
+- strftime('%m', payment_date)        -> mes
+- strftime('%H', payment_date)        -> hora
+
+8) JOINS MINIMOS PARA METRICAS
+Revenue por categoria:
+payment -> rental -> inventory -> film_category -> category
+
+9) ERRORES TIPICOS
+- Duplicacion por joins 1:N (ej. film_actor)
+- Usar COUNT(*) cuando necesitas COUNT(DISTINCT ...)
+- Mezclar columnas no agregadas fuera del GROUP BY
+- Filtrar con HAVING algo que deberia ir en WHERE
+
+10) DEBUG RAPIDO
+Paso 1: valida base
+SELECT COUNT(*), COUNT(DISTINCT rental_id), SUM(amount) FROM payment;
+
+Paso 2: compara tras join
+SELECT COUNT(*), COUNT(DISTINCT p.rental_id), SUM(p.amount)
+FROM payment p
+JOIN ...;
+
+Si COUNT(*) sube mucho y DISTINCT no, hay duplicacion por join.
+
+11) RECETA EXPRESS
+1. Define grano (que es una fila antes de agrupar)
+2. Construye joins minimos
+3. Aplica filtros de fila (WHERE)
+4. Agrega (GROUP BY + COUNT/SUM/AVG)
+5. Filtra grupos (HAVING)
+6. Ordena y limita (ORDER BY + LIMIT)
+7. Valida duplicaciones con COUNT(DISTINCT)

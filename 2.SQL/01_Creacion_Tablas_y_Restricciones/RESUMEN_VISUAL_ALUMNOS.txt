@@ -1,0 +1,403 @@
+/* =======================================================================================
+   RESUMEN VISUAL - CREATE TABLE EN SQLITE
+   Guía rápida para alumnos | Master Data Science & IA
+   ========================================================================================
+ */
+
+
+╔═══════════════════════════════════════════════════════════════════════════════════════╗
+║           TIPOS DE DATOS EN SQLITE - QUICK REFERENCE                                ║
+╚═══════════════════════════════════════════════════════════════════════════════════════╝
+
+┌──────────┬──────────────────────────────────────────────────────────────┐
+│ TIPO     │ USO                                                          │
+├──────────┼──────────────────────────────────────────────────────────────┤
+│ INTEGER  │ Números enteros: IDs, años, cantidades                       │
+│          │ Rango: -9.2 trillones a 9.2 trillones                       │
+│          │ Ejemplo: id_customer INTEGER PRIMARY KEY AUTOINCREMENT       │
+│          │                                                              │
+│ REAL     │ Números decimales: porcentajes, calificaciones              │
+│          │ Ejemplo: imdb_rating REAL  →  8.5                           │
+│          │ ⚠️  NO usar para dinero (usa NUMERIC)                        │
+│          │                                                              │
+│ TEXT     │ Texto: nombres, descripciones, emails, teléfonos            │
+│          │ Sin límite de longitud (prácticamente)                       │
+│          │ Ejemplo: email TEXT UNIQUE NOT NULL                         │
+│          │                                                              │
+│ NUMERIC  │ Decimal exacto: dinero, científico                          │
+│          │ Formato: NUMERIC(total_dígitos, decimales)                   │
+│          │ Ejemplo: price NUMERIC(10, 2)  →  1000.50                   │
+│          │                                                              │
+│ BLOB     │ Datos binarios: imágenes, archivos                          │
+│          │ Poco usado en nuestro nivel (lo verán después)              │
+│          │                                                              │
+│ NULL     │ "Ausente" o "desconocido", no es un tipo                    │
+│          │ Ejemplo: phone TEXT (puede ser NULL si no lo proporciona)    │
+│          │                                                              │
+└──────────┴──────────────────────────────────────────────────────────────┘
+
+
+╔═══════════════════════════════════════════════════════════════════════════════════════╗
+║           CONSTRAINTS (RESTRICCIONES) - QUICK REFERENCE                              ║
+╚═══════════════════════════════════════════════════════════════════════════════════════╝
+
+┌──────────────────┬────────────────────────────────────────────────────────────┐
+│ CONSTRAINT       │ EXPLICACIÓN Y EJEMPLO                                      │
+├──────────────────┼────────────────────────────────────────────────────────────┤
+│                  │                                                            │
+│ PRIMARY KEY (PK) │ Identificador único de cada fila. No puede ser NULL.       │
+│                  │ Solo puede haber UNA PK por tabla.                         │
+│                  │                                                            │
+│                  │ Ejemplo:                                                   │
+│                  │   CREATE TABLE customers (                                 │
+│                  │       id_customer INTEGER PRIMARY KEY AUTOINCREMENT,       │
+│                  │       name TEXT NOT NULL                                   │
+│                  │   );                                                       │
+│                  │                                                            │
+│                  │ AUTO = automáticamente: 1, 2, 3, 4...                      │
+│                  │                                                            │
+├──────────────────┼────────────────────────────────────────────────────────────┤
+│                  │                                                            │
+│ FOREIGN KEY (FK) │ Referencia a una PK en otra tabla.                         │
+│                  │ Mantiene la integridad: no puedes vender a un             │
+│                  │ cliente que no existe.                                     │
+│                  │                                                            │
+│                  │ Ejemplo:                                                   │
+│                  │   CREATE TABLE orders (                                    │
+│                  │       id_order INTEGER PRIMARY KEY AUTOINCREMENT,         │
+│                  │       id_customer INTEGER,                                │
+│                  │       FOREIGN KEY (id_customer) REFERENCES customers(id_) │
+│                  │   );                                                       │
+│                  │                                                            │
+│                  │ Ahora: si id_customer = 999 y no existe → ERROR            │
+│                  │ Protege tus datos.                                         │
+│                  │                                                            │
+├──────────────────┼────────────────────────────────────────────────────────────┤
+│                  │                                                            │
+│ NOT NULL         │ La columna siempre debe tener un valor (no puede estar... │
+│                  │ vacía).                                                    │
+│                  │                                                            │
+│                  │ Ejemplo:                                                   │
+│                  │   CREATE TABLE employees (                                 │
+│                  │       id_employee INTEGER PRIMARY KEY AUTOINCREMENT,      │
+│                  │       name TEXT NOT NULL,        ← debe tener nombre       │
+│                  │       phone TEXT                 ← opcional                │
+│                  │   );                                                       │
+│                  │                                                            │
+│                  │ INSERT con name = NULL → ERROR                             │
+│                  │ INSERT sin especificar phone → OK (queda NULL)        │
+│                  │                                                            │
+├──────────────────┼────────────────────────────────────────────────────────────┤
+│                  │                                                            │
+│ UNIQUE           │ Cada valor debe ser único en toda la tabla.               │
+│                  │ A diferencia de PK: puede haber múltiples NULLs.           │
+│                  │                                                            │
+│                  │ Ejemplo:                                                   │
+│                  │   CREATE TABLE users (                                     │
+│                  │       id_user INTEGER PRIMARY KEY AUTOINCREMENT,          │
+│                  │       email TEXT UNIQUE NOT NULL                          │
+│                  │   );                                                       │
+│                  │                                                            │
+│                  │ INSERT email = 'juan@gmail.com' → OK                       │
+│                  │ INSERT email = 'juan@gmail.com' nuevamente → ERROR         │
+│                  │ INSERT email = NULL → OK (múltiples NULLs están permitidos)│
+│                  │                                                            │
+├──────────────────┼────────────────────────────────────────────────────────────┤
+│                  │                                                            │
+│ DEFAULT          │ Valor que se asigna automáticamente si no especificas.     │
+│                  │                                                            │
+│                  │ Ejemplo:                                                   │
+│                  │   CREATE TABLE posts (                                     │
+│                  │       id_post INTEGER PRIMARY KEY AUTOINCREMENT,          │
+│                  │       title TEXT NOT NULL,                                │
+│                  │       created_at DATE DEFAULT CURRENT_DATE                │
+│                  │   );                                                       │
+│                  │                                                            │
+│                  │ INSERT (title) VALUES ('Hola')                             │
+│                  │ → created_at = HOY AUTOMÁTICAMENTE                         │
+│                  │                                                            │
+├──────────────────┼────────────────────────────────────────────────────────────┤
+│                  │                                                            │
+│ CHECK            │ Valida que una condición sea verdadera.                    │
+│                  │ Como una "regla de negocio" en la base de datos.          │
+│                  │                                                            │
+│                  │ Ejemplo 1:                                                 │
+│                  │   CREATE TABLE employees (                                 │
+│                  │       id_employee INTEGER PRIMARY KEY,                    │
+│                  │       salary REAL NOT NULL,                               │
+│                  │       CHECK (salary > 0)                                  │
+│                  │   );                                                       │
+│                  │                                                            │
+│                  │ INSERT (salary = -500) → ERROR (viola el CHECK)            │
+│                  │                                                            │
+│                  │ Ejemplo 2 (con IN):                                        │
+│                  │   CREATE TABLE movies (                                    │
+│                  │       id_movie INTEGER PRIMARY KEY,                       │
+│                  │       rating TEXT,                                        │
+│                  │       CHECK (rating IN ('G', 'PG', 'PG-13', 'R', 'NC-17'))│
+│                  │   );                                                       │
+│                  │                                                            │
+│                  │ INSERT (rating = 'X') → ERROR (no está en la lista)        │
+│                  │                                                            │
+└──────────────────┴────────────────────────────────────────────────────────────┘
+
+
+╔═══════════════════════════════════════════════════════════════════════════════════════╗
+║           RELACIONES ENTRE TABLAS - LOS 3 TIPOS                                      ║
+╚═══════════════════════════════════════════════════════════════════════════════════════╝
+
+┌──────────────────────────────────────────────────────────────────────────────────────┐
+│ 1️⃣  UNO A UNO (1:1) - One-to-One                                                    │
+├──────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                      │
+│ Cada cliente tiene exactamente una dirección principal.                              │
+│ Cada dirección pertenece a un solo cliente.                                          │
+│                                                                                      │
+│ ESTRUCTURA:                                                                          │
+│                                                                                      │
+│   customers                          customer_addresses                             │
+│   ┌─────────────────┐               ┌──────────────────┐                           │
+│   │ id_customer (PK)│────┐          │ id_address (PK)  │                           │
+│   │ name            │    │    ┌─────│ id_customer (FK) │────→ UNIQUE                │
+│   │ email           │    └────┼────→│ address          │                           │
+│   └─────────────────┘         │     │ city             │                           │
+│                               │     └──────────────────┘                            │
+│                               └─ La FK es UNIQUE                                    │
+│                                  (un customer solo puede referenciar una dirección)  │
+│                                                                                      │
+│ CÓDIGO:                                                                              │
+│   CREATE TABLE customer_addresses (                                                  │
+│       id_address INTEGER PRIMARY KEY AUTOINCREMENT,                                 │
+│       id_customer INTEGER UNIQUE NOT NULL,      ← UNIQUE                            │
+│       address TEXT NOT NULL,                                                        │
+│       city TEXT NOT NULL,                                                           │
+│       FOREIGN KEY (id_customer) REFERENCES customers(id_customer)                   │
+│   );                                                                                 │
+│                                                                                      │
+│ ⚠️  Usar poco. Generalmente es mejor una sola tabla (customers + address            │
+│     como columnas en la misma tabla).                                               │
+│                                                                                      │
+└──────────────────────────────────────────────────────────────────────────────────────┘
+
+
+┌──────────────────────────────────────────────────────────────────────────────────────┐
+│ 2️⃣  UNO A MUCHOS (1:N) - One-to-Many ⭐ MÁS COMÚN                                   │
+├──────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                      │
+│ Un cliente puede hacer muchos pedidos.                                              │
+│ Un pedido pertenece a un solo cliente.                                              │
+│                                                                                      │
+│ ESTRUCTURA:                                                                          │
+│                                                                                      │
+│   customers (dimensión)              orders (hechos)                                │
+│   ┌──────────────┐                   ┌──────────────┐                              │
+│   │ id_cust (PK) │───┐               │ id_order (PK)│                              │
+│   │ name         │   │   FK ┌───────→│ id_cust (FK) │   (sin UNIQUE)               │
+│   │ email        │   └──────┼───────→│ total        │                              │
+│   └──────────────┘          │        │ order_date   │                              │
+│                             │        └──────────────┘                              │
+│                             │                                                       │
+│                    cliente 1 puede tener n pedidos                                  │
+│                              │                                                       │
+│                        (múltiples filas con id_cust = 1)                            │
+│                                                                                      │
+│ CÓDIGO:                                                                              │
+│   CREATE TABLE orders (                                                              │
+│       id_order INTEGER PRIMARY KEY AUTOINCREMENT,                                   │
+│       id_customer INTEGER NOT NULL,        ← NO UNIQUE (múltiples órdenes)          │
+│       total REAL NOT NULL,                                                          │
+│       order_date DATE NOT NULL,                                                     │
+│       FOREIGN KEY (id_customer) REFERENCES customers(id_customer)                   │
+│   );                                                                                 │
+│                                                                                      │
+│ INSERCIÓN:                                                                           │
+│   INSERT INTO orders VALUES (1, 1, 100.00, '2024-01-01');  ← Cliente 1             │
+│   INSERT INTO orders VALUES (2, 1, 200.00, '2024-01-02');  ← Cliente 1 de nuevo    │
+│   INSERT INTO orders VALUES (3, 2, 150.00, '2024-01-03');  ← Cliente 2             │
+│                                                                                      │
+│ ESTE ES EL QUE USAREMOS CASI SIEMPRE.                                              │
+│                                                                                      │
+└──────────────────────────────────────────────────────────────────────────────────────┘
+
+
+┌──────────────────────────────────────────────────────────────────────────────────────┐
+│ 3️⃣  MUCHOS A MUCHOS (M:N) - Many-to-Many ⭐ SIN TABLA INTERMEDIA, ES IMPOSIBLE     │
+├──────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                      │
+│ Un actor actúa en muchas películas.                                                 │
+│ Una película tiene muchos actores.                                                  │
+│                                                                                      │
+│ PROBLEMA:                                                                            │
+│ ¿Dónde guardas la FK? ¿En actors o en movies?                                      │
+│ Respuesta: ¡NO! Necesitas una tabla intermedia (puente, junction table).            │
+│                                                                                      │
+│ SOLUCIÓN - TABLA INTERMEDIA:                                                        │
+│                                                                                      │
+│        actors                  movie_actor                  movies                  │
+│   ┌────────────────┐      ┌──────────────────┐       ┌────────────────┐           │
+│   │ id_actor (PK)  │──────│ id_movie_actor.. │       │ id_movie (PK)  │           │
+│   │ first_name     │  FK  │ id_actor (FK) ──→│───┐   │ title          │           │
+│   │ last_name      │      │ id_movie (FK) ──→├─┐ │   │ release_year   │           │
+│   └────────────────┘      │ role_name        │ │ │   └────────────────┘           │
+│            ↑              └──────────────────┘ │ │          ↑                     │
+│            └──────── SIN TABLA INTERMEDIA ─────┘ │          │                     │
+│                         ES IMPOSIBLE             │          │                      │
+│                                                  └──────────┘                     │
+│                                                                                      │
+│ CÓDIGO:                                                                              │
+│   CREATE TABLE movies (                                                              │
+│       id_movie INTEGER PRIMARY KEY AUTOINCREMENT,                                   │
+│       title TEXT NOT NULL                                                           │
+│   );                                                                                 │
+│                                                                                      │
+│   CREATE TABLE actors (                                                              │
+│       id_actor INTEGER PRIMARY KEY AUTOINCREMENT,                                   │
+│       name TEXT NOT NULL                                                            │
+│   );                                                                                 │
+│                                                                                      │
+│   CREATE TABLE movie_actor (                 ← TABLA INTERMEDIA                     │
+│       id_movie_actor INTEGER PRIMARY KEY AUTOINCREMENT,                             │
+│       id_movie INTEGER NOT NULL,                                                    │
+│       id_actor INTEGER NOT NULL,                                                    │
+│       role_name TEXT,              ← puede tener columnas de la relación            │
+│       FOREIGN KEY (id_movie) REFERENCES movies(id_movie),                           │
+│       FOREIGN KEY (id_actor) REFERENCES actors(id_actor)                            │
+│   );                                                                                 │
+│                                                                                      │
+│ INSERCIÓN:                                                                           │
+│   INSERT INTO movie_actor VALUES (1, 1, 1, 'John McClane');  ← Actor 1 en película │
+│   INSERT INTO movie_actor VALUES (2, 1, 2, 'Hans Gruber');   ← Actor 2 en película │
+│   INSERT INTO movie_actor VALUES (3, 2, 1, 'Baron Samedi');  ← Actor 1 en película │
+│                                                                                      │
+│ Resultado: Actor 1 está en películas 1 y 2. Película 1 tiene actores 1 y 2.       │
+│                                                                                      │
+│ CONSULTA PARA VER LAS RELACIONES:                                                   │
+│   SELECT m.title, a.name, ma.role_name                                              │
+│   FROM movie_actor ma                                                               │
+│   JOIN movies m ON ma.id_movie = m.id_movie                                         │
+│   JOIN actors a ON ma.id_actor = a.id_actor;                                        │
+│                                                                                      │
+└──────────────────────────────────────────────────────────────────────────────────────┘
+
+
+╔═══════════════════════════════════════════════════════════════════════════════════════╗
+║           PASOS PARA DISEÑAR UNA BASE DE DATOS                                       ║
+╚═══════════════════════════════════════════════════════════════════════════════════════╝
+
+PASO 1: Identifica las ENTIDADES (tablas)
+────────────────────────────────────────────
+Ejemplo: Sistema de gestión de biblioteca
+• LIBROS
+• AUTORES
+• MIEMBROS (personas que se registran)
+• PRÉSTAMOS (cuándo alguien toma un libro)
+
+PASO 2: Identifica los ATRIBUTOS (columnas)
+────────────────────────────────────────────
+LIBROS: id_libro, título, isbn, año_publicación, precio
+
+AUTORES: id_autor, nombre, nacionalidad, año_nacimiento
+
+MIEMBROS: id_miembro, nombre, email, teléfono, fecha_registro
+
+PRÉSTAMOS: id_préstamo, id_libro, id_miembro, fecha_préstamo, fecha_devolución
+
+PASO 3: Identifica las RELACIONES
+──────────────────────────────────
+• Un LIBRO tiene UN AUTOR → ... casi. Un libro puede tener múltiples autores → M:N
+  Necesitas tabla intermedia LIBRO_AUTOR
+  
+• Un LIBRO está en muchos PRÉSTAMOS → 1:N
+  FK en PRÉSTAMOS: id_libro referencia LIBROS
+  
+• Un MIEMBRO hace muchos PRÉSTAMOS → 1:N
+  FK en PRÉSTAMOS: id_miembro referencia MIEMBROS
+
+PASO 4: Identifica CONSTRAINTS
+────────────────────────────────
+• ¿Qué columnas son obligatorias? → NOT NULL
+• ¿Qué columnas deben ser únicas? → UNIQUE
+• ¿Qué valores son válidos? → CHECK
+• ¿Cuál es la PK de cada tabla? → PRIMARY KEY
+
+PASO 5: CREA las tablas
+───────────────────────
+Empieza por las tablas SIN dependencias (dimensiones).
+Luego las que SI tienen FKs (hechos).
+
+Orden:
+1. AUTORES (sin dependencias)
+2. LIBROS (sin dependencias)
+3. MIEMBROS (sin dependencias)
+4. LIBRO_AUTOR (referencia LIBROS y AUTORES)
+5. PRÉSTAMOS (referencia LIBROS y MIEMBROS)
+
+PASO 6: INSERTA datos de ejemplo y VERIFICA
+─────────────────────────────────────────────
+SELECT * FROM cada tabla
+Prueba inserciones que violen constraints (aprenderás qué pasa)
+
+
+╔═══════════════════════════════════════════════════════════════════════════════════════╗
+║           CHECKLIST - ANTES DE PRESENTARTE ANTE UN ENTREVISTADOR                     ║
+╚═══════════════════════════════════════════════════════════════════════════════════════╝
+
+Cuando diseñes una BD, verifica:
+
+☐ Cada tabla tiene PRIMARY KEY
+☐ Las FKs apuntan a tablas y columnaa que existen
+☐ Las columnas obligatorias tienen NOT NULL
+☐ Usaste NUMERIC para dinero (no REAL)
+☐ Los nombres están en minúsculas y con guiones bajos (dim_client, fact_sales)
+☐ No hay datos duplicados innecesariamente
+☐ Relaciones M:N tienen tabla intermedia
+☐ Las FKs mantienen integridad (no puedes referencias datos que no existen)
+☐ Los tipos de datos son coherentes (edad = INTEGER, no TEXT)
+
+
+╔═══════════════════════════════════════════════════════════════════════════════════════╗
+║           COMANDOS ÚTILES - QUICK SYNTAX REFERENCE                                  ║
+╚═══════════════════════════════════════════════════════════════════════════════════════╝
+
+CREATE TABLE tabla_name (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nombre TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    edad INTEGER CHECK (edad > 0),
+    descripción TEXT DEFAULT '',
+    created_at DATE DEFAULT CURRENT_DATE,
+    id_padre INTEGER,
+    FOREIGN KEY (id_padre) REFERENCES otra_tabla(id)
+);
+
+INSERT INTO tabla_name (nombre, email, edad) 
+VALUES ('Juan', 'juan@gmail.com', 30);
+
+INSERT INTO tabla_name (nombre, email, edad) 
+VALUES 
+    ('Juan', 'juan@gmail.com', 30),
+    ('María', 'maria@gmail.com', 25),
+    ('Carlos', 'carlos@gmail.com', 35);
+
+SELECT * FROM tabla_name;
+
+SELECT nombre, edad FROM tabla_name WHERE edad > 30;
+
+UPDATE tabla_name SET edad = 31 WHERE nombre = 'Juan';
+
+DELETE FROM tabla_name WHERE edad < 18;
+
+-- Ver estructura de una tabla
+PRAGMA table_info(tabla_name);
+
+-- Ver todas las tablas
+SELECT name FROM sqlite_master WHERE type='table';
+
+
+════════════════════════════════════════════════════════════════════════════════════════
+
+¡BUENA SUERTE CON TUS SIGUIENTES PROYECTOS! 🚀
+
+Recuerda: Una buena estructura en la BD = código más limpio, menos bugs, desarrollo más rápido.
+
+════════════════════════════════════════════════════════════════════════════════════════

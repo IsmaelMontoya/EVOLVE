@@ -1,0 +1,108 @@
+SQL CORE II - CHEATSHEET RAPIDO
+Northwind (SQLite)
+
+1) FLUJO MENTAL PARA LIMPIEZA
+SELECT columnas_originales,
+       columnas_derivadas
+FROM tabla
+WHERE filtros
+ORDER BY columna
+LIMIT n;
+
+2) NORMALIZAR TEXTO
+- Quitar espacios: TRIM(campo)
+- Unificar mayus/minus: UPPER(campo), LOWER(campo)
+- Longitud: LENGTH(campo)
+- Concatenar: CONCAT(c1, ' - ', c2)
+
+Ejemplo:
+SELECT UPPER(TRIM(CompanyName)) AS company_clean
+FROM Customers;
+
+3) EXTRAER Y LIMPIAR TEXTO
+- Prefijo: SUBSTR(campo, 1, 3)
+- Posicion de separador: INSTR(campo, ' ')
+- Reemplazar simbolos: REPLACE(campo, '-', '')
+- Encadenar limpieza: REPLACE(REPLACE(campo, '-', ''), ' ', '')
+
+Patron iniciales:
+UPPER(CONCAT(
+  SUBSTR(TRIM(ContactName), 1, 1),
+  CASE WHEN INSTR(TRIM(ContactName), ' ') > 0
+       THEN SUBSTR(TRIM(ContactName), INSTR(TRIM(ContactName), ' ') + 1, 1)
+       ELSE '' END
+))
+
+4) NULL BIEN (COALESCE + NULLIF)
+- NULLIF(TRIM(campo), '') convierte vacio a NULL
+- COALESCE(campo, '(sin dato)') rellena NULL
+
+Ejemplo:
+COALESCE(NULLIF(TRIM(Region), ''), '(sin region)')
+
+5) FECHAS EN SQLITE
+- Extraer anio/mes: strftime('%Y', fecha), strftime('%m', fecha)
+- Anio-mes: strftime('%Y-%m', fecha)
+- Diferencia dias: julianday(f2) - julianday(f1)
+- Comparar fechas: date(ShippedDate) > date(RequiredDate)
+
+6) CAST
+- Forzar numerico: CAST(Freight AS REAL)
+- Forzar entero: CAST(UnitsInStock AS INTEGER)
+- Util para calculos y buckets
+
+7) CASE AVANZADO
+Patron:
+CASE
+  WHEN condicion1 THEN 'valor1'
+  WHEN condicion2 THEN 'valor2'
+  ELSE 'valor_default'
+END AS columna_nueva
+
+Usos tipicos:
+- delivery_status: pendiente / tarde / a_tiempo
+- freight_bucket: bajo / medio / alto
+- priority_flag: alta / media / baja
+- quality flags: postal_missing / postal_short / postal_ok
+
+8) OUTPUT LISTO PARA BI
+Seleccion minima sugerida:
+- identificador (OrderID o ProductID)
+- dimensiones derivadas (year_month, country, bucket)
+- flags de calidad (priority_flag, postal_quality_flag)
+- metricas numericas (Freight, UnitPrice, Quantity)
+
+9) JOIN BASICO
+INNER JOIN: devuelve coincidencias en ambas tablas
+LEFT JOIN: conserva todo lo de la izquierda y completa con NULL
+
+Ejemplo:
+SELECT o.OrderID, c.CompanyName
+FROM Orders o
+INNER JOIN Customers c ON o.CustomerID = c.CustomerID;
+
+10) GROUP BY BASICO
+- Agrupa para contar o sumar
+- ORDER BY para ranking
+- LIMIT para top-N
+
+Ejemplo:
+SELECT ShipCountry, COUNT(*) AS total_orders
+FROM Orders
+GROUP BY ShipCountry
+ORDER BY total_orders DESC
+LIMIT 10;
+
+11) ERRORES FRECUENTES
+- Usar = NULL en vez de IS NULL
+- No aplicar TRIM antes de NULLIF
+- Mezclar AND/OR sin parentesis
+- Hacer CAST tarde (despues de calcular)
+- Olvidar filtrar rango de fechas del analisis
+
+12) RECETA EXPRESS
+1. Limpia texto y nulos
+2. Deriva fechas
+3. Crea buckets/flags con CASE
+4. Valida output con ORDER BY + LIMIT
+5. Si hace falta, agrega con GROUP BY o une con JOIN

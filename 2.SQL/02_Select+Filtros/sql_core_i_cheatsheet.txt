@@ -1,0 +1,126 @@
+SQL CORE I CHEATSHEET (SELECT + FILTROS + CASE)
+Base usada en clase: northwind.db (SQLite)
+
+1) ESTRUCTURA MENTAL DE UNA QUERY
+SELECT columnas
+FROM tabla
+WHERE condiciones
+ORDER BY columna ASC|DESC
+LIMIT n;
+
+Orden logico de escritura (Core I):
+1. SELECT
+2. FROM
+3. WHERE
+4. ORDER BY
+5. LIMIT
+
+2) SELECT BASICO
+- Todas las columnas: SELECT * FROM Products;
+- Columnas concretas: SELECT ProductName, UnitPrice FROM Products;
+- Alias para legibilidad: SELECT UnitPrice AS precio FROM Products;
+
+3) FILTROS EN WHERE
+Comparadores:
+- =, <>, >, >=, <, <=
+
+Rangos y listas:
+- BETWEEN: UnitPrice BETWEEN 10 AND 30
+- IN: Country IN ('USA', 'Mexico', 'Germany')
+
+Texto:
+- LIKE '%abc%'  -> contiene
+- LIKE 'abc%'   -> empieza por
+- LIKE '%abc'   -> termina en
+
+NULL:
+- IS NULL / IS NOT NULL
+- Nunca usar = NULL
+
+Logica:
+- AND, OR, NOT
+- Usa parentesis para controlar precedencia.
+
+4) ORDER BY + LIMIT
+- ORDER BY UnitPrice DESC, ProductName ASC
+- LIMIT 10 para top-N rapido
+
+5) DISTINCT, COUNT Y CALIDAD DE DATOS
+- DISTINCT elimina duplicados:
+  SELECT DISTINCT Country FROM Customers;
+
+- COUNT(*) cuenta filas totales.
+- COUNT(columna) cuenta solo no-NULL.
+- Nulos de una columna:
+  COUNT(*) - COUNT(columna)
+
+6) COALESCE (LIMPIEZA DE NULL)
+- Reemplaza NULL por valor alternativo:
+  COALESCE(Region, '(sin region)')
+
+- Muy util para mostrar datos limpios en resultados.
+
+7) FUNCIONES DE FECHA/TEXTO EN SQLITE
+Fechas con strftime:
+- strftime('%Y', OrderDate)  -> anio
+- strftime('%m', OrderDate)  -> mes
+- strftime('%d', OrderDate)  -> dia
+- strftime('%Y-%m', OrderDate) -> anio-mes
+
+Comparacion segura de fechas:
+- date(ShippedDate) > date(RequiredDate)
+
+Texto:
+- TRIM(Fax) limpia espacios
+
+8) CASE (REGLAS DE NEGOCIO)
+Patron:
+CASE
+  WHEN condicion1 THEN 'etiqueta1'
+  WHEN condicion2 THEN 'etiqueta2'
+  ELSE 'otro'
+END AS nombre_columna
+
+Uso tipico:
+- Buckets de precio/freight
+- Flags de puntualidad
+- Priorizacion operativa
+
+9) SUBCONSULTA ESCALAR (CORE I AVANZADO, SIN JOIN)
+Ejemplo: comparar contra media global
+SELECT ProductName,
+       UnitPrice,
+       CASE
+         WHEN UnitPrice > (SELECT AVG(UnitPrice) FROM Products) THEN 'arriba_media'
+         ELSE 'abajo_media'
+       END AS flag
+FROM Products;
+
+10) ERRORES FRECUENTES
+- Usar = NULL en vez de IS NULL
+- Mezclar AND/OR sin parentesis
+- Filtrar texto con = cuando necesitabas LIKE
+- Ordenar por columna no seleccionada sin revisar
+- No limitar resultados al explorar datos (falta LIMIT)
+
+11) MINI RECETA PARA CUALQUIER EJERCICIO
+1. Define la tabla base (FROM)
+2. Elige columnas minimas (SELECT)
+3. Aplica filtros uno a uno (WHERE)
+4. Comprueba nulos (IS NULL / COALESCE)
+5. Añade regla de negocio (CASE)
+6. Ordena y limita (ORDER BY + LIMIT)
+7. Revisa si el resultado "tiene sentido"
+
+12) PLANTILLA RAPIDA
+SELECT
+  col1,
+  col2,
+  CASE
+    WHEN condicion THEN 'A'
+    ELSE 'B'
+  END AS flag
+FROM tabla
+WHERE condicion_base
+ORDER BY col1 DESC
+LIMIT 20;

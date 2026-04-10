@@ -1,0 +1,103 @@
+AGREGACION II - KPI LAB (NORTHWIND) CHEATSHEET
+
+1) QUE ES UN KPI EN SQL
+Un KPI siempre define:
+- Numerador (lo que mides)
+- Denominador (sobre que universo)
+- Periodo (anio/mes/semana)
+- Segmento (pais, cliente, shipper, producto)
+
+2) PLANTILLA KPI
+SELECT dimension,
+       agregados
+FROM tabla_base (+ joins minimos)
+WHERE filtros_periodo
+GROUP BY dimension
+HAVING filtros_de_grupo
+ORDER BY metrica DESC
+LIMIT N;
+
+3) FILTRO DE ANIO (FORMATO CLASE)
+strftime('%Y',OrderDate)='2022'
+
+4) METRICAS BASE
+- Tickets: COUNT(*)
+- Freight total: SUM(Freight)
+- Freight medio: AVG(Freight)
+- Revenue (Order Details): SUM(UnitPrice * Quantity * (1 - Discount))
+- Units sold: SUM(Quantity)
+
+5) SHARE (%)
+Patron:
+ROUND(100.0 * numerador / NULLIF(denominador, 0), 2)
+
+Ejemplo late_pct:
+late_orders / shipped_orders
+
+6) FLAGS CON CASE
+CASE
+  WHEN condicion THEN 'bucket_1'
+  WHEN condicion THEN 'bucket_2'
+  ELSE 'bucket_3'
+END
+
+Uso tipico:
+- late vs on_time
+- pending vs shipped
+- buckets por importe o semana
+
+7) GRANO DE ANALISIS
+Antes de escribir la query, responde:
+- Una fila representa que? (pedido, linea, cliente, mes)
+
+Si cambias grano, cambian las metricas.
+
+8) SANITY CHECKS RAPIDOS
+A) Totales vs suma de segmentos
+- total pedidos 2022
+- suma de pedidos por pais 2022
+Deben cuadrar.
+
+B) Coherencia de filtros
+- mismo periodo/filtro en numerador y denominador
+
+C) Doble conteo por joins
+- Si unes Orders con Order Details, Freight puede duplicarse.
+- Solucion: agregar primero por OrderID (CTE) y luego por mes/pais.
+
+9) CTE UTIL PARA EVITAR DOBLE CONTEO
+WITH order_value AS (
+  SELECT o.OrderID,
+         strftime('%Y-%m',o.OrderDate) AS year_month,
+         SUM(od.UnitPrice * od.Quantity * (1 - od.Discount)) AS revenue,
+         MAX(o.Freight) AS freight_per_order
+  FROM Orders o
+  JOIN [Order Details] od ON o.OrderID = od.OrderID
+  WHERE strftime('%Y',o.OrderDate)='2022'
+  GROUP BY o.OrderID, year_month
+)
+SELECT year_month,
+       COUNT(*) AS tickets,
+       SUM(revenue) AS revenue,
+       SUM(freight_per_order) AS freight_total
+FROM order_value
+GROUP BY year_month;
+
+10) TOP-N
+ORDER BY metrica DESC
+LIMIT 10
+
+11) ERRORES TIPICOS
+- Mezclar periodos (numerador 2022, denominador historico)
+- No usar NULLIF en divisiones
+- Agrupar por una dimension equivocada
+- Contar lineas cuando querias contar pedidos
+- Sumar Freight tras join con detalles sin corregir grano
+
+12) CHECKLIST FINAL ANTES DE ENTREGAR KPI
+1. El grano esta claro?
+2. Periodo correcto?
+3. Segmento correcto?
+4. Formula valida (numerador/denominador)?
+5. Sin doble conteo por joins?
+6. Columnas nombradas para BI?

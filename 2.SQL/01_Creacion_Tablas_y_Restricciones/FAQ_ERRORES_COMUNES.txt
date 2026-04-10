@@ -1,0 +1,500 @@
+/* =======================================================================================
+   PREGUNTAS FRECUENTES + ERRORES COMUNES EN CLASE
+   Para que estés preparado durante la sesión online
+   ========================================================================================
+ */
+
+
+╔═══════════════════════════════════════════════════════════════════════════════════════╗
+║                            PREGUNTAS FRECUENTES (FAQ)                                ║
+╚═══════════════════════════════════════════════════════════════════════════════════════╝
+
+
+P1: ¿Cuál es la diferencia entre UNIQUE y PRIMARY KEY?
+══════════════════════════════════════════════════════════
+
+R: Excelente pregunta. Ambas garantizan unicidad, pero:
+
+   PRIMARY KEY:
+   ✓ Identifica exclusivamente cada fila
+   ✓ NO puede ser NULL
+   ✓ Solo puede haber UNA por tabla
+   ✓ Automáticamente indexada (búsqueda más rápida)
+   
+   UNIQUE:
+   ✓ Garantiza que el valor no se repita
+   ✓ PUEDE ser NULL (múltiples NULLs están permitidos)
+   ✓ Puede haber varias columnas UNIQUE en una tabla
+   
+   EJEMPLO:
+   CREATE TABLE users (
+       id INTEGER PRIMARY KEY,        ← Una sola, no nulo
+       email TEXT UNIQUE,              ← Puede haber varios NULLs
+       username TEXT UNIQUE
+   );
+   
+   INSERT INTO users VALUES (1, 'juan@gmail.com', 'juan');   ✓
+   INSERT INTO users VALUES (2, NULL, 'maria');               ✓ NULL permitido
+   INSERT INTO users VALUES (3, NULL, 'carlos');              ✓ Otro NULL permitido
+   INSERT INTO users VALUES (4, 'juan@gmail.com', 'pedro');  ✗ Email duplicado
+
+───────────────────────────────────────────────────────────────────────────────────────
+
+
+P2: ¿Si tengo una tabla con FOREIGN KEY, qué sucede si intento borrar el registro referenciado?
+═══════════════════════════════════════════════════════════════════════════════════════════════
+
+R: Por defecto en SQLite: ERROR. No puede haber referenciación "huérfana".
+
+   Ejemplo:
+   customers (id_customer = 1)
+       ↓ FK
+   orders (id_customer = 1) ← Una orden del cliente 1
+   
+   Si intentas: DELETE FROM customers WHERE id_customer = 1
+   
+   SQLite dirá: "¡ERROR! No puedo borrar este cliente porque tiene órdenes!"
+   
+   SOLUCIONES (después veremos esto en detalle):
+   
+   1. Primero borra las órdenes, luego el cliente
+      DELETE FROM orders WHERE id_customer = 1;
+      DELETE FROM customers WHERE id_customer = 1;
+      
+   2. Configurar ON DELETE CASCADE (avanzado)
+      → Borra automáticamente las órdenes si se borra el cliente
+      
+   3. Configurar ON DELETE SET NULL (avanzado)
+      → Las órdenes quedan con id_customer = NULL
+
+───────────────────────────────────────────────────────────────────────────────────────
+
+
+P3: ¿Es mejor poner todo en una tabla o separar en varias tablas?
+════════════════════════════════════════════════════════════════
+
+R: SEPARAR es mejor. Se llama "Normalización". Razones:
+
+   ❌ TODO EN UNA TABLA:
+   CREATE TABLE sales (
+       id INTEGER PRIMARY KEY,
+       customer_name TEXT,
+       customer_email TEXT,
+       customer_country TEXT,
+       product_name TEXT,
+       product_category TEXT,
+       product_price REAL,
+       quantity INTEGER,
+       total REAL
+   );
+   
+   PROBLEMAS:
+   • Customer_name se repite 100 veces si el cliente hizo 100 compras
+   • Si cambias el nombre de un cliente, ¡hay que actualizar 100 filas!
+   • Espacio desperdicidado (duplicación)
+   
+   ✓ SEPARADO (Normalizado):
+   customers: id, name, email, country
+   products: id, name, category, price
+   sales: id, id_customer, id_product, quantity, total
+   
+   VENTAJAS:
+   • Cambios de datos en un solo lugar
+   • Menos redundancia
+   • Base de datos más pequeña
+   • Integridad referencial
+
+───────────────────────────────────────────────────────────────────────────────────────
+
+
+P4: ¿Puedo tener una columna como PK y FK al mismo tiempo?
+═════════════════════════════════════════════════════════════
+
+R: SÍ, claro. Ejemplo: relación 1:1
+
+   CREATE TABLE user_profiles (
+       id_user INTEGER PRIMARY KEY,  ← PK de esta tabla
+       bio TEXT,
+       avatar TEXT,
+       FOREIGN KEY (id_user) REFERENCES users(id_user)   ← FK a users
+   );
+   
+   Significado: "Cada user tiene exactamente UN perfil" (1:1)
+   Si haces esto SIN UNIQUE en la tabla actual = 1:N normal
+   Si haces esto CON UNIQUE = 1:1
+
+───────────────────────────────────────────────────────────────────────────────────────
+
+
+P5: ¿Puedo cambiar el tipo de dato de una columna después de crearla?
+═════════════════════════════════════════════════════════════════════════
+
+R: En SQLite: NO es fácil.
+
+   En otros SQL (PostgreSQL, MySQL, SQL Server): SÍ, con ALTER TABLE
+   
+   En SQLite: Técnicamente puedes, pero es complicado.
+   CONSEJO: Verifica bien los tipos ANTES de crear la tabla.
+   
+   ¿Errores comunes?
+   ❌ CREATE TABLE employees (
+          salary TEXT     ← MAL: debería ser REAL
+      );
+      
+   ✓ La manera correcta:
+   CREATE TABLE employees (
+       salary NUMERIC(10, 2)   ← Así desde el inicio
+   );
+
+───────────────────────────────────────────────────────────────────────────────────────
+
+
+P6: ¿Qué es AUTOINCREMENT exactamente? ¿Por qué lo necesito?
+═════════════════════════════════════════════════════════════
+
+R: AUTOINCREMENT = generar IDs automáticamente.
+
+   SIN AUTOINCREMENT:
+   CREATE TABLE customers (
+       id INTEGER PRIMARY KEY,
+       name TEXT
+   );
+   
+   Tienes que insertar el ID manualmente:
+   INSERT INTO customers VALUES (1, 'Juan');
+   INSERT INTO customers VALUES (2, 'María');   ← Tú lo especificas
+   INSERT INTO customers VALUES (3, 'Carlos');
+   
+   Si olvidas especificarlo:
+   INSERT INTO customers (name) VALUES ('Pedro');  → ERROR o comportamiento raro
+   
+   CON AUTOINCREMENT:
+   CREATE TABLE customers (
+       id INTEGER PRIMARY KEY AUTOINCREMENT,
+       name TEXT
+   );
+   
+   SQLite lo maneja automáticamente:
+   INSERT INTO customers (name) VALUES ('Juan');      ← No especificas ID
+   INSERT INTO customers (name) VALUES ('María');     ← ID = 2 automático
+   INSERT INTO customers (name) VALUES ('Carlos');    ← ID = 3 automático
+   
+   GARANTÍA ADICIONAL: Si borras la fila con id = 2, la siguiente será 4 (no 2 de nuevo).
+   Sin AUTOINCREMENT, podría reutilizar el ID (menos importante, pero más seguro con AUTOINCREMENT).
+
+───────────────────────────────────────────────────────────────────────────────────────
+
+
+P7: ¿Puedo tener múltiples FOREIGN KEYs en una tabla?
+═════════════════════════════════════════════════════
+
+R: SÍ, claro. Es muy común.
+
+   Ejemplo: ordenes que referencia cliente Y producto:
+   
+   CREATE TABLE orders (
+       id INTEGER PRIMARY KEY AUTOINCREMENT,
+       id_customer INTEGER,       ← FK 1
+       id_product INTEGER,        ← FK 2
+       quantity INTEGER,
+       FOREIGN KEY (id_customer) REFERENCES customers(id_customer),
+       FOREIGN KEY (id_product) REFERENCES products(id_product)
+   );
+   
+   Ahora una orden está "ligada" a un cliente y a un producto.
+   
+   Regla: Una fila de orders no puede existir si:
+   • El id_customer no existe en customers
+   • El id_product no existe en products
+
+───────────────────────────────────────────────────────────────────────────────────────
+
+
+P8: ¿Qué es la integridad referencial?
+═════════════════════════════════════════
+
+R: "La promesa de que tus datos siempre son consistentes".
+
+   Con Integridad Referencial (FK activada):
+   • No puedes insertar id_customer = 999 si no existe en customers
+   • No puedes borrar un cliente que tiene órdenes
+   • Tus datos siempre tienen sentido
+   
+   Sin Integridad Referencial:
+   • Puedes crear "datos fantasma" (órdenes de clientes inexistentes)
+   • Base de datos basura
+   
+   IMPORTANTE: SQLite la activa por defecto... pero NO siempre.
+   Algunos sistemas la desactivan por rendimiento (no lo hagas a menos que sepas qué haces).
+
+───────────────────────────────────────────────────────────────────────────────────────
+
+
+P9: ¿Cuándo debo usar NOT NULL vs NULL?
+═════════════════════════════════════════
+
+R: Depende del negocio.
+
+   ✓ NOT NULL:
+   • Datos obligatorios
+   • customer name,email, id
+   • order date, product name
+   • salary
+   
+   ? NULL (opcional):
+   • customer phone (quizá no lo dé)
+   • product description (a veces no tenemos)
+   • employee middle_name (no todos tienen)
+   
+   REGLA: Si dudas... NULL es más flexible. Siempre puedes añadirlo después.
+   Pero si SABES que es obligatorio → NOT NULL (protege tus datos).
+
+───────────────────────────────────────────────────────────────────────────────────────
+
+
+P10: ¿Cuál es la diferencia entre int/integer y otros tipos?
+═════════════════════════════════════════════════════════════
+
+R: En SQLite: Son lo mismo en la mayoría de los casos.
+
+   INTEGER = INT (SQLite usa indistintamente)
+   
+   PERO en SQLite hay una cosa especial:
+   • INTEGER PRIMARY KEY = es el "ROWID" (muy eficiente)
+   • INT PRIMARY KEY = se trata como INT normal (menos eficiente)
+   
+   Por eso SIEMPRE escribimos: INTEGER PRIMARY KEY AUTOINCREMENT
+   
+   En MySQL o PostgreSQL: int, bigint, smallint, etc. tienen diferencias.
+   Aquí no te preocupes por eso.
+
+
+╔═══════════════════════════════════════════════════════════════════════════════════════╗
+║                         ERRORES COMUNES Y CÓMO EVITARLOS                             ║
+╚═══════════════════════════════════════════════════════════════════════════════════════╝
+
+
+ERROR 1: "UNIQUE constraint failed"
+═════════════════════════════════════
+
+CÓDIGO INCORRECTO:
+   CREATE TABLE users (
+       id INTEGER PRIMARY KEY AUTOINCREMENT,
+       email TEXT UNIQUE,
+       name TEXT
+   );
+   
+   INSERT INTO users (email, name) VALUES ('juan@gmail.com', 'Juan');
+   INSERT INTO users (email, name) VALUES ('juan@gmail.com', 'Juan 2');  ← ERROR
+   
+SOLUCIÓN: Verifica que el email es único antes de insertar.
+
+LECCIÓN: UNIQUE constraints son buenos para proteger datos.
+
+
+ERROR 2: "FOREIGN KEY constraint failed"
+═════════════════════════════════════════
+
+CÓDIGO INCORRECTO:
+   CREATE TABLE customers (id INTEGER PRIMARY KEY, name TEXT);
+   CREATE TABLE orders (
+       id INTEGER PRIMARY KEY,
+       id_customer INTEGER,
+       FOREIGN KEY (id_customer) REFERENCES customers(id)
+   );
+   
+   INSERT INTO orders (id_customer) VALUES (999);  ← ERROR: no existe cliente 999
+   
+SOLUCIÓN: Verifica que el id_customer existe en customers.
+
+CORRECTO:
+   INSERT INTO customers VALUES (1, 'Juan');
+   INSERT INTO orders (id_customer) VALUES (1);  ← OK, existe cliente 1
+
+
+ERROR 3: "NOT NULL constraint failed"
+══════════════════════════════════════
+
+CÓDIGO INCORRECTO:
+   CREATE TABLE employees (
+       id INTEGER PRIMARY KEY,
+       name TEXT NOT NULL
+   );
+   
+   INSERT INTO employees (id) VALUES (1);  ← ERROR: falta name
+   INSERT INTO employees VALUES (2, NULL);  ← ERROR: name no puede ser NULL
+   
+SOLUCIÓN: Siempre proporciona valores para columnas NOT NULL.
+
+CORRECTO:
+   INSERT INTO employees VALUES (1, 'Juan');
+   INSERT INTO employees (id, name) VALUES (2, 'María');
+
+
+ERROR 4: CHECK constraint failed
+═════════════════════════════════
+
+CÓDIGO INCORRECTO:
+   CREATE TABLE employees (
+       id INTEGER PRIMARY KEY,
+       salary REAL,
+       CHECK (salary > 0)
+   );
+   
+   INSERT INTO employees VALUES (1, -1000);  ← ERROR: -1000 < 0
+   
+SOLUCIÓN: Cumple la condición del CHECK.
+
+CORRECTO:
+   INSERT INTO employees VALUES (1, 5000);
+
+
+ERROR 5: Olvidar FOREIGN KEY en tabla intermedia (M:N)
+═══════════════════════════════════════════════════════
+
+CÓDIGO INCORRECTO:
+   CREATE TABLE movie_actor (
+       id INTEGER PRIMARY KEY AUTOINCREMENT,
+       id_movie INTEGER,
+       id_actor INTEGER,
+       role_name TEXT
+       -- FALTA: FOREIGN KEYs
+   );
+   
+   INSERT INTO movie_actor VALUES (1, 999, 999, 'Jake');
+   → Permite actor y película inexistentes
+
+CORRECTO:
+   CREATE TABLE movie_actor (
+       id INTEGER PRIMARY KEY AUTOINCREMENT,
+       id_movie INTEGER,
+       id_actor INTEGER,
+       role_name TEXT,
+       FOREIGN KEY (id_movie) REFERENCES movies(id_movie),
+       FOREIGN KEY (id_actor) REFERENCES actors(id_actor)
+   );
+
+
+ERROR 6: Usar TEXT para números
+════════════════════════════════
+
+CÓDIGO INCORRECTO:
+   CREATE TABLE products (
+       id INTEGER PRIMARY KEY,
+       name TEXT,
+       price TEXT,           ← MAL
+       stock TEXT,           ← MAL
+       year_created TEXT     ← MAL
+   );
+   
+   INSERT INTO products VALUES (1, 'iPhone', '999.99', '100', '2024');
+   → Texto, no números
+   → No puedes hacer SELECT * WHERE price > 500
+
+CORRECTO:
+   CREATE TABLE products (
+       id INTEGER PRIMARY KEY,
+       name TEXT,
+       price NUMERIC(10, 2),     ← Dinero = NUMERIC
+       stock INTEGER,            ← Cantidad = INTEGER
+       year_created INTEGER      ← Año = INTEGER
+   );
+
+
+ERROR 7: Usar REAL para dinero
+═══════════════════════════════
+
+CÓDIGO INCORRECTO:
+   CREATE TABLE invoices (
+       id INTEGER PRIMARY KEY,
+       amount REAL  ← Problema de precisión
+   );
+   
+   INSERT INTO invoices VALUES (1, 19.99);
+   INSERT INTO invoices VALUES (2, 20.00);
+   INSERT INTO invoices VALUES (3, 0.01);
+   
+   SELECT SUM(amount) FROM invoices;
+   → Quizá devuelva 70.0000000001 en lugar de 70.00 (errores de punto flotante)
+
+CORRECTO:
+   CREATE TABLE invoices (
+       id INTEGER PRIMARY KEY,
+       amount NUMERIC(10, 2)  ← Exacto para dinero
+   );
+
+
+ERROR 8: Nombre de tabla o columna confuso
+═════════════════════════════════════════════
+
+CÓDIGO INCORRECTO:
+   CREATE TABLE t1 (           ← ¿Qué es t1?
+       id INT,                 ← ¿Qué es id si hay dos tablas?
+       c1 TEXT,                ← ¿Qué es c1?
+       c2 INT
+   );
+
+CORRECTO:
+   CREATE TABLE dim_customers (
+       id_customer INTEGER,
+       name TEXT,
+       email TEXT
+   );
+   
+   CREATE TABLE fact_orders (
+       id_order INTEGER,
+       id_customer INTEGER,
+       total REAL
+   );
+   
+   NOTA: Usa prefijos (dim_, fact_, id_tabla_nombre) para claridad
+
+
+ERROR 9: Olvidar insertar datos en la tabla antes de hacer SELECT
+═════════════════════════════════════════════════════════════════
+
+CÓDIGO INCORRECTO:
+   CREATE TABLE products (id INTEGER PRIMARY KEY, name TEXT);
+   SELECT * FROM products;  ← Devuelve 0 resultados (la tabla está vacía)
+   
+   ¿Dónde están mis datos?
+
+CORRECTO:
+   CREATE TABLE products (id INTEGER PRIMARY KEY, name TEXT);
+   INSERT INTO products VALUES (1, 'iPhone');
+   INSERT INTO products VALUES (2, 'Galaxy');
+   SELECT * FROM products;  ← Ahora devuelve 2 filas
+
+
+ERROR 10: Crear tabla sin PRIMARY KEY
+════════════════════════════════════════
+
+CÓDIGO INCORRECTO:
+   CREATE TABLE logs (      ← Sin PK
+       message TEXT,
+       created_at DATE
+   );
+   
+   INSERT INTO logs VALUES ('error 1', '2024-01-01');
+   INSERT INTO logs VALUES ('error 1', '2024-01-01');  ← Duplicado permitido
+   
+   No hay forma de identificar de forma única cada fila.
+
+CORRECTO:
+   CREATE TABLE logs (
+       id INTEGER PRIMARY KEY AUTOINCREMENT,   ← Ahora cada fila es única
+       message TEXT,
+       created_at DATE
+   );
+
+
+═════════════════════════════════════════════════════════════════════════════════════════
+CONSEJO FINAL: Si tienes un error, LEE EL MENSAJE DE ERROR.
+
+SQLite es muy específico:
+• "UNIQUE constraint failed: users.email" → Hay un email duplicado
+• "FOREIGN KEY constraint failed" → Referencia un ID que no existe
+• "NOT NULL constraint failed: employees.name" → Falta un nombre obligatorio
+
+El error te está diciendo exactamente qué está mal. ¡Úsalo!
+═════════════════════════════════════════════════════════════════════════════════════════
