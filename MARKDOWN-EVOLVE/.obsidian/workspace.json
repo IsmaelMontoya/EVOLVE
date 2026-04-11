@@ -1,0 +1,271 @@
+{
+  "main": {
+    "id": "d164668bd933f180",
+    "type": "split",
+    "children": [
+      {
+        "id": "359e157534f0f9f4",
+        "type": "tabs",
+        "dimension": 55.91155234657039,
+        "children": [
+          {
+            "id": "dd0759a06cf019a7",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "3. ESTADISTICA/3. Estadística Avanzada (Relaciones y Correlaciones).md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "3. Estadística Avanzada (Relaciones y Correlaciones)"
+            }
+          },
+          {
+            "id": "3e2fb4a930991dc1",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "3. ESTADISTICA/3. Estadística Avanzada (Relaciones y Correlaciones)/9. El P-Valor.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "9. El P-Valor"
+            }
+          }
+        ]
+      },
+      {
+        "id": "a22a99e9830e934b",
+        "type": "tabs",
+        "dimension": 44.088447653429604,
+        "children": [
+          {
+            "id": "540c017a1ec453c6",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "3. ESTADISTICA.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "3. ESTADISTICA"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "1e48dfbe68e09381",
+    "type": "split",
+    "children": [
+      {
+        "id": "c3d697b2c19a5fbd",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "9d191a37dd748aa0",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Explorador de archivos"
+            }
+          },
+          {
+            "id": "6226274bb49eef2e",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Buscar"
+            }
+          },
+          {
+            "id": "190f3bed14d0f8c6",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Marcadores"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "5279b0a7cc98fc43",
+    "type": "split",
+    "children": [
+      {
+        "id": "6b110610461fe980",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "913c023dfb8d3180",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "3. ESTADISTICA.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Enlaces entrantes de 3. ESTADISTICA"
+            }
+          },
+          {
+            "id": "e0085950e1a1ab21",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "3. ESTADISTICA.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Enlaces salientes de 3. ESTADISTICA"
+            }
+          },
+          {
+            "id": "963314d1add6f8a4",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Etiquetas"
+            }
+          },
+          {
+            "id": "58727d00e50cf4b9",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "Todas las propiedades"
+            }
+          },
+          {
+            "id": "12c5e4c9a9ce194c",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "3. ESTADISTICA.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Esquema de 3. ESTADISTICA"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Abrir selector rápido": false,
+      "canvas:Crear nuevo lienzo": false,
+      "graph:Abrir vista gráfica": false,
+      "daily-notes:Abrir la nota de hoy": false,
+      "templates:Insertar plantilla": false,
+      "command-palette:Abrir paleta de comandos": false,
+      "bases:Crear nueva base": false
+    }
+  },
+  "active": "540c017a1ec453c6",
+  "lastOpenFiles": [
+    "3. ESTADISTICA/3. Estadística Avanzada (Relaciones y Correlaciones).md",
+    "3. ESTADISTICA.md",
+    "3. ESTADISTICA/4. Regresión y series temporales.md",
+    "3. ESTADISTICA/3. Estadística Avanzada (Relaciones y Correlaciones)/9. El P-Valor.md",
+    "3. ESTADISTICA/3. Estadística Avanzada (Relaciones y Correlaciones)/8. El Test T (Prueba de Hipótesis).md",
+    "3. ESTADISTICA/3. Estadística Avanzada (Relaciones y Correlaciones)/7. Correlación Parcial.md",
+    "3. ESTADISTICA/3. Estadística Avanzada (Relaciones y Correlaciones)/6. Correlaciones Falsas (Espurias).md",
+    "3. ESTADISTICA/2. Distribuciones/2. Distribución Normal (Campana de Gauss).md",
+    "3. ESTADISTICA/3. Estadística Avanzada (Relaciones y Correlaciones)/5. El Cuarteto de Anscombe.md",
+    "3. ESTADISTICA/1. Medidas/10. Kurtosis (Curtosis o Apuntamiento).md",
+    "3. ESTADISTICA/2. Distribuciones.md",
+    "3. ESTADISTICA/3. Estadística Avanzada (Relaciones y Correlaciones)/4. Coeficiente de Determinación (R²).md",
+    "3. ESTADISTICA/3. Estadística Avanzada (Relaciones y Correlaciones)/3. Coeficiente de Correlación de Spearman (ρ).md",
+    "3. ESTADISTICA/3. Estadística Avanzada (Relaciones y Correlaciones)/2. Coeficiente de Correlación de Pearson (r).md",
+    "3. ESTADISTICA/3. Estadística Avanzada (Relaciones y Correlaciones)/1. Covarianza Muestral.md",
+    "3. ESTADISTICA/3. Estadística Avanzada (Relaciones y Correlaciones)",
+    "3. ESTADISTICA/1. Medidas/4. Percentiles y Rango Percentil.md",
+    "3. ESTADISTICA/1. Medidas/3. Moda.md",
+    "3. ESTADISTICA/1. Medidas/2. Mediana.md",
+    "00. IMAGENES/Pasted image 20260411115825.png",
+    "00. IMAGENES/Pasted image 20260411120351.png",
+    "00. IMAGENES/Pasted image 20260411120448.png",
+    "00. IMAGENES/Pasted image 20260411120432.png",
+    "3. ESTADISTICA/1. Medidas/6. Desviación Típica (Standard Deviation).md",
+    "00. IMAGENES/Pasted image 20260411120409.png",
+    "3. ESTADISTICA/1. Medidas/5. Varianza (Muestral).md",
+    "00. IMAGENES/Pasted image 20260411120253.png",
+    "00. IMAGENES/Pasted image 20260411120233.png",
+    "00. IMAGENES/Pasted image 20260411120204.png",
+    "3. ESTADISTICA/1. Medidas/7. Z-Scores (Puntuación Z).md",
+    "3. ESTADISTICA/1. Medidas/8. IQR (Rango Intercuartílico).md",
+    "00. IMAGENES",
+    "0. INICIO.md",
+    "00. IMAGENES/Pasted image 20260411115938.png",
+    "3. ESTADISTICA/1. Medidas/1. Media (Promedio).md",
+    "00. IMAGENES/Pasted image 20260411115854.png",
+    "3. ESTADISTICA/2. Distribuciones/6. Distribución Log-Normal.md",
+    "3. ESTADISTICA/2. Distribuciones/5. Distribución Exponencial (Tiempos de espera).md",
+    "3. ESTADISTICA/2. Distribuciones",
+    "3. ESTADISTICA/1. Medidas",
+    "3. ESTADISTICA/Guía Maestra_ Estadística y Regresión  (1).pdf",
+    "3. ESTADISTICA/Guía Maestra_ Estadística y Regresión .pdf",
+    "3. ESTADISTICA/Presentaciones_Clase_Estadistica (1).pdf",
+    "3. ESTADISTICA/Presentaciones_Clase_Estadistica.pdf",
+    "3. ESTADISTICA",
+    "2. SQL"
+  ]
+}
