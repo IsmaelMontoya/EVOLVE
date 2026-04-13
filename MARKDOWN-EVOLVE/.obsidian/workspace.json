@@ -6,55 +6,33 @@
       {
         "id": "359e157534f0f9f4",
         "type": "tabs",
-        "dimension": 55.91155234657039,
         "children": [
-          {
-            "id": "dd0759a06cf019a7",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "3. ESTADISTICA/3. Estadística Avanzada (Relaciones y Correlaciones).md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "3. Estadística Avanzada (Relaciones y Correlaciones)"
-            }
-          },
           {
             "id": "3e2fb4a930991dc1",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "3. ESTADISTICA/3. Estadística Avanzada (Relaciones y Correlaciones)/9. El P-Valor.md",
+                "file": "3. ESTADISTICA/4. Regresión y series temporales/4.3 Coeficiente de Determinación R².md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "9. El P-Valor"
+              "title": "4.3 Coeficiente de Determinación R²"
             }
-          }
-        ]
-      },
-      {
-        "id": "a22a99e9830e934b",
-        "type": "tabs",
-        "dimension": 44.088447653429604,
-        "children": [
+          },
           {
-            "id": "540c017a1ec453c6",
+            "id": "c50948bb21faea81",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "3. ESTADISTICA.md",
+                "file": "3. ESTADISTICA/4. Regresión y series temporales/5.1 El modelo aditivo.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "3. ESTADISTICA"
+              "title": "5.1 El modelo aditivo"
             }
           }
         ]
@@ -130,7 +108,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "3. ESTADISTICA.md",
+                "file": "3. ESTADISTICA/4. Regresión y series temporales/4.3 Coeficiente de Determinación R².md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -140,7 +118,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Enlaces entrantes de 3. ESTADISTICA"
+              "title": "Enlaces entrantes de 4.3 Coeficiente de Determinación R²"
             }
           },
           {
@@ -149,12 +127,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "3. ESTADISTICA.md",
+                "file": "3. ESTADISTICA/4. Regresión y series temporales/4.3 Coeficiente de Determinación R².md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Enlaces salientes de 3. ESTADISTICA"
+              "title": "Enlaces salientes de 4.3 Coeficiente de Determinación R²"
             }
           },
           {
@@ -192,13 +170,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "3. ESTADISTICA.md",
+                "file": "3. ESTADISTICA/4. Regresión y series temporales/4.3 Coeficiente de Determinación R².md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Esquema de 3. ESTADISTICA"
+              "title": "Esquema de 4.3 Coeficiente de Determinación R²"
             }
           }
         ]
@@ -219,53 +197,53 @@
       "bases:Crear nueva base": false
     }
   },
-  "active": "540c017a1ec453c6",
+  "active": "3e2fb4a930991dc1",
   "lastOpenFiles": [
-    "3. ESTADISTICA/3. Estadística Avanzada (Relaciones y Correlaciones).md",
-    "3. ESTADISTICA.md",
+    "Pasted image 20260412135714.png",
+    "Pasted image 20260412135657.png",
+    "Pasted image 20260412135645.png",
+    "Pasted image 20260412135609.png",
+    "3. ESTADISTICA/4. Regresión y series temporales/1. Regresión Lineal Simple.md",
+    "3. ESTADISTICA/4. Regresión y series temporales/3. Regresión Lineal Múltiple.md",
+    "3. ESTADISTICA/4. Regresión y series temporales/4.2 MSE y RMSE.md",
+    "3. ESTADISTICA/2. Distribuciones/0. Las 3 funciones Maestras.md",
+    "3. ESTADISTICA/1. Medidas/10. Kurtosis (Curtosis o Apuntamiento).md",
+    "Pasted image 20260412134055.png",
+    "Pasted image 20260412134040.png",
+    "3. ESTADISTICA/1. Medidas/9. Skewness (Sesgo o Asimetría).md",
+    "Pasted image 20260412133906.png",
+    "Pasted image 20260412133850.png",
+    "Pasted image 20260412133824.png",
+    "Pasted image 20260412133133.png",
+    "3. ESTADISTICA/4. Regresión y series temporales/4.3 Coeficiente de Determinación R².md",
+    "Pasted image 20260412130356.png",
+    "3. ESTADISTICA/4. Regresión y series temporales/4.1 MAE (Error Medio Absoluto).md",
     "3. ESTADISTICA/4. Regresión y series temporales.md",
+    "3. ESTADISTICA/0. Resumen Visual de Métricas.md",
+    "3. ESTADISTICA/4. Regresión y series temporales/5.1 El modelo aditivo.md",
+    "3. ESTADISTICA.md",
+    "3. ESTADISTICA/4. Regresión y series temporales/5.3 Medias Móviles (Moving Average).md",
+    "3. ESTADISTICA/1. Medidas.md",
+    "3. ESTADISTICA/4. Regresión y series temporales/Sin título.md",
+    "3. ESTADISTICA/4. Regresión y series temporales/5.2 Diferenciación.md",
+    "3. ESTADISTICA/4. Regresión y series temporales/2. Mínimos Cuadrados Ordinarios (OLS).md",
+    "3. ESTADISTICA/4. Regresión y series temporales",
+    "3. ESTADISTICA/3. Estadística Avanzada (Relaciones y Correlaciones).md",
     "3. ESTADISTICA/3. Estadística Avanzada (Relaciones y Correlaciones)/9. El P-Valor.md",
     "3. ESTADISTICA/3. Estadística Avanzada (Relaciones y Correlaciones)/8. El Test T (Prueba de Hipótesis).md",
     "3. ESTADISTICA/3. Estadística Avanzada (Relaciones y Correlaciones)/7. Correlación Parcial.md",
     "3. ESTADISTICA/3. Estadística Avanzada (Relaciones y Correlaciones)/6. Correlaciones Falsas (Espurias).md",
     "3. ESTADISTICA/2. Distribuciones/2. Distribución Normal (Campana de Gauss).md",
     "3. ESTADISTICA/3. Estadística Avanzada (Relaciones y Correlaciones)/5. El Cuarteto de Anscombe.md",
-    "3. ESTADISTICA/1. Medidas/10. Kurtosis (Curtosis o Apuntamiento).md",
     "3. ESTADISTICA/2. Distribuciones.md",
-    "3. ESTADISTICA/3. Estadística Avanzada (Relaciones y Correlaciones)/4. Coeficiente de Determinación (R²).md",
-    "3. ESTADISTICA/3. Estadística Avanzada (Relaciones y Correlaciones)/3. Coeficiente de Correlación de Spearman (ρ).md",
-    "3. ESTADISTICA/3. Estadística Avanzada (Relaciones y Correlaciones)/2. Coeficiente de Correlación de Pearson (r).md",
-    "3. ESTADISTICA/3. Estadística Avanzada (Relaciones y Correlaciones)/1. Covarianza Muestral.md",
     "3. ESTADISTICA/3. Estadística Avanzada (Relaciones y Correlaciones)",
-    "3. ESTADISTICA/1. Medidas/4. Percentiles y Rango Percentil.md",
-    "3. ESTADISTICA/1. Medidas/3. Moda.md",
-    "3. ESTADISTICA/1. Medidas/2. Mediana.md",
-    "00. IMAGENES/Pasted image 20260411115825.png",
-    "00. IMAGENES/Pasted image 20260411120351.png",
-    "00. IMAGENES/Pasted image 20260411120448.png",
-    "00. IMAGENES/Pasted image 20260411120432.png",
-    "3. ESTADISTICA/1. Medidas/6. Desviación Típica (Standard Deviation).md",
-    "00. IMAGENES/Pasted image 20260411120409.png",
-    "3. ESTADISTICA/1. Medidas/5. Varianza (Muestral).md",
-    "00. IMAGENES/Pasted image 20260411120253.png",
-    "00. IMAGENES/Pasted image 20260411120233.png",
-    "00. IMAGENES/Pasted image 20260411120204.png",
-    "3. ESTADISTICA/1. Medidas/7. Z-Scores (Puntuación Z).md",
-    "3. ESTADISTICA/1. Medidas/8. IQR (Rango Intercuartílico).md",
     "00. IMAGENES",
-    "0. INICIO.md",
-    "00. IMAGENES/Pasted image 20260411115938.png",
-    "3. ESTADISTICA/1. Medidas/1. Media (Promedio).md",
-    "00. IMAGENES/Pasted image 20260411115854.png",
-    "3. ESTADISTICA/2. Distribuciones/6. Distribución Log-Normal.md",
-    "3. ESTADISTICA/2. Distribuciones/5. Distribución Exponencial (Tiempos de espera).md",
     "3. ESTADISTICA/2. Distribuciones",
     "3. ESTADISTICA/1. Medidas",
     "3. ESTADISTICA/Guía Maestra_ Estadística y Regresión  (1).pdf",
     "3. ESTADISTICA/Guía Maestra_ Estadística y Regresión .pdf",
     "3. ESTADISTICA/Presentaciones_Clase_Estadistica (1).pdf",
     "3. ESTADISTICA/Presentaciones_Clase_Estadistica.pdf",
-    "3. ESTADISTICA",
-    "2. SQL"
+    "3. ESTADISTICA"
   ]
 }
