@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "3. ESTADISTICA/4. Regresión y series temporales/4.3 Coeficiente de Determinación R².md",
+                "file": "3. ESTADISTICA/4. Regresión y series temporales/4.2 MSE y RMSE (Error Cuadrático Medio).md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "4.3 Coeficiente de Determinación R²"
+              "title": "4.2 MSE y RMSE (Error Cuadrático Medio)"
             }
           },
           {
@@ -108,7 +108,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "3. ESTADISTICA/4. Regresión y series temporales/4.3 Coeficiente de Determinación R².md",
+                "file": "3. ESTADISTICA/4. Regresión y series temporales/4.2 MSE y RMSE (Error Cuadrático Medio).md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -118,7 +118,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Enlaces entrantes de 4.3 Coeficiente de Determinación R²"
+              "title": "Enlaces entrantes de 4.2 MSE y RMSE (Error Cuadrático Medio)"
             }
           },
           {
@@ -127,12 +127,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "3. ESTADISTICA/4. Regresión y series temporales/4.3 Coeficiente de Determinación R².md",
+                "file": "3. ESTADISTICA/4. Regresión y series temporales/4.2 MSE y RMSE (Error Cuadrático Medio).md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Enlaces salientes de 4.3 Coeficiente de Determinación R²"
+              "title": "Enlaces salientes de 4.2 MSE y RMSE (Error Cuadrático Medio)"
             }
           },
           {
@@ -170,13 +170,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "3. ESTADISTICA/4. Regresión y series temporales/4.3 Coeficiente de Determinación R².md",
+                "file": "3. ESTADISTICA/4. Regresión y series temporales/4.2 MSE y RMSE (Error Cuadrático Medio).md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Esquema de 4.3 Coeficiente de Determinación R²"
+              "title": "Esquema de 4.2 MSE y RMSE (Error Cuadrático Medio)"
             }
           }
         ]
@@ -199,13 +199,14 @@
   },
   "active": "3e2fb4a930991dc1",
   "lastOpenFiles": [
+    "3. ESTADISTICA/4. Regresión y series temporales/4.3 Coeficiente de Determinación R².md",
     "Pasted image 20260412135714.png",
     "Pasted image 20260412135657.png",
     "Pasted image 20260412135645.png",
     "Pasted image 20260412135609.png",
     "3. ESTADISTICA/4. Regresión y series temporales/1. Regresión Lineal Simple.md",
     "3. ESTADISTICA/4. Regresión y series temporales/3. Regresión Lineal Múltiple.md",
-    "3. ESTADISTICA/4. Regresión y series temporales/4.2 MSE y RMSE.md",
+    "3. ESTADISTICA/4. Regresión y series temporales/4.2 MSE y RMSE (Error Cuadrático Medio).md",
     "3. ESTADISTICA/2. Distribuciones/0. Las 3 funciones Maestras.md",
     "3. ESTADISTICA/1. Medidas/10. Kurtosis (Curtosis o Apuntamiento).md",
     "Pasted image 20260412134055.png",
@@ -215,8 +216,6 @@
     "Pasted image 20260412133850.png",
     "Pasted image 20260412133824.png",
     "Pasted image 20260412133133.png",
-    "3. ESTADISTICA/4. Regresión y series temporales/4.3 Coeficiente de Determinación R².md",
-    "Pasted image 20260412130356.png",
     "3. ESTADISTICA/4. Regresión y series temporales/4.1 MAE (Error Medio Absoluto).md",
     "3. ESTADISTICA/4. Regresión y series temporales.md",
     "3. ESTADISTICA/0. Resumen Visual de Métricas.md",
