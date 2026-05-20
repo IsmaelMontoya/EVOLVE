@@ -1,0 +1,53 @@
+Codigos clase DAX
+
+let
+
+    FechaInicio = #date(2004, 1, 1),
+
+    FechaFin = #date(2008, 12, 31),
+
+    Dias = Duration.Days(FechaFin - FechaInicio) + 1,
+
+    ListaFechas = List.Dates(FechaInicio, Dias, #duration(1, 0, 0, 0)),
+
+    Tabla = Table.FromList(ListaFechas, Splitter.SplitByNothing(), {"Fecha"}),
+
+    TipoFecha = Table.TransformColumnTypes(Tabla, {{"Fecha", type date}}),
+
+    Anio = Table.AddColumn(TipoFecha, "Año", each Date.Year([Fecha]), Int64.Type),
+
+    Trimestre = Table.AddColumn(Anio, "Trimestre", each "Q" & Text.From(Date.QuarterOfYear([Fecha])), type text),
+
+    Mes = Table.AddColumn(Trimestre, "Mes", each Date.Month([Fecha]), Int64.Type),
+
+    NombreMes = Table.AddColumn(Mes, "Nombre Mes", each Date.ToText([Fecha], "MMMM", "es-ES"), type text),
+
+    Semana = Table.AddColumn(NombreMes, "Semana", each Date.WeekOfYear([Fecha]), Int64.Type)
+
+in
+
+    Semana
+
+
+Calendario =
+
+ADDCOLUMNS(
+
+    CALENDAR(DATE(2005,1,1), DATE(2009,12,31)),
+
+    "Año", YEAR([Date]),
+
+    "Trimestre", "Q" & FORMAT(CEILING(MONTH([Date])/3,1),"0"),
+
+    "Mes", MONTH([Date]),
+
+    "Nombre Mes", FORMAT([Date], "MMMM"),
+
+    "Semana", WEEKNUM([Date])
+
+)
+
+
+
+
+List.Max(Origen[Fecha Orden])

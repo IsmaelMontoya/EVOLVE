@@ -1,0 +1,13 @@
+ID,ID_Cliente,Cliente,Ciudad,Segmento,ID_Producto,Producto,Categoria,ID_Vendedor,Vendedor,Region,Fecha,Trimestre,Mes,Unidades,Importe
+1,1,Cliente A,Madrid,Enterprise,1,Producto 1,Software,1,Ana García,Centro,2024-01-15,Q1,Enero,2,3000.00
+2,2,Cliente B,Barcelona,SMB,2,Producto 2,Hardware,2,Carlos López,Este,2024-02-20,Q1,Febrero,1,3200.50
+3,3,Cliente C,Valencia,Enterprise,1,Producto 1,Software,3,María Martín,Sur,2024-03-10,Q1,Marzo,3,4500.00
+4,1,Cliente A,Madrid,Enterprise,3,Producto 3,Consultoría,1,Ana García,Centro,2024-04-05,Q2,Abril,1,4100.75
+5,2,Cliente B,Barcelona,SMB,1,Producto 1,Software,2,Carlos López,Este,2024-05-18,Q2,Mayo,2,3000.00
+6,4,Cliente D,Sevilla,SMB,4,Producto 4,Soporte,4,Pedro Sánchez,Norte,2024-06-22,Q2,Junio,5,4000.00
+7,5,Cliente E,Bilbao,Startup,5,Producto 5,Formación,5,Laura Jiménez,Centro,2024-07-08,Q3,Julio,1,1200.00
+8,3,Cliente C,Valencia,Enterprise,2,Producto 2,Hardware,3,María Martín,Sur,2024-08-14,Q3,Agosto,2,6400.00
+9,4,Cliente D,Sevilla,SMB,3,Producto 3,Consultoría,4,Pedro Sánchez,Norte,2024-09-30,Q3,Septiembre,1,4100.75
+10,5,Cliente E,Bilbao,Startup,4,Producto 4,Soporte,5,Laura Jiménez,Centro,2024-10-11,Q4,Octubre,3,2400.00
+11,1,Cliente A,Madrid,Enterprise,5,Producto 5,Formación,1,Ana García,Centro,2024-11-25,Q4,Noviembre,2,2400.00
+12,2,Cliente B,Barcelona,SMB,3,Producto 3,Consultoría,2,Carlos López,Este,2024-12-03,Q4,Diciembre,1,4100.75
