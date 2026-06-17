@@ -1,0 +1,16 @@
+# ===== Datos pesados y cachés (no subir a GitHub) =====
+# Datasets grandes
+6. Deep Learning/PROYECTO/trustpilot-reviews-123k.csv
+trustpilot-reviews-123k.csv
+
+# Cachés de datos generados por los notebooks
+*.pkl
+
+# ===== Python / Jupyter =====
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# ===== Sistema =====
+.DS_Store
+Thumbs.db
