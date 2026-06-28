@@ -1,10 +1,18 @@
 # ===== Datos pesados y cachés (no subir a GitHub) =====
 # Datasets grandes
 6. Deep Learning/PROYECTO/trustpilot-reviews-123k.csv
+6. Deep Learning/PROYECTO/documentos/trustpilot-reviews-123k.csv
 trustpilot-reviews-123k.csv
 
 # Cachés de datos generados por los notebooks
 *.pkl
+cache_sentiment.csv
+
+# ===== Entornos virtuales (torch ocupa cientos de MB) =====
+.venv/
+venv/
+env/
+ENV/
 
 # ===== Python / Jupyter =====
 __pycache__/
