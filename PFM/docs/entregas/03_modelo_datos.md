@@ -39,75 +39,102 @@ Sistema de análisis y predicción de rentabilidad basado en:
 
 ## 2. Tecnología o Formato de Almacenamiento Elegido
 
-### Decisión: **CSV + Python (Pandas, Scikit-learn)**
+### Decisión: **Medallion Architecture: Bronze (Bitrix/Biloop) → Silver (MariaDB) → Gold (MariaDB)**
 
 ### Justificación
 
-1. **Volumen manejable:** ~17.366 registros (914 empresas × 19 meses) fácil de procesar en memoria
-2. **Simplicidad:** CSV es estándar, reproducible, versionable en Git
-3. **Flexibilidad:** Python permite feature engineering complejo, ML, análisis EDA completo
-4. **Control total:** No depende de BDD ni infraestructura compleja
-5. **Iteración rápida:** Cambios y experimentos sin fricción
-6. **Académicamente robusto:** Código reproducible, pipeline clara, documentado
+1. **Volumen manejable:** ~17.366 registros (914 empresas × 19 meses) fácil de procesar
+2. **Arquitectura profesional:** Medallion architecture (Bronze/Silver/Gold) estándar en Data Science
+3. **Base de datos centralizada:** MariaDB en servidor accesible, no archivos locales
+4. **Limpieza en notebook:** Python + Jupyter para EDA, limpieza, validación
+5. **Escalabilidad:** Fácil consultar datos crudos (Bronze) o limpios (Silver) según necesidad
+6. **Reproducibilidad:** Código en notebook versionado en Git, datos en servidor
 
 ### Stack tecnológico
 
 ```
-Extracción:          SQL queries (Bitrix, Biloop) → CSV
-Procesamiento:       Python 3.10+ (Pandas, NumPy)
+Bronze Layer:        Bitrix MySQL (37.27.192.169:3306) + Biloop SQL Server (servidor1.biloop.es,1436)
+                     → Raw data queries (sin modificar)
+
+Silver Layer:        MariaDB en servidor
+                     → Datos limpios, normalizados, validados
+                     → Tablas: fact_tiempos, fact_facturas, dim_empresa, dim_coste, etc.
+
+Gold Layer:          MariaDB en servidor
+                     → Tabla final: gold_rentabilidad_clientes
+                     → ~17.366 registros listos para ML
+
+Procesamiento:       Python 3.10+ (Jupyter Notebook)
+                     → Extracción queries → Limpieza (Pandas) → Carga a Silver/Gold
+
 Machine Learning:    Scikit-learn, XGBoost/LightGBM
-Feature Engineering: Pandas, custom functions
+                     → Consultas desde Gold layer
+                     
+Feature Engineering: Pandas + SQL (raw data optimization)
+                     → Queries SQL o Pandas según volumen
+
 Visualización:       Matplotlib, Seaborn, Plotly
 Explicabilidad:      SHAP values
-Documentación:       Jupyter Notebooks, Markdown
-Versionado:          Git + GitHub
+Versionado:          Git + GitHub (notebooks + SQL scripts)
 ```
 
 ---
 
-## 3. Estructura de Capas de Datos
+## 3. Estructura de Capas de Datos (Medallion Architecture)
 
 ```
-data/
-├── raw/
-│   ├── fact_tiempos_bitrix.csv         (65.526 registros, sin modificar)
-│   ├── fact_facturas_biloop.csv        (87.679 registros, sin modificar)
-│   ├── dim_empresa_bitrix.csv          (914 empresas, sin modificar)
-│   ├── dim_coste_empleado.csv          (45 empleados, sin modificar)
-│   └── bridge_tarea_deal.csv           (49.422 registros, sin modificar)
+BRONZE LAYER (Raw Data - Fuentes Externas)
+├── Bitrix MySQL (37.27.192.169:3306)
+│   ├── fact_tiempos_bitrix (65.526 registros, sin modificar)
+│   ├── dim_empresa_bitrix (914 empresas, sin modificar)
+│   ├── dim_coste_empleado (45 empleados, sin modificar)
+│   ├── bridge_tarea_deal (49.422 registros, sin modificar)
+│   └── [otras tablas de referencia]
 │
-├── processed/
-│   ├── tiempos_limpios.csv             (imputaciones validadas, sin nulls)
-│   ├── facturas_limpias.csv            (facturas normalizadas)
-│   ├── empresas_enriquecidas.csv       (empresas con features categóricas)
-│   └── costos_empleado_imputados.csv   (costes interpolados para nulls)
-│
-└── gold/
-    └── gold_rentabilidad_clientes.csv  (TABLA FINAL: 914 empresas × 19 meses)
+└── Biloop SQL Server (servidor1.biloop.es,1436)
+    ├── fact_facturas_biloop (87.679 registros, sin modificar)
+    ├── dim_empresa_biloop (720 empresas)
+    └── [otras tablas contables]
+
+SILVER LAYER (MariaDB en Servidor - Datos Limpios)
+├── fact_tiempos_silver (imputaciones validadas, sin nulls, sin outliers)
+├── fact_facturas_silver (facturas normalizadas, excluidas rectificativas)
+├── dim_empresa_silver (empresas con validación, sin duplicados)
+├── dim_coste_silver (costes interpolados, IDs válidos)
+├── bridge_tarea_deal_silver (bridges validados)
+└── [tablas de referencia limpias]
+
+GOLD LAYER (MariaDB en Servidor - Tabla Final para ML)
+└── gold_rentabilidad_clientes (914 empresas × 19 meses = ~17.366 registros)
+    ├── Campos de rentabilidad (horas, coste, facturado, margen %)
+    ├── Features categóricas (tipo, despacho, actividades, obligaciones)
+    ├── Features engineered (volatilidad, trend, ratio, antigüedad)
+    └── Ready para consultas SQL y ML en Jupyter
 ```
 
 ### Descripción de capas
 
-| Capa | Contenido | Propósito |
-|---|---|---|
-| **raw** | Datos originales tal como se descargan de Bitrix/Biloop | Auditoría, trazabilidad, replicabilidad |
-| **processed** | Datos limpios, normalizados, con tratamiento de errores | Preparación para análisis |
-| **gold** | Tabla final lista para ML, análisis y reportes | Input para modelos, EDA, visualización |
+| Capa | Ubicación | Contenido | Propósito | Acceso |
+|---|---|---|---|---|
+| **BRONZE** | Bitrix MySQL + Biloop SQL Server | Datos originales tal como están en producción, sin modificar | Auditoría, trazabilidad, debugging | SQL queries directo en notebook |
+| **SILVER** | MariaDB servidor | Datos limpios, normalizados, validados, sin duplicados, sin nulls críticos | Fuente de verdad limpia, preparación para análisis | SQL queries desde notebook |
+| **GOLD** | MariaDB servidor | Tabla final agregada (empresa × mes) lista para ML, con features engineered | Input para modelos ML, análisis exploratorio, reportes | SQL queries desde Python/Pandas |
 
 ---
 
 ## 4. Definición de la Capa Gold
 
-### Dataset Principal: `gold_rentabilidad_clientes.csv`
+### Dataset Principal: `gold_rentabilidad_clientes` (Tabla MariaDB)
 
 | Atributo | Valor |
 |---|---|
-| **Nombre del fichero** | `gold_rentabilidad_clientes.csv` |
-| **Descripción funcional** | Tabla de hechos con rentabilidad agregada por empresa y período (mensual). Combina imputaciones de tiempo, costes de empleados y facturación. Base para modelos ML, análisis exploratorio y reportes. |
+| **Nombre de tabla** | `gold_rentabilidad_clientes` (MariaDB servidor) |
+| **Descripción funcional** | Tabla de hechos con rentabilidad agregada por empresa y período (mensual). Combina imputaciones de tiempo, costes de empleados y facturación. Base para modelos ML, análisis exploratorio y reportes. Consultable directamente desde Jupyter via SQL. |
 | **Granularidad** | **1 fila = 1 empresa + 1 mes** |
 | **Nº de registros esperado** | ~17.366 (914 empresas × 19 meses) |
 | **Período** | ene 2025 - jul 2026 |
 | **Clave primaria** | `id_bitrix` + `año_mes` (combinada) |
+| **Actualización** | Manual via notebook después de extracción/limpieza; potencialmente scheduled en servidor |
 
 ### Campos Principales
 
@@ -409,19 +436,121 @@ df_gold['trend_facturado_6m'] = rolling_trend(facturado, window=6)
 
 ---
 
+## 10. Workflow de Extracción y Carga (Servidor MariaDB)
+
+### Pipeline Operacional
+
+```
+PASO 1: EXTRACCIÓN (Notebook - conexión a Bronze)
+├── Conectar a Bitrix MySQL (37.27.192.169:3306)
+│   └── SELECT * FROM [tablas Bronze]
+├── Conectar a Biloop SQL Server (servidor1.biloop.es,1436)
+│   └── SELECT * FROM [tablas Bronze]
+└── Cargar en Pandas DataFrames (en memoria)
+
+PASO 2: LIMPIEZA (Notebook - Pandas)
+├── Validar tipos de datos
+├── Detectar y tratar nulls
+├── Detectar y marcar/excluir outliers
+├── Normalizar fechas, textos, valores monetarios
+├── Deduplicar
+└── Crear features engineered
+
+PASO 3: CARGA A SILVER (Notebook - conexión a MariaDB)
+├── Conectar a MariaDB servidor
+├── INSERT/UPDATE tablas Silver
+│   ├── fact_tiempos_silver
+│   ├── fact_facturas_silver
+│   ├── dim_empresa_silver
+│   ├── dim_coste_silver
+│   └── [otras]
+└── Validar integridad (row counts, checks de lógica)
+
+PASO 4: AGREGACIÓN GOLD (Notebook - SQL desde MariaDB)
+├── Consultas SQL complejas a Silver
+├── Agregación por empresa + mes
+├── Cálculos finales (costes, rentabilidad, features)
+└── INSERT en gold_rentabilidad_clientes (o REPLACE)
+
+PASO 5: VALIDACIÓN (Notebook - análisis)
+├── EDA sobre Gold
+├── Checks de completitud
+├── Visualizaciones básicas
+└── Documentar cualquier anomalía
+
+PASO 6: ML (Notebook - desde Python)
+├── Conectar a MariaDB y traer Gold layer
+├── Convertir a Pandas DataFrame
+├── Entrenar modelos (Anomalías, Predicción, Segmentación)
+├── Visualizar resultados
+└── Guardar modelos (pickle/joblib)
+```
+
+### Código Esqueleto (Jupyter)
+
+```python
+# 1. CONECTAR A BRONZE (MySQL Bitrix)
+import mysql.connector
+import sqlalchemy as sa
+
+conn_bitrix = mysql.connector.connect(
+    host="37.27.192.169",
+    user="usuario",
+    password="password",
+    database="sitemanager"
+)
+
+df_tiempos_raw = pd.read_sql("SELECT * FROM b_tasks_elapsed_time WHERE SECONDS > 0", conn_bitrix)
+df_empresa_raw = pd.read_sql("SELECT * FROM b_crm_company", conn_bitrix)
+
+# 2. LIMPIAR (Pandas)
+df_tiempos = df_tiempos_raw.dropna(subset=['SECONDS'])
+df_tiempos['horas'] = df_tiempos['SECONDS'] / 3600
+# ... más limpieza
+
+# 3. CARGAR A SILVER (MariaDB)
+engine = sa.create_engine("mysql+pymysql://usuario:password@servidor/base_datos")
+df_tiempos.to_sql("fact_tiempos_silver", con=engine, if_exists="replace", index=False)
+
+# 4. AGREGACIÓN GOLD (SQL desde MariaDB)
+query_gold = """
+SELECT 
+    id_bitrix,
+    DATE_TRUNC(fecha, MONTH) as año_mes,
+    SUM(horas) as horas_imputadas,
+    SUM(coste_directo) as coste_directo,
+    ... más agregaciones ...
+FROM fact_tiempos_silver
+GROUP BY id_bitrix, año_mes
+"""
+
+df_gold = pd.read_sql(query_gold, con=engine)
+df_gold.to_sql("gold_rentabilidad_clientes", con=engine, if_exists="replace", index=False)
+
+# 5. ML
+from sklearn.ensemble import IsolationForest, RandomForestRegressor
+anomaly_model = IsolationForest()
+df_gold['anomalia'] = anomaly_model.fit_predict(df_gold[features])
+```
+
+---
+
 ## Conclusión
 
-**El modelo de datos es viable y realista** para desarrollar durante el curso:
+**El modelo de datos es viable y profesional** para desarrollar durante el curso:
 
-✅ Datos reales, accesibles, bien estructurados  
+✅ Arquitectura Medallion (Bronze/Silver/Gold) estándar en Data Science  
+✅ Datos en servidor MariaDB, no archivos locales  
+✅ Limpieza y transformación en Jupyter notebook (reproducible)  
 ✅ Volumen manejable (17.366 registros)  
-✅ Capa gold clara y bien definida  
+✅ Consultas directas desde Python/Pandas para ML  
 ✅ Riesgos identificados y mitigables  
 
 **Próximos pasos:**
-1. Descargar datos raw desde Bitrix/Biloop a CSV
-2. Limpiar y procesar en Python (sección `processed/`)
-3. Construir capa gold (sección `gold/`)
-4. Validar calidad con EDA
-5. Entrenar modelos ML (Anomalías + Predicción + Segmentación)
-6. Documentar y reportar resultados
+1. Confirmar credenciales de acceso a Bitrix/Biloop y MariaDB servidor
+2. Crear notebook de extracción-limpieza-carga (ETL)
+3. Construir tablas Silver en MariaDB
+4. Construir tabla Gold en MariaDB
+5. Validar calidad con EDA
+6. Entrenar modelos ML desde Python (consultando Gold)
+7. Documentar workflow y resultados
