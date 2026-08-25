@@ -80,3 +80,43 @@ haría imposible cumplirlo. Los datos (`*.csv`, `*.parquet`, `*.pkl`) siguen fue
 control de versiones, que es lo que exige el checklist 4.7.
 **Impacto estimado:** bajo.
 **Fase:** 2
+
+## D-006 · Regla de derivación de `trimestre_fiscal`
+
+**Decisión:** `trimestre_fiscal` = trimestre natural de (`fecha_creacion` − 1 mes).
+**Alternativa descartada:** usar el campo `periodo` del CRM tal cual.
+**Motivo:** el campo `periodo` existe (`UF_CRM_1725611727666`) pero solo toma valor
+trimestral (1T–4T) en 6.138 de las 13.013 filas del dataset (47,2 %); el resto son
+valores anuales, mensuales o de pago fraccionado. La regla derivada está definida para
+el 100 % de las filas. Contrastada contra el campo declarado en las 6.138 filas en que
+este es trimestral, coincide en el 99,63 %.
+**Impacto estimado:** bajo (la feature tiene eta = 0,077 con el target en train).
+**Fase:** 3
+
+## D-007 · Qué historial alimenta las features de ventana expansiva
+
+**Decisión:** las features históricas (`n_procesos_previos_cliente`,
+`mediana_min_cliente_hist`, `mediana_min_proceso_hist`,
+`es_primera_vez_cliente_proceso`) se calculan sobre el propio dataset modelable
+(pipeline objetivo, cerradas, ganadas, con tiempo).
+**Alternativa descartada:** usar como historial todas las negociaciones de todos los
+pipelines presentes en `deals.csv`.
+**Motivo:** es la definición del ejemplo de la guía (sección "regla anti-leakage") y
+mantiene la feature interpretable: "mediana de minutos de este cliente en procesos del
+mismo tipo de trabajo". Ampliar el historial a otros pipelines mezclaría duraciones de
+procesos de naturaleza distinta (contabilidad, expedientes) en la misma mediana.
+**Impacto estimado:** medio. Coste medido: 2.242 filas (17,2 %) quedan sin historial de
+cliente y 2.253 (17,3 %) sin historial de proceso, y reciben NaN.
+**Fase:** 3
+
+## D-008 · `n_deals_misma_campana` como recuento acumulado
+
+**Decisión:** se define como el número de negociaciones de la misma campaña
+(`proceso` × `ejercicio` × `trimestre_fiscal`) creadas en la misma fecha o antes que la
+fila.
+**Alternativa descartada:** el total de negociaciones de la campaña.
+**Motivo:** el total de la campaña solo se conoce cuando la campaña ha terminado de
+darse de alta; usarlo introduciría información posterior al momento de planificación.
+El acumulado es la opción conservadora.
+**Impacto estimado:** bajo (|pearson| = 0,031 con el target en train).
+**Fase:** 3
