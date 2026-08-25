@@ -1,0 +1,129 @@
+# PFM — Estimación de la duración de procesos en una asesoría
+
+> Versión corregida tras el feedback de las entregas 2 y 3.
+> Este directorio está pensado para extraerse a un **repositorio independiente**
+> dedicado exclusivamente al PFM, como pidió la corrección.
+
+## Qué cambia respecto a la propuesta anterior
+
+| Antes | Ahora |
+|---|---|
+| Tres líneas a la vez: predicción de rentabilidad + anomalías + segmentación | **Una**: estimar la duración de un proceso |
+| Problema temporal (extrapolar a 2027 con 19 meses) | Problema **transversal**: 1 negociación cerrada = 1 observación |
+| Unidad: cliente × mes (~17.000 filas débiles) | Unidad: **negociación** (proceso ejecutado), etiquetada por el propio CRM |
+| Dependía del CRM **y** de un segundo sistema de facturación | Solo el CRM. Sin facturación, sin rectificativas, sin desfases |
+| Anomalías como modelo aparte (Isolation Forest) | Anomalía = **residuo estandarizado** del mismo modelo |
+| "Acceso 100 % garantizado", "calidad excelente" | Fase 0 que **mide** la calidad antes de afirmar nada |
+
+La detección de anomalías deja de ser un segundo proyecto: si el modelo estima
+42 min para un proceso y se han imputado 190, el residuo es la señal. Un modelo,
+dos usos — planificación (antes) y control (al cerrar cada campaña).
+
+## Unidad de observación
+
+El trabajo de la asesoría está organizado en **negociaciones** de Bitrix, agrupadas
+en pipelines. Cada negociación es una ejecución concreta de un proceso para un
+cliente. El tiempo se imputa en las tareas que cuelgan de ella; la duración del
+proceso es la suma de esas imputaciones.
+
+```
+b_tasks_elapsed_time  →  tarea  →  (UF_CRM_TASK = 'D_<id>')  →  negociación  →  pipeline
+```
+
+La clasificación del proceso **no se deduce del título**: viene del pipeline y de
+campos de lista del propio CRM (p. ej. *modelo presentado* en fiscal). Eso elimina
+la heurística de texto que habría habido que justificar.
+
+### Pipelines existentes
+
+| Área | Pipelines |
+|---|---|
+| Administración | Facturación interna · Onboarding clientes · Gestión interna |
+| Contable | Contable interno · Contabilidad externa · Cierres |
+| Fiscal | **Modelos de impuestos** · Rentas |
+| Fiscal · expedientes | Cuentas anuales · Libros oficiales · Libro de socios |
+
+## Decisión de alcance
+
+**MVP = pipeline "Modelos de impuestos".** Único objetivo de la primera entrega.
+
+Por qué ese y no otro:
+
+- **Etiqueta nativa y limpia**: el campo *modelo presentado* (303, 111, 115, 200…)
+  es la variable explicativa principal. No hay que inventar una taxonomía.
+- **Seis campañas en 19 meses** (4 trimestres de 2025 + 2 de 2026). Permite el
+  split temporal honesto: entreno 2025 / test 2026. Es el argumento anti-leakage
+  que exigió la corrección.
+- **Muchas repeticiones por clase**: la mediana por modelo es un baseline sólido
+  y la comparación contra él tiene sentido estadístico.
+
+Qué queda fuera y por qué:
+
+- **Rentas** → extensión, no MVP. Solo dos campañas (2025, 2026), y una campaña es
+  un único bloque temporal: no admite validación en el tiempo, solo por cliente.
+  Interesante por su varianza (individual / conjunta / compleja), pero como línea
+  principal no es defendible.
+- **Contabilidad** → segundo pipeline. Sirve para demostrar que el método **se
+  transfiere**, que es lo que convierte esto en un proyecto y no en un análisis
+  puntual.
+- **Resto de pipelines** → fuera del PFM.
+
+**Principio de diseño**: el código no sabe con qué pipeline trabaja. Recibe un
+pipeline y una columna de tipo de proceso. Ejecutarlo luego sobre contabilidad
+son horas, no semanas.
+
+## Estado
+
+Numeración de fases según `GUIA_AGENTE.md` (Parte 3), que sustituye a la
+numeración del borrador anterior de este README.
+
+| Fase | Script | Gate | Estado |
+|---|---|---|---|
+| 1 · Extracción | `src/00_descubrimiento.py`, `src/01_extraccion.py` | 4 de 4 criterios cumplidos | completada |
+| 2 · Calidad y EDA | `src/02_eda.py` | | pendiente |
+| 3 · Dataset modelable | `src/03_dataset.py` | | pendiente |
+| 4 · Baselines | `src/04_baselines.py` | | pendiente |
+| 5 · Modelado | `src/05_modelos.py` | | pendiente |
+| 6 · Anomalías | `src/06_anomalias.py` | | pendiente |
+| 7 · Memoria y entrega | `docs/entregas/` | | pendiente |
+
+## Cómo reproducirlo de cero
+
+```
+py -m pip install -r requirements.txt
+cp .env.example .env      # y rellenar
+py src/00_descubrimiento.py
+py src/01_extraccion.py
+```
+
+Cada script escribe en `output/`, que no se versiona. `sql/A_00_descubrimiento.sql`
+documenta las consultas de descubrimiento y `sql/B_extraccion.sql` es la fuente
+única de las consultas de extracción: `src/01_extraccion.py` lee de ese archivo.
+
+## Metodología prevista
+
+- **Target**: `log(minutos_imputados)` por negociación cerrada. Cola larga.
+- **Métrica**: MAE y MedAE en minutos (des-logaritmizados). RMSE no, por la cola.
+- **Baseline obligatorio**: mediana histórica por tipo de proceso. El modelo solo
+  tiene valor si lo bate de forma medible.
+- **Anti-leakage**: split temporal por campaña (2025 / 2026) **y** `GroupKFold`
+  por cliente, para que un mismo cliente no aparezca en ambos lados.
+- **Dos variantes**:
+  - *Planificación*: sin la variable empleado (no se conoce al asignar).
+  - *Control*: con empleado. Se reporta aparte por sus implicaciones éticas.
+
+## Limitaciones declaradas
+
+1. El target es tiempo **imputado manualmente**, no medido. El modelo aprende
+   tanto el esfuerzo real como el hábito de imputación. El % de redondeo (A9)
+   cuantifica ese ruido de fondo.
+2. Solo se observan negociaciones **cerradas**: las abiertas están censuradas por
+   la derecha y se excluyen.
+3. El trabajo que no pasa por una negociación (A8) queda invisible al modelo.
+4. Los resultados son específicos de esta asesoría y no generalizan a otras.
+
+## Seguridad
+
+- Sin IPs, hostnames, nombres de base de datos ni credenciales en el repositorio.
+- Las conexiones se configuran por `.env`, ignorado por Git.
+- Las salidas son agregadas: sin nombres de empresa, NIF ni nombres de empleado.
