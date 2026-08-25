@@ -41,7 +41,39 @@ def archivos() -> list[str]:
     return [f for f in salida.splitlines() if f.startswith(RELATIVO)]
 
 
+def revisar_historial() -> int:
+    """Aplica los mismos patrones a las lineas ANADIDAS en todo el historial del PFM."""
+    salida = subprocess.run(
+        ["git", "-C", str(REPO), "log", "-p", "--unified=0", "--", RELATIVO],
+        capture_output=True, text=True, encoding="utf-8", errors="ignore", check=True,
+    ).stdout
+    fallos, archivo, commit = [], "", ""
+    for linea in salida.splitlines():
+        if linea.startswith("commit "):
+            commit = linea.split()[1][:8]
+        elif linea.startswith("+++ b/"):
+            archivo = linea[6:]
+            if archivo.startswith(RELATIVO + "/"):
+                archivo = archivo[len(RELATIVO) + 1:]
+        elif linea.startswith("+") and not linea.startswith("+++"):
+            if archivo in EXCLUIR_ARCHIVO:
+                continue
+            for etiqueta, patron in PATRONES:
+                m = patron.search(linea)
+                if m:
+                    fallos.append(f"{commit} {archivo}: '{etiqueta}' -> {m.group(0)[:40]}")
+    if fallos:
+        print("COMPROBACION 7.3 SOBRE EL HISTORIAL FALLIDA:")
+        for x in sorted(set(fallos)):
+            print("  " + x)
+        return 1
+    print("Comprobacion 7.3 sobre el historial correcta.")
+    return 0
+
+
 def main() -> int:
+    if "--historial" in sys.argv:
+        return revisar_historial()
     fallos: list[str] = []
     for f in archivos():
         rel = f[len(RELATIVO) + 1 :]

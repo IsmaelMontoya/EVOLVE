@@ -85,7 +85,7 @@ numeración del borrador anterior de este README.
 | 4 · Baselines | `src/04_baselines.py` | B1 fijado como referencia: MAE = 16,37 min en test | completada |
 | 5 · Modelado | `src/05_modelos.py` | M2 mejora a B1 un 5,31 % en test (umbral 10 %): resultado negativo documentado; 4 de 4 folds a favor | completada |
 | 6 · Anomalías | `src/06_anomalias.py` | tasa de marcado 3,86 % en test; 40 casos generados para validación ciega | completada |
-| 7 · Memoria y entrega | `docs/entregas/` | | pendiente |
+| 7 · Memoria y entrega | `docs/entregas/04_estimacion_duracion_procesos.md` | checklist 4.7: 19 casillas cumplidas, 1 parcial, 3 no cumplidas (B-003 y B-005) | markdown terminado; PDF pendiente |
 
 ## Cómo reproducirlo de cero
 
@@ -94,33 +94,53 @@ py -m pip install -r requirements.txt
 cp .env.example .env      # y rellenar
 py src/00_descubrimiento.py
 py src/01_extraccion.py
+py src/02_eda.py
+py src/03_dataset.py
+py src/04_baselines.py
+py src/05_modelos.py
+py src/06_anomalias.py
 ```
 
 Cada script escribe en `output/`, que no se versiona. `sql/A_00_descubrimiento.sql`
 documenta las consultas de descubrimiento y `sql/B_extraccion.sql` es la fuente
 única de las consultas de extracción: `src/01_extraccion.py` lee de ese archivo.
 
-## Metodología prevista
+## Metodología aplicada
 
-- **Target**: `log(minutos_imputados)` por negociación cerrada. Cola larga.
-- **Métrica**: MAE y MedAE en minutos (des-logaritmizados). RMSE no, por la cola.
-- **Baseline obligatorio**: mediana histórica por tipo de proceso. El modelo solo
-  tiene valor si lo bate de forma medible.
-- **Anti-leakage**: split temporal por campaña (2025 / 2026) **y** `GroupKFold`
-  por cliente, para que un mismo cliente no aparezca en ambos lados.
+- **Target**: `log1p(minutos_imputados)` por negociación cerrada y ganada. Ratio
+  P99/mediana medido = 30,8.
+- **Métrica**: MAE y MedAE en minutos, deshaciendo la transformación con `expm1`.
+  RMSE y MAPE solo informativos, por la cola y por las negociaciones de menos de
+  un minuto (7,31 % del dataset).
+- **Baseline de referencia**: B1, mediana por tipo de proceso ajustada solo con
+  train. MAE = 16,37 min en test. El modelo lo bate un 5,31 %, por debajo del
+  10 % que se fijó como umbral; se reporta como resultado negativo.
+- **Anti-leakage**: split temporal por campaña (cierres de 2025 frente a cierres
+  de 2026) **y** `GroupKFold(4)` por cliente. Features históricas con ventana
+  expansiva estricta (`fecha_cierre < fecha_creacion` de la fila).
 - **Dos variantes**:
   - *Planificación*: sin la variable empleado (no se conoce al asignar).
-  - *Control*: con empleado. Se reporta aparte por sus implicaciones éticas.
+    MAE 15,50 min.
+  - *Control*: con empleado. MAE 14,94 min, con el responsable en la posición 2
+    de 12 en importancia por permutación. Se reporta aparte por sus implicaciones
+    éticas.
 
 ## Limitaciones declaradas
 
-1. El target es tiempo **imputado manualmente**, no medido. El modelo aprende
-   tanto el esfuerzo real como el hábito de imputación. El % de redondeo (A9)
-   cuantifica ese ruido de fondo.
-2. Solo se observan negociaciones **cerradas**: las abiertas están censuradas por
-   la derecha y se excluyen.
-3. El trabajo que no pasa por una negociación (A8) queda invisible al modelo.
-4. Los resultados son específicos de esta asesoría y no generalizan a otras.
+Las seis limitaciones completas, con sus cifras, están en la sección 9 de
+`docs/entregas/04_estimacion_duracion_procesos.md`. Las tres que más condicionan
+el alcance:
+
+1. El target es tiempo **imputado**, no medido. El registro es cronometrado (el
+   93,91 % de las imputaciones tiene valor no redondo), lo que descarta el
+   redondeo en bloques como ruido principal, pero no garantiza que el contador se
+   arranque y se pare cuando empieza y acaba el trabajo.
+2. Solo se observan negociaciones **cerradas y ganadas**. Quedan fuera 2.257
+   perdidas (13,10 %) y 90 en curso (0,52 %) del pipeline.
+3. El trabajo que no cuelga de ninguna negociación es invisible al modelo:
+   4.066,6 h, el 11,71 % de las horas imputadas en la ventana. A eso se suma que
+   el 21,74 % de las negociaciones cerradas del pipeline tiene 0 minutos
+   imputados.
 
 ## Seguridad
 

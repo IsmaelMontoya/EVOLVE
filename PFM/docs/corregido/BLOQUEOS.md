@@ -90,3 +90,50 @@ cerradas con 0 minutos). No se ha tocado el test, ni filtrado casos difíciles, 
 reajustado el baseline. El proyecto continúa a la Fase 6 con este modelo.
 **Fase:** 5
 **Estado:** asumido como limitación
+
+## B-005 · No hay cadena de generación de PDF en esta máquina
+
+**Esperado:** generar `Entrega_4_Estimacion_De_La_Duracion_De_Procesos.pdf` desde el
+markdown, según el procedimiento de la sección 4.6 de la guía.
+**Encontrado:** no están instalados `pandoc`, `xelatex`, `pdflatex`, `wkhtmltopdf`,
+`libreoffice`/`soffice` ni el módulo `weasyprint`.
+**Probado:** `Get-Command` sobre los seis ejecutables e `import weasyprint`; los siete
+fallan.
+**Accion tomada:** no se bloquea el proyecto. El markdown queda terminado en
+`docs/entregas/04_estimacion_duracion_procesos.md` y es la fuente de verdad. No se ha
+sustituido `pandoc` por otro conversor improvisado, porque produciría un documento con
+otro formato y la convención de la sección 4.3 pide que el PDF se genere desde el
+markdown con ese procedimiento. Comando exacto a ejecutar cuando se instale la cadena,
+desde `PFM/docs/corregido/`:
+
+```
+pandoc docs/entregas/04_estimacion_duracion_procesos.md \
+  -o Entrega_4_Estimacion_De_La_Duracion_De_Procesos.pdf \
+  --pdf-engine=xelatex \
+  --toc \
+  -V lang=es \
+  -V geometry:margin=2.5cm \
+  -V mainfont="DejaVu Serif" \
+  -V monofont="DejaVu Sans Mono"
+```
+
+Después de generarlo hay que extraer su texto y pasarle la comprobación de la sección
+7.3, como indica 4.6. Hasta entonces, la casilla correspondiente del checklist
+(`output/07_checklist_entrega.md`) queda marcada como no cumplida.
+**Fase:** 7
+**Estado:** abierto — requiere instalar `pandoc` y `xelatex`
+
+## B-006 · Validación ciega con experto sin respuesta
+
+**Esperado:** contraste del marcado de anomalías contra el criterio de un experto.
+**Encontrado:** el archivo `output/validacion_experto.csv` está generado con los 40
+casos (20 marcados y 20 normales, mezclados con `random_state=42`, sin la columna de
+predicción ni la de z), pero los veredictos están vacíos.
+**Probado:** nada más. Depende de una persona, no de los datos.
+**Accion tomada:** la sección 5.1 de `output/06_anomalias.md` queda preparada y marcada
+como pendiente. `src/06_anomalias.py` calcula acuerdo, precisión y recall en cuanto
+exista `output/validacion_experto_relleno.csv` con la columna `veredicto_experto`
+rellena con `razonable`, `anomalo` o `no_se`; los `no_se` se descartan del cálculo. No
+se ha inventado ninguna cifra.
+**Fase:** 6
+**Estado:** abierto — requiere acción del usuario
