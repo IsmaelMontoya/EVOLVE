@@ -150,3 +150,42 @@ de forma nativa.
 con menos de 100 casos en train, lo que reduce el problema en la feature con más
 categorías.
 **Fase:** 5
+
+## D-011 · Definición de anomalía adoptada
+
+**Decisión:** se adopta el residuo estandarizado en minutos, |z| > 3, con sigma por
+proceso estimada sobre los residuos out-of-fold de train. Se reporta además la misma
+regla en escala `log1p` como rama complementaria (Caso B de la sección 0.2).
+**Alternativa descartada:** marcar los casos fuera del intervalo [q10, q90] de M3.
+**Motivo:** el criterio de la guía es el volumen manejable (por debajo del 5 %). La
+definición por intervalo marca el 45,20 % de las negociaciones de test, inutilizable en
+la práctica, y arrastra el problema de calibración medido en la Fase 5 (cobertura
+observada del 54,80 % frente al 80 % nominal). La definición en minutos marca el 3,86 %.
+**Impacto estimado:** alto (define qué se revisa).
+**Fase:** 6
+
+## D-012 · Sigma estimada con residuos out-of-fold
+
+**Decisión:** la sigma por proceso se calcula sobre los residuos out-of-fold de train
+(GroupKFold por cliente), no sobre los residuos del modelo aplicado a su propio train.
+Los procesos con menos de 20 casos en train usan la sigma global.
+**Alternativa descartada:** usar los residuos dentro de muestra.
+**Motivo:** los residuos dentro de muestra son menores que los reales, la sigma
+resultante es más pequeña y la tasa de marcado sube de forma artificial. Es la opción
+que menos favorece al proyecto: con una sigma mayor se marcan menos casos y la lista de
+anomalías es más difícil de justificar como útil.
+**Impacto estimado:** medio.
+**Fase:** 6
+
+## D-013 · Rama en escala logarítmica para la infraimputación
+
+**Decisión:** se añade la rama (b), el mismo residuo estandarizado en escala `log1p`, y
+se reporta junto a la principal.
+**Alternativa descartada:** reportar solo la definición en minutos.
+**Motivo:** en minutos el residuo está acotado por abajo en `-prediccion_min`; el valor
+más negativo que z alcanza en todo el test es -0,043, de modo que el marcado por defecto
+(z < -3) es aritméticamente imposible y la detección de infraimputación que la guía pide
+no existiría. En escala `log1p` el residuo sí es simétrico: marca el 1,10 % de los
+casos, de los cuales 1 por defecto.
+**Impacto estimado:** medio.
+**Fase:** 6

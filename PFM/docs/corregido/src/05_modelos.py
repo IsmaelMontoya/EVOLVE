@@ -158,17 +158,20 @@ def evaluar(feats, params, transformar=None, cap_train=None, encoder_cliente=Fal
         return X_tr, tr.y_log.to_numpy(), X_ev
 
     maes = []
+    oof = np.full(len(train0), np.nan)
     for i_tr, i_va in folds(train0):
         tr_raw, va_raw = train0.iloc[i_tr], train0.iloc[i_va]
         X_tr, y_tr, X_va = preparar_par(tr_raw, va_raw)
         mod = hgb(**params).fit(X_tr, y_tr)
         pred = np.expm1(mod.predict(X_va))
+        oof[i_va] = pred
         maes.append(metricas(va_raw.minutos_total, pred)["MAE_min"])
 
     X_tr, y_tr, X_te = preparar_par(train0, test0)
     mod = hgb(**params).fit(X_tr, y_tr)
     pred_te = np.expm1(mod.predict(X_te))
-    return float(np.mean(maes)), maes, metricas(test0.minutos_total, pred_te), pred_te, mod, X_tr, X_te
+    return (float(np.mean(maes)), maes, metricas(test0.minutos_total, pred_te),
+            pred_te, mod, X_tr, X_te, oof)
 
 
 # ---------------------------------------------------------------------------
@@ -240,7 +243,7 @@ met_m1 = metricas(test0.minutos_total, pred_m1_test)
 # M2 base + bucle de mejora
 # ---------------------------------------------------------------------------
 print("Evaluando M2 base...")
-mae_cv0, folds0, met0, pred0, mod0, Xtr0, Xte0 = evaluar(FEAT_PLAN, {})
+mae_cv0, folds0, met0, pred0, mod0, Xtr0, Xte0, oof0 = evaluar(FEAT_PLAN, {})
 registro = [{
     "intento": "0. M2 base (features de la Fase 3)",
     "MAE_cv_min": round(mae_cv0, 2),
@@ -249,7 +252,7 @@ registro = [{
     "mejora_test_sobre_B1_pct": mejora_pct(met0["MAE_min"], MAE_B1_TEST),
 }]
 mejor = {"nombre": "0. M2 base", "mae_cv": mae_cv0, "met": met0, "pred": pred0,
-         "mod": mod0, "Xtr": Xtr0, "Xte": Xte0, "folds": folds0}
+         "mod": mod0, "Xtr": Xtr0, "Xte": Xte0, "folds": folds0, "oof": oof0}
 
 n_intentos = 0
 parada = ""
@@ -259,7 +262,7 @@ else:
     for nombre, kw in INTENTOS:
         n_intentos += 1
         print(f"Intento {n_intentos}: {nombre}")
-        mae_cv, fl, met, pred, mod, Xtr, Xte = evaluar(**kw)
+        mae_cv, fl, met, pred, mod, Xtr, Xte, oof = evaluar(**kw)
         registro.append({
             "intento": nombre,
             "MAE_cv_min": round(mae_cv, 2),
@@ -269,7 +272,7 @@ else:
         })
         if mae_cv < mejor["mae_cv"]:
             mejor = {"nombre": nombre, "mae_cv": mae_cv, "met": met, "pred": pred,
-                     "mod": mod, "Xtr": Xtr, "Xte": Xte, "folds": fl}
+                     "mod": mod, "Xtr": Xtr, "Xte": Xte, "folds": fl, "oof": oof}
         if mejora_pct(mae_cv, MAE_B1_CV) >= 10:
             parada = f"umbral de 10 % alcanzado en el intento {n_intentos}"
             break
@@ -389,10 +392,12 @@ casos_tab = pd.DataFrame([
 # ---------------------------------------------------------------------------
 # Guardar predicciones para la Fase 6
 # ---------------------------------------------------------------------------
-pred_train = np.expm1(mejor["mod"].predict(mejor["Xtr"]))
+# Para train se guarda la prediccion out-of-fold (GroupKFold por cliente), no la de
+# dentro de muestra: la Fase 6 estima con ella la dispersion de los residuos, y usar
+# residuos dentro de muestra la subestimaria y marcaria de mas.
 salida = pd.concat([
     train0[["deal_id", "cliente_id", "proceso", "ejercicio", "anio_cierre", "minutos_total"]]
-    .assign(particion="train", prediccion_min=pred_train),
+    .assign(particion="train", prediccion_min=mejor["oof"]),
     test0[["deal_id", "cliente_id", "proceso", "ejercicio", "anio_cierre", "minutos_total"]]
     .assign(particion="test", prediccion_min=mejor["pred"],
             q10_min=cuantiles[0.1], q90_min=cuantiles[0.9]),
