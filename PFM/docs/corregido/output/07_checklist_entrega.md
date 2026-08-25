@@ -10,7 +10,7 @@ como no cumplidas se dejan visibles, no se ocultan.
 | Es un repositorio independiente que contiene solo el PFM | NO cumplido | El material sigue en `PFM/docs/corregido/` dentro de un repositorio de material de curso. Pendiente de ejecucion manual: `BLOQUEOS.md`, B-003, con los cinco pasos exactos |
 | Sin historial heredado del repositorio de curso | NO cumplido | Depende de lo anterior. B-003 |
 | `.gitignore` cubre `.env`, `output/`, `*.csv`, `*.parquet`, `*.pkl` | cumplido | `.gitignore` excluye `output/*` con excepcion explicita para `*.md` y `figuras/*.png` (D-005), y excluye `.env`, `*.csv`, `*.parquet`, `*.pkl`, `*.joblib` |
-| `git ls-files` no devuelve ningun `.env`, CSV, parquet ni modelo serializado | cumplido | `git ls-files PFM/docs/corregido \| grep -E "\.(env\|csv\|parquet\|pkl\|joblib)$"` no devuelve nada. 36 archivos versionados |
+| `git ls-files` no devuelve ningun `.env`, CSV, parquet ni modelo serializado | cumplido | `git ls-files PFM/docs/corregido \| grep -E "\.(env\|csv\|parquet\|pkl\|joblib)$"` no devuelve nada. 38 archivos versionados |
 | `README.md` explica el proyecto y como reproducirlo de cero | cumplido | Seccion "Como reproducirlo de cero" con los siete comandos en orden |
 | `requirements.txt` con versiones fijadas | parcial | Se mantiene el estilo `paquete>=X.Y` del archivo original y se anaden como comentario las nueve versiones exactas usadas y la version de Python (3.14.3) |
 
@@ -18,7 +18,7 @@ como no cumplidas se dejan visibles, no se ocultan.
 
 | Comprobacion | Estado | Evidencia |
 |---|---|---|
-| Comprobacion 7.3 sobre el arbol de trabajo | cumplido | `py src/_check_seguridad.py` -> "Comprobacion 7.3 correcta sobre 36 archivos versionados" |
+| Comprobacion 7.3 sobre el arbol de trabajo | cumplido | `py src/_check_seguridad.py` -> "Comprobacion 7.3 correcta sobre 38 archivos versionados" |
 | Comprobacion 7.3 sobre el historial (`git log -p`) | cumplido | `py src/_check_seguridad.py --historial` -> "Comprobacion 7.3 sobre el historial correcta". Revisa todas las lineas anadidas en los commits que tocan la ruta del PFM |
 | Comprobacion 7.3 sobre el texto extraido del PDF | no aplicable | No hay PDF: `pandoc` y `xelatex` no estan instalados. `BLOQUEOS.md`, B-005 |
 | Ninguna figura contiene nombres de cliente ni de empleado | cumplido | Las ocho figuras se generan desde `deals.csv`, `imputaciones.csv` y el parquet, cuyas unicas columnas identificativas son enteros. Los ejes categoricos usan valores de lista del CRM (303, 111, 200) y nombres de feature |
@@ -42,7 +42,7 @@ como no cumplidas se dejan visibles, no se ocultan.
 
 | Comprobacion | Estado | Evidencia |
 |---|---|---|
-| Cada `src/NN_*.py` se ejecuta de cero sin pasos manuales | cumplido | Los siete scripts se han ejecutado en orden desde cero. `01_extraccion.py` lee sus consultas de `sql/B_extraccion.sql`, no las duplica |
+| Cada `src/NN_*.py` se ejecuta de cero sin pasos manuales | cumplido | Verificado borrando `output/` por completo y reejecutando los siete scripts en orden: los siete terminan sin error y los siete informes y las ocho figuras se regeneran identicos byte a byte a los versionados (`git diff --stat -- output/` sin diferencias). `01_extraccion.py` lee sus consultas de `sql/B_extraccion.sql`, no las duplica |
 | `random_state=42` en todo lo aleatorio | cumplido | `RANDOM_STATE = 42` en `src/_comun.py`, usado en el modelo, la importancia por permutacion y los muestreos de la Fase 6 |
 | Todas las figuras referenciadas en el texto existen en `output/figuras/` | cumplido | Ocho figuras: `01_hist_log1p_minutos.png`, `02_boxplot_por_proceso.png`, `03_serie_cerradas_mes.png`, `04_sesgo_redondeo.png`, `05_importancia_permutacion.png`, `05_real_vs_predicho.png`, `06_distribucion_z.png`, `06_tasa_por_proceso.png` |
 | `DECISIONES.md` y `BLOQUEOS.md` al dia | cumplido | 13 decisiones (D-001 a D-013) y 5 bloqueos (B-001 a B-005) |
