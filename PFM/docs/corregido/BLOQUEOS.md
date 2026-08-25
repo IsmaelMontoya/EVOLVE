@@ -69,3 +69,24 @@ usuario y no se ejecuta de forma autónoma.
 
 **Fase:** 7
 **Estado:** abierto — requiere acción del usuario
+
+## B-004 · El modelo no alcanza el umbral de mejora del Gate 5
+
+**Esperado:** MAE de M2 al menos un 10 % mejor que el de B1 en el test temporal.
+**Encontrado:** M2 obtiene 15,50 min frente a los 16,37 min de B1, una mejora del
+5,31 %. El criterio secundario sí se cumple: M2 mejora a B1 en 4 de 4 folds de
+GroupKFold, con ganancias entre 1,66 % y 2,77 %.
+**Probado:** el bucle de mejora agotó los 5 intentos previstos (agrupar procesos poco
+frecuentes, features de carga de campaña, ajuste de hiperparámetros, target encoding
+por cliente ajustado por fold, recorte de cola al P99 solo en train). La mejor variante
+en validación interna fue el ajuste de hiperparámetros (MAE de validación 11,26 min
+frente a los 11,53 min de B1, un 2,28 %). El target encoding por cliente empeoró la
+validación en un 5,31 %.
+**Accion tomada:** se para el bucle según el criterio declarado antes de abrirlo y se
+documenta el resultado negativo en `output/05_modelos.md`, sección 9, con las tres
+cifras que lo explican (ratio P99/mediana = 30,8; deriva del P99 de 143,7 a 189,9 min
+entre train y test; 11,71 % de horas sin negociación y 21,74 % de negociaciones
+cerradas con 0 minutos). No se ha tocado el test, ni filtrado casos difíciles, ni
+reajustado el baseline. El proyecto continúa a la Fase 6 con este modelo.
+**Fase:** 5
+**Estado:** asumido como limitación

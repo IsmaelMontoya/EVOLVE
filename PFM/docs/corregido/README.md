@@ -83,7 +83,7 @@ numeración del borrador anterior de este README.
 | 2 · Calidad y EDA | `src/02_eda.py` | 93,91 % de imputaciones no redondas; ratio P99/mediana = 30,8 | completada |
 | 3 · Dataset modelable | `src/03_dataset.py` | 13.013 filas; 0 features prohibidas; 0 features con asociación > 0,95 | completada |
 | 4 · Baselines | `src/04_baselines.py` | B1 fijado como referencia: MAE = 16,37 min en test | completada |
-| 5 · Modelado | `src/05_modelos.py` | | pendiente |
+| 5 · Modelado | `src/05_modelos.py` | M2 mejora a B1 un 5,31 % en test (umbral 10 %): resultado negativo documentado; 4 de 4 folds a favor | completada |
 | 6 · Anomalías | `src/06_anomalias.py` | | pendiente |
 | 7 · Memoria y entrega | `docs/entregas/` | | pendiente |
 

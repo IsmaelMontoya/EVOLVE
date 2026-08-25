@@ -120,3 +120,33 @@ darse de alta; usarlo introduciría información posterior al momento de planifi
 El acumulado es la opción conservadora.
 **Impacto estimado:** bajo (|pearson| = 0,031 con el target en train).
 **Fase:** 3
+
+## D-009 · Sobre qué partición se decide la parada del bucle de mejora
+
+**Decisión:** el criterio de parada del bucle (mejora ≥ 10 % sobre B1, máximo 5
+intentos) se evalúa sobre la validación interna GroupKFold(4) por cliente dentro de
+train. El MAE de test se reporta en la tabla de intentos, pero no interviene en la
+decisión de parar ni en la elección de la variante.
+**Alternativa descartada:** evaluar el bucle directamente sobre el MAE de test, que es
+la lectura literal del pseudocódigo de la guía.
+**Motivo:** cinco iteraciones guiadas por el test son cinco decisiones tomadas mirando
+el conjunto de evaluación, y la propia guía prohíbe tocar el test para conseguir el
+umbral. La variante final se elige por MAE de validación interna. Efecto verificable:
+la variante elegida (intento 3, MAE de validación 11,26 min) no es la de mejor MAE de
+test (intento 5, 15,48 min frente a 15,50 min), lo que confirma que la selección no
+miró el test.
+**Impacto estimado:** medio (cambia qué variante se reporta como principal).
+**Fase:** 5
+
+## D-010 · Categorías no vistas en train
+
+**Decisión:** los valores de una feature categórica presentes en test y ausentes en
+train se convierten a NaN, y el modelo los trata como valor ausente.
+**Alternativa descartada:** asignarlos a la categoría más frecuente de train.
+**Motivo:** asignarlos a la categoría más frecuente inventa una pertenencia que el dato
+no respalda. NaN es la opción conservadora y `HistGradientBoostingRegressor` lo gestiona
+de forma nativa.
+**Impacto estimado:** bajo. El intento 1 del bucle agrupa además en `OTROS` los procesos
+con menos de 100 casos en train, lo que reduce el problema en la feature con más
+categorías.
+**Fase:** 5
