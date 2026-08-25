@@ -1,4 +1,9 @@
 pandas>=2.0
+numpy>=1.26
 SQLAlchemy>=2.0
 PyMySQL>=1.1
 python-dotenv>=1.0
+tabulate>=0.9
+matplotlib>=3.8
+pyarrow>=15.0
+scikit-learn>=1.5

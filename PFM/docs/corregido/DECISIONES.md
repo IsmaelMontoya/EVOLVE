@@ -67,3 +67,16 @@ son observaciones válidas para el split temporal por fecha de cierre.
 entero evita sacar del sistema un atributo de la ficha de empresa. Nulos: 2,66 %.
 **Impacto estimado:** bajo.
 **Fase:** 1
+
+## D-005 · Qué parte de `output/` se versiona
+
+**Decisión:** `.gitignore` excluye todo `output/` salvo los informes `.md` y las
+figuras `.png`.
+**Alternativa descartada:** no versionar nada de `output/`, como decía la Parte 5 de
+la guía.
+**Motivo:** la sección 0.5 exige "un commit por fase completada, con el informe de la
+fase incluido", y los informes viven dentro de `output/`. Excluir el directorio entero
+haría imposible cumplirlo. Los datos (`*.csv`, `*.parquet`, `*.pkl`) siguen fuera del
+control de versiones, que es lo que exige el checklist 4.7.
+**Impacto estimado:** bajo.
+**Fase:** 2
