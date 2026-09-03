@@ -189,3 +189,17 @@ no existiría. En escala `log1p` el residuo sí es simétrico: marca el 1,10 % d
 casos, de los cuales 1 por defecto.
 **Impacto estimado:** medio.
 **Fase:** 6
+
+## D-014 · Fuente del PDF de entrega
+
+**Decisión:** generar `Entrega_4_Estimacion_De_La_Duracion_De_Procesos.pdf` con
+`mainfont="Georgia"` y `monofont="Consolas"` en lugar de las fuentes DejaVu que indica
+la sección 4.6 de la guía.
+**Alternativa descartada:** instalar las fuentes DejaVu como fuentes de sistema.
+**Motivo:** DejaVu Serif/Sans Mono no están instaladas en esta máquina y `xelatex` (vía
+`fontspec`) no las localiza. Georgia y Consolas vienen preinstaladas en Windows y cubren
+el mismo propósito (serif de lectura + monoespaciada para código y cifras), sin cambiar
+el contenido del documento. Verificado con la comprobación 7.3 sobre el texto extraído
+del PDF: 0 IPs, 0 coincidencias de credenciales.
+**Impacto estimado:** bajo (solo tipografía).
+**Fase:** 7

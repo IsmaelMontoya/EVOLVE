@@ -29,7 +29,7 @@ como no cumplidas se dejan visibles, no se ocultan.
 | Comprobacion | Estado | Evidencia |
 |---|---|---|
 | Entrega numerada segun 4.3, markdown | cumplido | `docs/entregas/04_estimacion_duracion_procesos.md` |
-| Entrega numerada segun 4.3, PDF | NO cumplido | Sin cadena de generacion en esta maquina. B-005 |
+| Entrega numerada segun 4.3, PDF | cumplido | `Entrega_4_Estimacion_De_La_Duracion_De_Procesos.pdf` generado tras instalar pandoc + MiKTeX (D-014, fuentes Georgia/Consolas en vez de DejaVu). B-005 actualizado a resuelto |
 | Tabla de respuesta al feedback (4.5) al principio | cumplido | Primera seccion del documento, nueve filas; la ultima declara abiertamente lo no resuelto |
 | Las seis limitaciones de la Fase 7, completas | cumplido | Seccion 9, las seis numeradas y con cifra |
 | Tabla de baselines con las cinco metricas | cumplido | Seccion 5: MAE, MedAE, % dentro de +-15 y +-30 min, RMSE y MAPE, mas % dentro de +-5 min |

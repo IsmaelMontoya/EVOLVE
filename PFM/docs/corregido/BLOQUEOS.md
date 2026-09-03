@@ -118,10 +118,16 @@ pandoc docs/entregas/04_estimacion_duracion_procesos.md \
 ```
 
 Después de generarlo hay que extraer su texto y pasarle la comprobación de la sección
-7.3, como indica 4.6. Hasta entonces, la casilla correspondiente del checklist
-(`output/07_checklist_entrega.md`) queda marcada como no cumplida.
+7.3, como indica 4.6.
+
+**Actualización:** instalados `pandoc` (winget, `JohnMacFarlane.Pandoc`) y `MiKTeX`
+(winget, `MiKTeX.MiKTeX`). Al ejecutar el comando de 4.6 con las fuentes DejaVu,
+`xelatex` no las encuentra instaladas en el sistema (D-014): se sustituyen por
+`mainfont="Georgia"` y `monofont="Consolas"`, ambas preinstaladas en Windows. PDF
+generado: `Entrega_4_Estimacion_De_La_Duracion_De_Procesos.pdf` (15 páginas). Texto
+extraído y pasado por la comprobación 7.3: 0 IPs, 0 coincidencias de credenciales.
 **Fase:** 7
-**Estado:** abierto — requiere instalar `pandoc` y `xelatex`
+**Estado:** resuelto
 
 ## B-006 · Validación ciega con experto sin respuesta
 
