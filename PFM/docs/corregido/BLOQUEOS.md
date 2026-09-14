@@ -67,17 +67,27 @@ usuario y no se ejecuta de forma autónoma.
 4. Credenciales de acceso a la base de datos: **rotadas por el usuario antes de esta sesión.**
    Verificado que el `.env` actual conecta correctamente con las credenciales rotadas.
    **Hecho.**
-5. **Pendiente, sin ejecutar:** purgar del *historial* de git de `EVOLVE` los commits antiguos
-   donde la IP/BD todavía aparecen (`67ebd1b`, `255ef69`, ver `git log --all -p -- "*PFM*"`),
-   con `git filter-repo` o BFG. No es urgente — el riesgo activo (la versión visible del
-   repositorio) ya está resuelto por el punto 3 y la rotación del punto 4 — pero sigue siendo
-   lo que exige el checklist 4.7 para dar la casilla por completada del todo.
+5. Purga del *historial* de git de `EVOLVE` (`git filter-repo` con reemplazo de texto,
+   excluyendo binarios explícitamente): **ejecutada y verificada en una copia de trabajo**,
+   `C:\DATOS\GITHUB\EVOLVE-purga-test`. Verificación exhaustiva: las cadenas reales no
+   aparecen en ningún commit de los 40 (incluidos los dos originales, `67ebd1b` y `255ef69`,
+   ahora con otro hash tras la reescritura); los 4 archivos binarios afectados (2 PDF
+   antiguos, el PDF de la Entrega 4, el PNG del mockup) tienen el mismo hash de blob que el
+   original — cero bytes tocados; las menciones legítimas de "sitemanager" en
+   `GUIA_AGENTE.md` y `_check_seguridad.py` (parte de la documentación de seguridad, no una
+   fuga) siguen intactas. Copia de seguridad completa del repo previo a la purga en
+   `C:\DATOS\GITHUB\EVOLVE-backup-pre-purge.git`.
+   **Pendiente, sin ejecutar:** el `git push --force` a GitHub falló — no por la purga, sino
+   porque el historial contiene un archivo de 124 MB (`trustpilot-reviews-123k.csv`, de la
+   asignatura de Deep Learning, ajeno al PFM) que supera el límite de GitHub. Se deja así por
+   decisión explícita: el riesgo activo ya está cerrado (punto 3), así que no corre prisa.
 6. **Pendiente, sin ejecutar:** conectar `pfm-estimacion-duracion-procesos` a un remoto de
    GitHub y empujarlo. Solo local por ahora.
 
 **Fase:** 7
-**Estado:** parcialmente resuelto — el riesgo de seguridad activo está cerrado; queda la
-purga de historial y la publicación del repositorio nuevo, sin urgencia
+**Estado:** parcialmente resuelto — el riesgo de seguridad activo está cerrado; la purga de
+historial está hecha y verificada pero sin subir (bloqueada por un archivo ajeno de más de
+100 MB); queda la publicación del repositorio nuevo
 
 ## B-004 · El modelo no alcanza el umbral de mejora del Gate 5
 
