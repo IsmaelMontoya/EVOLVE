@@ -56,19 +56,28 @@ de curso. La corrección del tutor exige repositorio dedicado.
 **Probado:** nada. Es una acción de cara al exterior (creación de repositorio remoto,
 purga de historial y rotación de credenciales) que requiere confirmación explícita del
 usuario y no se ejecuta de forma autónoma.
-**Accion tomada:** pendiente de ejecución manual. Pasos exactos:
+**Accion tomada:**
 
-1. Crear un repositorio nuevo y vacío, dedicado solo al PFM.
-2. Copiar el contenido de `PFM/docs/corregido/` a la raíz del nuevo repositorio
-   (sin `output/` ni `.env`).
-3. `git init` y primer commit limpio. No importar el historial del repositorio actual.
-4. En el repositorio actual, purgar del historial las versiones antiguas de las
-   entregas 2 y 3 que contienen IPs y nombres de base de datos
-   (`git filter-repo` o BFG).
-5. Rotar las credenciales de acceso a la base de datos si siguen activas.
+1. Repositorio nuevo creado en local: `pfm-estimacion-duracion-procesos`, commit limpio, sin
+   historial heredado. Ya incluye las entregas 1-5. **Hecho.**
+2. Contenido de `PFM/docs/corregido/` copiado (sin `output/` ni `.env`). **Hecho.**
+3. Las versiones actuales de las entregas 2 y 3 en `PFM/docs/entregas/` (rama `main`,
+   commit `829d67f`, empujado a GitHub) ya no contienen la IP ni el nombre de BD reales —
+   sustituidos por marcadores genéricos, con nota de trazabilidad del pivote. **Hecho.**
+4. Credenciales de acceso a la base de datos: **rotadas por el usuario antes de esta sesión.**
+   Verificado que el `.env` actual conecta correctamente con las credenciales rotadas.
+   **Hecho.**
+5. **Pendiente, sin ejecutar:** purgar del *historial* de git de `EVOLVE` los commits antiguos
+   donde la IP/BD todavía aparecen (`67ebd1b`, `255ef69`, ver `git log --all -p -- "*PFM*"`),
+   con `git filter-repo` o BFG. No es urgente — el riesgo activo (la versión visible del
+   repositorio) ya está resuelto por el punto 3 y la rotación del punto 4 — pero sigue siendo
+   lo que exige el checklist 4.7 para dar la casilla por completada del todo.
+6. **Pendiente, sin ejecutar:** conectar `pfm-estimacion-duracion-procesos` a un remoto de
+   GitHub y empujarlo. Solo local por ahora.
 
 **Fase:** 7
-**Estado:** abierto — requiere acción del usuario
+**Estado:** parcialmente resuelto — el riesgo de seguridad activo está cerrado; queda la
+purga de historial y la publicación del repositorio nuevo, sin urgencia
 
 ## B-004 · El modelo no alcanza el umbral de mejora del Gate 5
 
