@@ -1,5 +1,14 @@
 # Entrega 3 - Diseño del Modelo de Datos y Capa Gold
 
+> **Actualización — ver Entrega 4.** La capa gold descrita aquí (rentabilidad por empresa×mes,
+> cruzando Bitrix y Biloop, con `pct_rentabilidad` a 0 cuando no hay facturación e imputación de
+> costes por medias) se abandonó tras el feedback recibido. El proyecto pivotó a una sola línea —
+> estimar la duración de los procesos, con la negociación como unidad de observación y solo datos de
+> Bitrix — documentada en `docs/entregas/04_estimacion_duracion_procesos.md`, con la tabla de
+> respuesta punto por punto al feedback en su sección inicial. Este documento se conserva sin
+> reescribir como registro del diseño original; los valores de host y base de datos se han
+> sustituido por marcadores genéricos por motivos de seguridad.
+
 ---
 
 ## 1. Resumen de la Idea y Datos del Proyecto
@@ -53,7 +62,7 @@ Sistema de análisis y predicción de rentabilidad basado en:
 ### Stack tecnológico
 
 ```
-Bronze Layer:        Bitrix MySQL (IP bitrix:3306) + Biloop SQL Server (IP biloop)
+Bronze Layer:        Bitrix MySQL (IP bitrix) + Biloop SQL Server (IP biloop)
                      → Raw data queries (sin modificar)
 
 Silver Layer:        MariaDB en servidor
@@ -84,7 +93,7 @@ Versionado:          Git + GitHub (notebooks + SQL scripts)
 
 ```
 BRONZE LAYER (Raw Data - Fuentes Externas)
-├── Bitrix MySQL (IP bitrix:3306)
+├── Bitrix MySQL (IP bitrix)
 │   ├── fact_tiempos_bitrix (65.526 registros, sin modificar)
 │   ├── dim_empresa_bitrix (914 empresas, sin modificar)
 │   ├── dim_coste_empleado (45 empleados, sin modificar)
@@ -442,7 +451,7 @@ df_gold['trend_facturado_6m'] = rolling_trend(facturado, window=6)
 
 ```
 PASO 1: EXTRACCIÓN (Notebook - conexión a Bronze)
-├── Conectar a Bitrix MySQL (IP bitrix:3306)
+├── Conectar a Bitrix MySQL (IP bitrix)
 │   └── SELECT * FROM [tablas Bronze]
 ├── Conectar a Biloop SQL Server (IP biloop)
 │   └── SELECT * FROM [tablas Bronze]

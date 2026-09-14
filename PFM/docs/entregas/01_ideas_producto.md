@@ -1,5 +1,14 @@
 # Entrega 1 - Ideas de Producto
 
+> **Actualización — ver Entrega 4.** La idea 2 se seleccionó y se desarrolló en las Entregas 2 y 3
+> como predicción de rentabilidad de clientes. Ese enfoque se abandonó tras el feedback recibido
+> (19 meses de histórico no permiten predecir con fiabilidad, y mezclaba predicción, anomalías y
+> segmentación a la vez). El proyecto pivotó a una sola línea — estimar la duración de los procesos
+> de la asesoría a partir de datos de Bitrix — documentada en
+> `docs/entregas/04_estimacion_duracion_procesos.md`, con la tabla de respuesta punto por punto al
+> feedback en su sección inicial. Este documento se conserva sin reescribir como registro de la idea
+> original.
+
 ## Ideas Iniciales - PFM Data Science
 
 ### 1. Predicción de Lesiones en Deportes (Rugby/Gimnasio/Dieta)
