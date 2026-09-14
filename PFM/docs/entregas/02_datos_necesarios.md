@@ -1,5 +1,15 @@
 # Entrega 2 - Selección de Idea y Análisis de Datos Necesarios
 
+> **Actualización — ver Entrega 4.** El enfoque de este documento (predicción de rentabilidad,
+> facturación vía Biloop, detección de anomalías y segmentación a la vez) se abandonó tras el
+> feedback recibido — también las afirmaciones de "acceso garantizado" y "calidad excelente" sin
+> haber explorado los datos reales. El proyecto pivotó a una sola línea — estimar la duración de los
+> procesos de la asesoría, solo con datos de Bitrix, sin Biloop ni facturación — documentada en
+> `docs/entregas/04_estimacion_duracion_procesos.md`, con la tabla de respuesta punto por punto al
+> feedback en su sección inicial. Este documento se conserva sin reescribir como registro de la
+> propuesta original; los valores de host y base de datos se han sustituido por marcadores
+> genéricos por motivos de seguridad.
+
 ## 1. Idea Seleccionada
 
 ### Predicción de Rentabilidad de Clientes y Detección de Anomalías mediante Machine Learning
@@ -90,10 +100,10 @@ Se construirá desde datos raw de las siguientes fuentes:
 
 ### Fuentes Concretas
 
-1. **Bitrix24 (MySQL):** `IP bitrix:3306` / db `name db bitrix`
+1. **Bitrix24 (MySQL):** `IP BITRIX` / db `name db bitrix`
    - CRM propietario: empresas, deals, tareas, imputaciones de tiempo, obligaciones tributarias, actividades
    
-2. **Biloop (SQL Server):** `IP biloop` / db `name db biloop`
+2. **Biloop (SQL Server):** `IP BILOOP` / db `name db biloop`
    - ERP contable/laboral: facturas, contabilidad, data de empresas
 
 ### Tipo de Acceso
