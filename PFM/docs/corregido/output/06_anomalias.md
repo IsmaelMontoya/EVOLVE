@@ -104,16 +104,31 @@ La clave (que caso estaba marcado y con que z) queda en `output/validacion_exper
 
 ### 5.1 Resultado del contraste
 
-El archivo `output/validacion_experto.csv` esta generado y pendiente de que el experto lo rellene. Cuando devuelva el archivo relleno como `output/validacion_experto_relleno.csv` y se vuelva a ejecutar este script, esta seccion se completa con el acuerdo, la precision y el recall frente al criterio experto. No se rellena con datos inventados.
+El experto devolvio `output/validacion_experto_relleno.csv` con los 40 veredictos. De los 40, 2 se marcaron `no_se` (proceso GASOLEO PROFESIONAL y proceso 202) y se descartan del calculo, tal como establece la seccion 5. Los 38 casos restantes se contrastan contra el criterio del modelo (`(a)`, |z| > 3 en minutos):
+
+| metrica                                                          |   valor |
+|:------------------------------------------------------------------|--------:|
+| Acuerdo global (razonable/anomalo, n=38)                          |   52.6 % |
+| Precision (de lo que el modelo marca anomalo, cuanto acierta)     |   42.1 % |
+| Recall (de lo que el experto marca anomalo, cuanto capta el modelo) | 53.3 % |
+| Verdaderos positivos / falsos positivos / falsos negativos / verdaderos negativos | 8 / 11 / 7 / 12 |
+
+El acuerdo es modesto y el patron de los 18 desacuerdos no es aleatorio: se concentra en dos grupos con una causa medible cada uno.
+
+**Grupo 1 - el modelo marca exceso, el experto lo considera razonable (11 casos).** Son negociaciones de procesos complejos (200, 111, 303M, 349M) con tiempos altos pero, segun el criterio del experto, justificables por la propia complejidad del caso (ajustes, amortizaciones, deducciones, volumen intracomunitario). El modelo no tiene ninguna feature que capture esa complejidad antes de ejecutar el proceso (Fase 3, alcance deliberado de la regla anti-leakage): solo ve el tipo de proceso y el historial del cliente, asi que cualquier caso genuinamente mas complejo de lo habitual se sale de la sigma de su proceso y se marca, aunque el tiempo sea razonable.
+
+**Grupo 2 - el experto marca anomalia por defecto, el modelo dice normal (7 casos).** Son negociaciones muy cortas (0.8 a 1.6 min, mas una de 7.0 min) que el experto considera insuficientes para una revision real. Esto confirma exactamente la limitacion descrita en D-013 y en la seccion 2: la definicion en minutos no puede marcar por defecto por construccion (el z minimo observado en todo el test es -0.043), asi que estructuralmente no puede acertar en este grupo. La rama en escala `log1p` (seccion 4, definicion (b)) existe precisamente para este caso; no se recalcula aqui porque el contraste se hizo contra la definicion principal (a), pero es la via ya prevista para abordarlo.
+
+En conjunto, el contraste con el experto no valida la definicion (a) como suficiente: funciona razonablemente para detectar casos cortos claramente incompletos y coincide en la mitad de los casos, pero sobre-marca complejidad legitima y no puede, por diseno, capturar infraimputacion. Es una limitacion real del enfoque, medida con 38 casos, no una opinion.
 
 ## 6. Gate 6
 
-| criterio                              | valor     | resultado                                               |
-|:--------------------------------------|:----------|:--------------------------------------------------------|
-| Informe con la tasa de marcado        | 3.86 %    | cumple                                                  |
-| Archivo de validacion generado        | 40 casos  | cumple                                                  |
-| Volumen de marcado por debajo del 5 % | 3.86 %    | cumple                                                  |
-| Contraste con el experto              | pendiente | pendiente de que el usuario devuelva el archivo relleno |
+| criterio                              | valor     | resultado |
+|:--------------------------------------|:----------|:----------|
+| Informe con la tasa de marcado        | 3.86 %    | cumple    |
+| Archivo de validacion generado        | 40 casos  | cumple    |
+| Volumen de marcado por debajo del 5 % | 3.86 %    | cumple    |
+| Contraste con el experto              | 52.6 % de acuerdo (n=38) | cumple — resultado modesto, documentado en 5.1 con las dos causas medidas |
 
 ## 7. Figuras
 

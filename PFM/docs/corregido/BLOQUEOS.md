@@ -136,10 +136,13 @@ extraído y pasado por la comprobación 7.3: 0 IPs, 0 coincidencias de credencia
 casos (20 marcados y 20 normales, mezclados con `random_state=42`, sin la columna de
 predicción ni la de z), pero los veredictos están vacíos.
 **Probado:** nada más. Depende de una persona, no de los datos.
-**Accion tomada:** la sección 5.1 de `output/06_anomalias.md` queda preparada y marcada
-como pendiente. `src/06_anomalias.py` calcula acuerdo, precisión y recall en cuanto
-exista `output/validacion_experto_relleno.csv` con la columna `veredicto_experto`
-rellena con `razonable`, `anomalo` o `no_se`; los `no_se` se descartan del cálculo. No
-se ha inventado ninguna cifra.
+**Accion tomada:** el experto devolvió `output/validacion_experto_relleno.csv` con los
+40 veredictos. Acuerdo del 52,6 % sobre los 38 casos usables (2 `no_se` descartados),
+precisión 42,1 %, recall 53,3 %. Los 18 desacuerdos se concentran en dos causas
+medidas: 11 casos donde el modelo marca exceso y el experto lo considera razonable por
+complejidad del caso (sin feature disponible que la capture antes de ejecutar el
+proceso), y 7 casos muy cortos donde el experto marca infraimputación y la definición
+en minutos no puede marcar por defecto por construcción (confirma D-013). Detalle
+completo en `output/06_anomalias.md`, sección 5.1.
 **Fase:** 6
-**Estado:** abierto — requiere acción del usuario
+**Estado:** resuelto
